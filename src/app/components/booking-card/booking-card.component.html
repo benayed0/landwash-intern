@@ -28,17 +28,48 @@
 
   <div class="booking-address">
     <span>📍</span>
-    <span>{{ booking.address }}</span>
+    <span>{{ booking.address || "Adresse non spécifiée" }}</span>
   </div>
+
+  <!-- Google Maps Button (primarily for workers) -->
+  @if ( booking.location) {
+  <a
+    [href]="getGoogleMapsUrl()"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="maps-btn"
+  >
+    <span class="maps-icon">🗺️</span>
+    <span>Ouvrir dans Google Maps</span>
+    <span class="maps-arrow">→</span>
+  </a>
+  }
+
+  <!-- Client Information (enhanced for workers) -->
+  @if (booking.userId) {
+  <div class="user-info" [class.worker-view]="userRole === 'worker'">
+    @if (booking.userId.name) {
+    <div class="client-name">
+      Client: {{ booking.userId.name }}
+      @if (booking.userId.phoneNumber) {
+      <a [href]="'tel:' + booking.userId.phoneNumber" class="phone-link">
+        📞
+      </a>
+      }
+    </div>
+    } @if (booking.userId.phoneNumber) {
+    <div class="client-phone">📱 {{ booking.userId.phoneNumber }}</div>
+    } @if (booking.secondaryNumber) {
+    <div class="client-phone">
+      📱 Secondaire: {{ booking.secondaryNumber }}
+      <a [href]="'tel:' + booking.secondaryNumber" class="phone-link"> 📞 </a>
+    </div>
+    }
+  </div>
+  }
 
   <div class="booking-price">{{ booking.price }} DT</div>
-
-  @if (booking.userId && booking.userId.phone) {
-  <div class="user-info">
-    Client: {{ booking.userId.name || booking.userId.email }} -
-    {{ booking.userId.phone }}
-  </div>
-  } @if (booking.teamId ) {
+  @if (booking.teamId ) {
   <div class="team-info">
     <span class="team-icon">👥</span>
     <span class="team-label">Équipe assignée:</span>

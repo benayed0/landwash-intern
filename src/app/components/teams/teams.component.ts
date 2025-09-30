@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { TeamService } from '../../services/team.service';
 import { Team } from '../../models/team.model';
 import { Personal } from '../../models/personal.model';
+import { NavbarComponent } from '../shared/navbar/navbar.component';
+import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NavbarComponent, BottomBarComponent],
   templateUrl: './teams.component.html',
   styles: `
     .teams-container {
@@ -17,39 +19,18 @@ import { Personal } from '../../models/personal.model';
       padding-bottom: 80px;
     }
 
-    .header {
+    .page-header {
       background: #1a1a1a;
       padding: 20px;
       color: white;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      text-align: center;
       border-bottom: 1px solid rgba(195, 255, 0, 0.2);
     }
 
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .back-btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .back-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
+    .page-header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #c3ff00;
     }
 
     .content {
@@ -207,11 +188,20 @@ import { Personal } from '../../models/personal.model';
       color: #666;
     }
 
+
     @media (max-width: 480px) {
       .team-header {
         flex-direction: column;
         gap: 10px;
         align-items: flex-start;
+      }
+
+      .content {
+        padding: 15px;
+      }
+
+      .page-header h1 {
+        font-size: 20px;
       }
     }
   `

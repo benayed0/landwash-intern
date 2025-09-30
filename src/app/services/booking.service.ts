@@ -2,16 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Booking } from '../models/booking.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookingService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/bookings'; // Update with your NestJS API URL
+  private apiUrl = environment.apiUrl + '/bookings'; // Update with your NestJS API URL
 
   getAllBookings(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(this.apiUrl);
+    return this.http.get<Booking[]>(`${this.apiUrl}/personal`);
   }
 
   getBookingById(id: string): Observable<Booking> {
@@ -36,5 +37,10 @@ export class BookingService {
 
   assignTeam(id: string, teamId: string): Observable<Booking> {
     return this.http.patch<Booking>(`${this.apiUrl}/${id}`, { teamId });
+  }
+
+  // Get bookings for a specific team
+  getTeamBookings(teamId: string): Observable<Booking[]> {
+    return this.http.get<Booking[]>(`${this.apiUrl}/team/${teamId}`);
   }
 }

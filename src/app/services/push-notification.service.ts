@@ -2,19 +2,20 @@ import { Injectable } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PushNotificationService {
   private readonly VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE'; // Replace with your actual VAPID public key
-  private readonly SERVER_URL = 'http://localhost:3000/notifications'; // Your NestJS API endpoint
+  private readonly SERVER_URL = environment.apiUrl + '/notifications'; // Your NestJS API endpoint
 
   constructor(private swPush: SwPush, private http: HttpClient) {
-    this.showNotification(
-      'Service Initialisé',
-      'Le service de notification est prêt.'
-    );
+    // this.showNotification(
+    //   'Service Initialisé',
+    //   'Le service de notification est prêt.'
+    // );
   }
 
   requestPermission(): Promise<NotificationPermission> {

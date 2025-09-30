@@ -26,8 +26,15 @@ export const adminGuard = () => {
         console.log('🛡️ AdminGuard: User is admin, allowing access');
         return true;
       } else {
-        console.log('🛡️ AdminGuard: User is not admin, redirecting to login');
-        return router.createUrlTree(['/login']);
+        // Check if user is a worker and redirect to worker dashboard
+        const user = authService.getCurrentUser();
+        if (user?.role === 'worker') {
+          console.log('🛡️ AdminGuard: User is worker, redirecting to worker-dashboard');
+          return router.createUrlTree(['/worker-dashboard']);
+        } else {
+          console.log('🛡️ AdminGuard: User is not admin, redirecting to login');
+          return router.createUrlTree(['/login']);
+        }
       }
     })
   );

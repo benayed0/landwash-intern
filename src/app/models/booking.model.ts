@@ -1,5 +1,10 @@
 export type BookingType = 'small' | 'big' | 'salon';
-export type BookingStatus = 'pending' | 'rejected' | 'confirmed' | 'completed' | 'canceled';
+export type BookingStatus =
+  | 'pending'
+  | 'rejected'
+  | 'confirmed'
+  | 'completed'
+  | 'canceled';
 
 export interface TeamInfo {
   _id: string;
@@ -23,7 +28,13 @@ export interface Booking {
   salonsSeats?: number;
   address?: string;
   location: { lat: number; lng: number };
-  userId: string | any;
+  userId: {
+    memberSince: Date;
+    _id: string;
+    email: string;
+    phoneNumber: string;
+    name: string;
+  };
   teamId?: string | TeamInfo;
   secondaryNumber?: string;
 }

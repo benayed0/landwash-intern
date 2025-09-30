@@ -133,10 +133,91 @@ import { Booking } from '../../models/booking.model';
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
+    /* Google Maps Button */
+    .maps-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #4285f4, #1a73e8);
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+    }
+
+    .maps-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.5);
+      background: linear-gradient(135deg, #5a95f5, #2b7de9);
+    }
+
+    .maps-icon {
+      font-size: 18px;
+    }
+
+    .maps-arrow {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    /* User/Client Information */
     .user-info {
       font-size: 12px;
       color: #888;
       margin-top: 10px;
+    }
+
+    .user-info.worker-view {
+      background: #0a0a0a;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #2a2a2a;
+    }
+
+    .client-name {
+      font-size: 16px;
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .client-phone {
+      font-size: 14px;
+      color: #c3ff00;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .phone-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 18px;
+      margin-left: 8px;
+      padding: 4px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      background: rgba(76, 175, 80, 0.1);
+    }
+
+    .phone-link:hover {
+      background: rgba(76, 175, 80, 0.2);
+      transform: scale(1.1);
+    }
+
+    .phone-link:active {
+      transform: scale(0.95);
     }
 
     .team-info {
@@ -184,6 +265,7 @@ import { Booking } from '../../models/booking.model';
 })
 export class BookingCardComponent {
   @Input() booking!: Booking;
+  @Input() userRole: 'admin' | 'worker' = 'admin'; // Default to admin for backward compatibility
   @Output() statusChange = new EventEmitter<{ id: string; status: string }>();
   @Output() requestComplete = new EventEmitter<Booking>();
   @Output() requestConfirm = new EventEmitter<Booking>();
@@ -231,7 +313,33 @@ export class BookingCardComponent {
       : 'N/A';
   }
   completeBooking() {
-    // Emit the booking to open the modal instead of directly completing
-    this.requestComplete.emit(this.booking);
+    // For admin: emit to open price modal
+    // For worker: directly complete
+    if (this.userRole === 'admin') {
+      this.requestComplete.emit(this.booking);
+    } else {
+      // Worker can directly complete
+      if (this.booking._id) {
+        this.statusChange.emit({ id: this.booking._id, status: 'completed' });
+      }
+    }
+  }
+
+  // Generate Google Maps URL from coordinates
+  getGoogleMapsUrl(): string {
+    if (this.booking.location) {
+      return `https://www.google.com/maps/dir/?api=1&destination=${this.booking.location.lat},${this.booking.location.lng}`;
+    }
+    return '#';
+  }
+
+  // Check if we should show admin actions (confirm/reject buttons)
+  shouldShowAdminActions(): boolean {
+    return this.userRole === 'admin' && this.booking.status === 'pending';
+  }
+
+  // Check if we should show complete button
+  shouldShowCompleteButton(): boolean {
+    return this.booking.status === 'confirmed';
   }
 }

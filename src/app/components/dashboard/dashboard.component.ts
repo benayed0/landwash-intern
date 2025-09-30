@@ -8,71 +8,19 @@ import { Booking } from '../../models/booking.model';
 import { BookingCardComponent } from '../booking-card/booking-card.component';
 import { PriceConfirmModalComponent } from '../price-confirm-modal/price-confirm-modal.component';
 import { TeamAssignModalComponent } from '../team-assign-modal/team-assign-modal.component';
+import { NavbarComponent } from '../shared/navbar/navbar.component';
+import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, BookingCardComponent, PriceConfirmModalComponent, TeamAssignModalComponent],
+  imports: [CommonModule, RouterModule, BookingCardComponent, PriceConfirmModalComponent, TeamAssignModalComponent, NavbarComponent, BottomBarComponent],
   templateUrl: './dashboard.component.html',
   styles: `
     .dashboard-container {
       min-height: 100vh;
       background: #0a0a0a;
       padding-bottom: 80px;
-    }
-
-    .header {
-      background: #1a1a1a;
-      padding: 20px;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-      border-bottom: 1px solid rgba(195, 255, 0, 0.2);
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: #c3ff00;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #1a1a1a;
-    }
-
-    .logo-text {
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    .logout-btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .logout-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
     }
 
     .tabs {
@@ -132,45 +80,6 @@ import { TeamAssignModalComponent } from '../team-assign-modal/team-assign-modal
       color: #666;
     }
 
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #2a2a2a;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      border-top: 1px solid #333;
-      z-index: 100;
-    }
-
-    .nav-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      padding: 8px;
-      color: #666;
-      text-decoration: none;
-      transition: all 0.3s;
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
-
-    .nav-item.active {
-      color: #c3ff00;
-    }
-
-    .nav-icon {
-      font-size: 24px;
-    }
-
-    .nav-label {
-      font-size: 11px;
-    }
 
     .refresh-btn {
       position: fixed;
@@ -195,18 +104,24 @@ import { TeamAssignModalComponent } from '../team-assign-modal/team-assign-modal
     }
 
     @media (max-width: 480px) {
-      .header-content {
-        flex-direction: column;
-        gap: 10px;
-      }
-
       .tabs {
         justify-content: flex-start;
+        padding: 8px;
+        gap: 6px;
       }
 
       .tab {
-        min-width: 100px;
-        font-size: 14px;
+        min-width: 90px;
+        font-size: 12px;
+        padding: 10px 12px;
+      }
+
+      .content {
+        padding: 15px;
+      }
+
+      .section-title {
+        font-size: 18px;
       }
     }
   `
@@ -368,9 +283,6 @@ export class DashboardComponent implements OnInit {
     this.selectedBookingForTeam = null;
   }
 
-  logout() {
-    this.authService.logout();
-  }
 
   get currentBookings() {
     switch (this.activeTab) {

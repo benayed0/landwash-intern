@@ -178,8 +178,11 @@ export class LoginComponent {
           const user = this.authService.getCurrentUser();
           if (user?.role === 'admin') {
             this.router.navigate(['/dashboard']);
+          } else if (user?.role === 'worker') {
+            this.router.navigate(['/worker-dashboard']);
           } else {
-            this.router.navigate(['/worker']);
+            // Default fallback
+            this.router.navigate(['/dashboard']);
           }
         }, 500); // Small delay to ensure user data is loaded
       },

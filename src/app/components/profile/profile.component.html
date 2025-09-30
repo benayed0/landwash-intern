@@ -1,0 +1,123 @@
+<div class="profile-container">
+  <app-navbar></app-navbar>
+
+  <div class="content">
+    <div class="profile-header">
+      <div class="profile-title">
+        <h2>Mon Profil</h2>
+        <button class="edit-btn" (click)="toggleEdit()" *ngIf="!isEditing">
+          ✏️ Modifier
+        </button>
+      </div>
+    </div>
+
+    <div class="profile-card" *ngIf="currentUser">
+      <!-- Avatar Section -->
+      <div class="avatar-section">
+        <div class="avatar">
+          {{ (currentUser.name || currentUser.email || "?")[0].toUpperCase() }}
+        </div>
+        <div
+          class="status-badge"
+          [class.active]="currentUser.status === 'active'"
+        >
+          {{ getStatusLabel(currentUser.status) }}
+        </div>
+      </div>
+
+      <!-- Profile Information -->
+      <div class="profile-info">
+        <!-- Name Field -->
+        <div class="info-group">
+          <label>Nom</label>
+          <input
+            *ngIf="isEditing"
+            type="text"
+            [(ngModel)]="editedUser.name"
+            class="edit-input"
+            placeholder="Votre nom"
+          />
+          <div *ngIf="!isEditing" class="info-value">
+            {{ currentUser.name || "Non renseigné" }}
+          </div>
+        </div>
+
+        <!-- Email Field -->
+        <div class="info-group">
+          <label>Email</label>
+          <input
+            *ngIf="isEditing"
+            type="email"
+            [(ngModel)]="editedUser.email"
+            class="edit-input"
+            placeholder="Votre email"
+            [disabled]="true"
+          />
+          <div *ngIf="!isEditing" class="info-value">
+            {{ currentUser.email }}
+          </div>
+        </div>
+
+        <!-- Phone Field -->
+        <div class="info-group">
+          <label>Téléphone</label>
+          <input
+            *ngIf="isEditing"
+            type="tel"
+            [(ngModel)]="editedUser.phone"
+            class="edit-input"
+            placeholder="Votre téléphone"
+          />
+          <div *ngIf="!isEditing" class="info-value">
+            {{ currentUser.phone || "Non renseigné" }}
+          </div>
+        </div>
+
+        <!-- Role Field (Read-only) -->
+        <div class="info-group">
+          <label>Rôle</label>
+          <div class="info-value role-badge" [class]="currentUser.role">
+            {{ getRoleLabel(currentUser.role) }}
+          </div>
+        </div>
+
+        <!-- Team Info (for workers) -->
+        <!-- <div class="info-group" *ngIf="currentUser.role === 'worker' && (currentUser as any).teamId">
+          <label>Équipe</label>
+          <div class="info-value">
+            {{ (currentUser as any).teamId.name || 'Non assigné' }}
+          </div>
+        </div> -->
+
+        <!-- Created Date -->
+        <div class="info-group">
+          <label>Membre depuis</label>
+          <div class="info-value">
+            {{ currentUser.createdAt | date : "dd/MM/yyyy" }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="profile-actions">
+        <div class="edit-actions" *ngIf="isEditing">
+          <button class="btn btn-save" (click)="saveProfile()">
+            💾 Enregistrer
+          </button>
+          <button class="btn btn-cancel" (click)="toggleEdit()">
+            ❌ Annuler
+          </button>
+        </div>
+
+        <button class="btn btn-logout" (click)="logout()" *ngIf="!isEditing">
+          🚪 Déconnexion
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" *ngIf="!currentUser">Chargement du profil...</div>
+  </div>
+
+  <app-bottom-bar [activeTab]="'profile'"></app-bottom-bar>
+</div>

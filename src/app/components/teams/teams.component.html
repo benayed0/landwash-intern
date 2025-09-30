@@ -1,11 +1,8 @@
 <div class="teams-container">
-  <div class="header">
-    <div class="header-content">
-      <h1>Équipes et Personnel</h1>
-      <a routerLink="/dashboard" class="back-btn">
-        ← Retour
-      </a>
-    </div>
+  <app-navbar></app-navbar>
+
+  <div class="page-header">
+    <h1>Équipes et Personnel</h1>
   </div>
 
   <div class="content">
@@ -67,4 +64,6 @@
       </div>
     </div>
   </div>
+
+  <app-bottom-bar [activeTab]="'teams'"></app-bottom-bar>
 </div>
