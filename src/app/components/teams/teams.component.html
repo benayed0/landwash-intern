@@ -1,0 +1,70 @@
+<div class="teams-container">
+  <div class="header">
+    <div class="header-content">
+      <h1>Équipes et Personnel</h1>
+      <a routerLink="/dashboard" class="back-btn">
+        ← Retour
+      </a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="loading" *ngIf="loading">
+      Chargement...
+    </div>
+
+    <div *ngIf="!loading">
+      <div class="section-title">Équipes</div>
+
+      <div *ngIf="teams.length === 0" class="empty-state">
+        <p>Aucune équipe disponible</p>
+      </div>
+
+      <div class="team-card" *ngFor="let team of teams">
+        <div class="team-header">
+          <div class="team-name">{{ team.name }}</div>
+          <div class="team-badge">{{ team.members?.length || 0 }} membres</div>
+        </div>
+
+        <div class="member-list" *ngIf="team.members && team.members.length > 0">
+          <div class="member-item" *ngFor="let memberId of team.members">
+            <div class="member-avatar" *ngIf="getMemberDetails(memberId) as member">
+              {{ getInitials(member.name) }}
+            </div>
+            <div class="member-info" *ngIf="getMemberDetails(memberId) as member">
+              <div class="member-name">{{ member.name }}</div>
+              <div class="member-contact">{{ member.phone }} • {{ member.email }}</div>
+            </div>
+            <div class="member-role" *ngIf="getMemberDetails(memberId) as member">
+              {{ member.role }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="personals-section">
+        <div class="section-title">Tout le Personnel</div>
+
+        <div *ngIf="personals.length === 0" class="empty-state">
+          <p>Aucun personnel disponible</p>
+        </div>
+
+        <div class="personal-card" *ngFor="let personal of personals">
+          <div class="personal-avatar">
+            {{ getInitials(personal.name) }}
+          </div>
+          <div class="personal-info">
+            <div class="personal-name">{{ personal.name }}</div>
+            <div class="personal-details">
+              {{ personal.email }}<br>
+              {{ personal.phone }}
+            </div>
+          </div>
+          <div class="personal-role">
+            {{ personal.role === 'admin' ? 'Administrateur' : 'Employé' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

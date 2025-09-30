@@ -1,0 +1,50 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="logo-container">
+      <img
+        src="../../../assets/logo.png"
+        style="width: 40px; height: 40px"
+        alt=""
+      />
+      <h2>Landwash</h2>
+    </div>
+
+    <div class="login-error" *ngIf="error">
+      {{ error }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          [class.error]="emailError"
+          placeholder="votre@email.com"
+        />
+        <div class="error-message" *ngIf="emailError">
+          {{ emailError }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          [class.error]="passwordError"
+          placeholder="••••••••"
+        />
+        <div class="error-message" *ngIf="passwordError">
+          {{ passwordError }}
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? "Connexion..." : "Se connecter" }}
+      </button>
+    </form>
+  </div>
+</div>

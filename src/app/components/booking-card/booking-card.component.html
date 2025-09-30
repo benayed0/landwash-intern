@@ -1,0 +1,66 @@
+<div class="booking-card">
+  <div class="booking-header">
+    <div class="vehicle-type">
+      <div class="vehicle-icon">{{ getVehicleIcon(booking.type) }}</div>
+      <span>
+        {{ getVehicleTypeLabel(booking.type) }}
+        @if (booking.type === 'salon' && booking.salonsSeats) {
+        <span class="salon-seats"> ({{ booking.salonsSeats }} sièges) </span>
+        }
+      </span>
+    </div>
+    <span class="status-badge" [ngClass]="'status-' + booking.status">
+      {{
+        booking.status === "pending"
+          ? "En attente"
+          : booking.status === "confirmed"
+          ? "Confirmé"
+          : booking.status === "completed"
+          ? "Terminé"
+          : booking.status === "rejected"
+          ? "Rejeté"
+          : booking.status
+      }}
+    </span>
+  </div>
+
+  <div class="booking-date">📅 {{ formatDate(booking.date) }}</div>
+
+  <div class="booking-address">
+    <span>📍</span>
+    <span>{{ booking.address }}</span>
+  </div>
+
+  <div class="booking-price">{{ booking.price }} DT</div>
+
+  @if (booking.userId && booking.userId.phone) {
+  <div class="user-info">
+    Client: {{ booking.userId.name || booking.userId.email }} -
+    {{ booking.userId.phone }}
+  </div>
+  } @if (booking.teamId ) {
+  <div class="team-info">
+    <span class="team-icon">👥</span>
+    <span class="team-label">Équipe assignée:</span>
+    <span class="team-name">{{ getTeamName(booking.teamId) }}</span>
+    @if (booking.teamId && getChiefName(booking.teamId)) {
+    <span class="team-chief"> (Chef: {{ getChiefName(booking.teamId) }}) </span>
+    }
+  </div>
+  } @if (booking.status === 'pending') {
+  <div class="booking-actions">
+    <button class="action-btn confirm-btn" (click)="confirmBooking()">
+      ✓ Confirmer
+    </button>
+    <button class="action-btn reject-btn" (click)="rejectBooking()">
+      ✗ Rejeter
+    </button>
+  </div>
+  } @if (booking.status === 'confirmed') {
+  <div class="booking-actions">
+    <button class="action-btn complete-btn" (click)="completeBooking()">
+      ✓ Marquer comme terminé
+    </button>
+  </div>
+  }
+</div>
