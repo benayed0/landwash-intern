@@ -29,10 +29,12 @@
   <div class="content">
     <h2 class="section-title">{{ sectionTitle }}</h2>
 
-    <div class="loading" *ngIf="loading">
-      <div class="spinner"></div>
-      <p>Chargement des réservations...</p>
-    </div>
+    <app-loading-spinner
+      *ngIf="loading"
+      [size]="'medium'"
+      [message]="'Chargement des réservations...'"
+      [color]="'primary'">
+    </app-loading-spinner>
 
     <div *ngIf="!loading && currentBookings.length === 0" class="empty-state">
       <div class="empty-icon">📋</div>

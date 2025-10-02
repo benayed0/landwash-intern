@@ -6,9 +6,12 @@
   </div>
 
   <div class="content">
-    <div class="loading" *ngIf="loading">
-      Chargement...
-    </div>
+    <app-loading-spinner
+      *ngIf="loading"
+      [size]="'medium'"
+      [message]="'Chargement des équipes...'"
+      [color]="'primary'">
+    </app-loading-spinner>
 
     <div *ngIf="!loading">
       <div class="section-title">Équipes</div>
@@ -20,19 +23,33 @@
       <div class="team-card" *ngFor="let team of teams">
         <div class="team-header">
           <div class="team-name">{{ team.name }}</div>
-          <div class="team-badge">{{ team.members?.length || 0 }} membres</div>
+          <div class="team-badge">{{ team.members.length || 0 }} membres</div>
         </div>
 
-        <div class="member-list" *ngIf="team.members && team.members.length > 0">
+        <div
+          class="member-list"
+          *ngIf="team.members && team.members.length > 0"
+        >
           <div class="member-item" *ngFor="let memberId of team.members">
-            <div class="member-avatar" *ngIf="getMemberDetails(memberId) as member">
+            <div
+              class="member-avatar"
+              *ngIf="getMemberDetails(memberId) as member"
+            >
               {{ getInitials(member.name) }}
             </div>
-            <div class="member-info" *ngIf="getMemberDetails(memberId) as member">
+            <div
+              class="member-info"
+              *ngIf="getMemberDetails(memberId) as member"
+            >
               <div class="member-name">{{ member.name }}</div>
-              <div class="member-contact">{{ member.phone }} • {{ member.email }}</div>
+              <div class="member-contact">
+                {{ member.phone }} • {{ member.email }}
+              </div>
             </div>
-            <div class="member-role" *ngIf="getMemberDetails(memberId) as member">
+            <div
+              class="member-role"
+              *ngIf="getMemberDetails(memberId) as member"
+            >
               {{ member.role }}
             </div>
           </div>
@@ -40,8 +57,18 @@
       </div>
 
       <div class="personals-section">
-        <div class="section-title">Tout le Personnel</div>
-
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div class="section-title">Tout le Personnel</div>
+          <button class="add-btn" (click)="showAddPersonalModal = true">
+            Créer un Compte
+          </button>
+        </div>
         <div *ngIf="personals.length === 0" class="empty-state">
           <p>Aucun personnel disponible</p>
         </div>
@@ -53,17 +80,21 @@
           <div class="personal-info">
             <div class="personal-name">{{ personal.name }}</div>
             <div class="personal-details">
-              {{ personal.email }}<br>
+              {{ personal.email }}<br />
               {{ personal.phone }}
             </div>
           </div>
           <div class="personal-role">
-            {{ personal.role === 'admin' ? 'Administrateur' : 'Employé' }}
+            {{ personal.role === "admin" ? "Administrateur" : "Employé" }}
           </div>
         </div>
       </div>
     </div>
   </div>
-
+  <app-add-personal-modal
+    (close)="showAddPersonalModal = false"
+    [isOpen]="showAddPersonalModal"
+    (confirmAdd)="createdAccount($event)"
+  ></app-add-personal-modal>
   <app-bottom-bar [activeTab]="'teams'"></app-bottom-bar>
 </div>

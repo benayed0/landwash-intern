@@ -39,6 +39,10 @@ export class BookingService {
     return this.http.patch<Booking>(`${this.apiUrl}/${id}`, { teamId });
   }
 
+  updateBooking(id: string, updateData: Partial<Booking>): Observable<Booking> {
+    return this.http.patch<Booking>(`${this.apiUrl}/${id}`, updateData);
+  }
+
   // Get bookings for a specific team
   getTeamBookings(teamId: string): Observable<Booking[]> {
     return this.http.get<Booking[]>(`${this.apiUrl}/team/${teamId}`);

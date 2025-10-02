@@ -4,6 +4,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { WorkerDashboardComponent } from './components/worker-dashboard/worker-dashboard.component';
 import { TeamsComponent } from './components/teams/teams.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { ProductsComponent } from './components/products/products.component';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { workerGuard } from './guards/worker.guard';
@@ -35,6 +36,11 @@ export const routes: Routes = [
   {
     path: 'teams',
     component: TeamsComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'products',
+    component: ProductsComponent,
     canActivate: [adminGuard]
   },
   {

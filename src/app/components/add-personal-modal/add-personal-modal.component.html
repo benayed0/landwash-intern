@@ -1,0 +1,145 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>👤 Ajouter un nouveau personnel</h3>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="onSubmit()" #personalForm="ngForm">
+        <!-- Name Field -->
+        <div class="form-group">
+          <label for="name">Nom complet *</label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="newPersonal.name"
+            name="name"
+            class="form-input"
+            [class.error]="nameError"
+            placeholder="Ex: Jean Dupont"
+            required
+            [disabled]="isSubmitting"
+          >
+          <span class="error-message" *ngIf="nameError">{{ nameError }}</span>
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email">Adresse email *</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newPersonal.email"
+            name="email"
+            class="form-input"
+            [class.error]="emailError"
+            placeholder="Ex: jean.dupont@example.com"
+            required
+            [disabled]="isSubmitting"
+          >
+          <span class="error-message" *ngIf="emailError">{{ emailError }}</span>
+        </div>
+
+        <!-- Phone Field (Optional) -->
+        <div class="form-group">
+          <label for="phone">Téléphone</label>
+          <input
+            type="tel"
+            id="phone"
+            [(ngModel)]="newPersonal.phone"
+            name="phone"
+            class="form-input"
+            placeholder="Ex: +216 XX XXX XXX"
+            [disabled]="isSubmitting"
+          >
+        </div>
+
+        <!-- Role Field -->
+        <div class="form-group">
+          <label for="role">Rôle *</label>
+          <select
+            id="role"
+            [(ngModel)]="newPersonal.role"
+            name="role"
+            class="form-input"
+            required
+            [disabled]="isSubmitting"
+          >
+            <option value="worker">Travailleur</option>
+            <!-- Admin option can be enabled later -->
+            <!-- <option value="admin">Administrateur</option> -->
+          </select>
+        </div>
+
+        <!-- Password Field with Generator -->
+        <div class="form-group">
+          <label for="password">Mot de passe généré *</label>
+          <div class="password-group">
+            <input
+              [type]="passwordVisible ? 'text' : 'password'"
+              id="password"
+              [(ngModel)]="newPersonal.password"
+              name="password"
+              class="form-input password-input"
+              readonly
+              [disabled]="isSubmitting"
+            >
+            <div class="password-actions">
+              <button
+                type="button"
+                class="action-btn"
+                (click)="togglePasswordVisibility()"
+                [disabled]="isSubmitting"
+              >
+                {{ passwordVisible ? '🙈' : '👁️' }}
+              </button>
+              <button
+                type="button"
+                class="action-btn copy-btn"
+                (click)="copyPassword()"
+                [disabled]="isSubmitting"
+              >
+                📋 Copier
+              </button>
+              <button
+                type="button"
+                class="action-btn"
+                (click)="regeneratePassword()"
+                [disabled]="isSubmitting"
+              >
+                🔄 Régénérer
+              </button>
+            </div>
+          </div>
+          <p class="password-hint">
+            💡 Copiez ce mot de passe et communiquez-le au nouveau personnel de manière sécurisée.
+          </p>
+        </div>
+
+        <div class="info-message">
+          <p>📧 Un email de bienvenue sera envoyé à l'adresse indiquée avec les instructions de connexion.</p>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="onCancel()"
+        [disabled]="isSubmitting"
+      >
+        Annuler
+      </button>
+      <button
+        type="button"
+        class="btn-confirm"
+        (click)="onSubmit()"
+        [disabled]="isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">✓ Créer le compte</span>
+        <span *ngIf="isSubmitting">⏳ Création...</span>
+      </button>
+    </div>
+  </div>
+</div>

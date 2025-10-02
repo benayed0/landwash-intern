@@ -1,72 +1,52 @@
 <div class="dashboard-container">
   <app-navbar></app-navbar>
 
-  <div class="tabs">
+  <!-- Main View Tabs -->
+  <div class="view-tabs">
     <button
-      class="tab"
-      [class.active]="activeTab === 'pending'"
-      (click)="activeTab = 'pending'"
+      class="view-tab"
+      [class.active]="viewType() === 'bookings'"
+      (click)="switchToBookings()"
     >
-      En attente ({{ pendingBookings.length }})
+      🚗 Réservations
     </button>
     <button
-      class="tab"
-      [class.active]="activeTab === 'confirmed'"
-      (click)="activeTab = 'confirmed'"
+      class="view-tab"
+      [class.active]="viewType() === 'orders'"
+      (click)="switchToOrders()"
     >
-      Confirmées ({{ confirmedBookings.length }})
+      📦 Commandes
     </button>
     <button
-      class="tab"
-      [class.active]="activeTab === 'completed'"
-      (click)="activeTab = 'completed'"
+      class="view-tab"
+      [class.active]="viewType() === 'subscriptions'"
+      (click)="switchToSubscriptions()"
     >
-      Historique
+      💳 Abonnements
+    </button>
+    <button
+      class="view-tab"
+      [class.active]="viewType() === 'analytics'"
+      (click)="switchToAnalytics()"
+    >
+      📊 Analytics
     </button>
   </div>
 
+  <!-- Content Area -->
   <div class="content">
-    <h2 class="section-title">{{ sectionTitle }}</h2>
+    <!-- Bookings View -->
+    <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>
 
-    <div class="loading" *ngIf="loading">Chargement...</div>
+    <!-- Orders View -->
+    <app-order-list *ngIf="viewType() === 'orders'"></app-order-list>
 
-    <div *ngIf="!loading && currentBookings.length === 0" class="empty-state">
-      <div class="empty-icon">📋</div>
-      <p>Aucune réservation dans cette catégorie</p>
-    </div>
+    <!-- Subscriptions View -->
+    <app-subscription-list *ngIf="viewType() === 'subscriptions'"></app-subscription-list>
 
-    <div *ngIf="!loading && currentBookings.length > 0">
-      <app-booking-card
-        *ngFor="let booking of currentBookings"
-        [booking]="booking"
-        [userRole]="'admin'"
-        (statusChange)="onStatusChange($event)"
-        (requestComplete)="onRequestComplete($event)"
-        (requestConfirm)="onRequestConfirm($event)"
-      >
-      </app-booking-card>
-    </div>
+    <!-- Analytics View -->
+    <app-analytics *ngIf="viewType() === 'analytics'"></app-analytics>
   </div>
 
-  <button class="refresh-btn" (click)="loadBookings()">🔄</button>
-
-  <app-bottom-bar [activeTab]="'dashboard'"></app-bottom-bar>
-
-  <!-- Price Confirmation Modal -->
-  <app-price-confirm-modal
-    [booking]="selectedBookingForCompletion"
-    [isOpen]="showPriceModal"
-    (confirmComplete)="onConfirmComplete($event)"
-    (close)="closeModal()"
-  >
-  </app-price-confirm-modal>
-
-  <!-- Team Assignment Modal -->
-  <app-team-assign-modal
-    [booking]="selectedBookingForTeam"
-    [isOpen]="showTeamModal"
-    (confirmAssign)="onConfirmAssign($event)"
-    (close)="closeTeamModal()"
-  >
-  </app-team-assign-modal>
+  <app-bottom-bar></app-bottom-bar>
 </div>

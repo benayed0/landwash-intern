@@ -132,6 +132,11 @@ import { AuthService } from '../../services/auth.service';
       border: 1px solid rgba(244, 67, 54, 0.3);
     }
 
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     @media (max-width: 480px) {
       .login-card {
         padding: 30px 20px;

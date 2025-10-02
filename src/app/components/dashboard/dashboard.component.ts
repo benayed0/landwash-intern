@@ -1,20 +1,28 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { BookingService } from '../../services/booking.service';
 import { AuthService } from '../../services/auth.service';
 import { PushNotificationService } from '../../services/push-notification.service';
-import { Booking } from '../../models/booking.model';
-import { BookingCardComponent } from '../booking-card/booking-card.component';
-import { PriceConfirmModalComponent } from '../price-confirm-modal/price-confirm-modal.component';
-import { TeamAssignModalComponent } from '../team-assign-modal/team-assign-modal.component';
+import { BookingListComponent } from '../booking-list/booking-list.component';
+import { OrderListComponent } from '../order-list/order-list.component';
+import { SubscriptionListComponent } from '../subscription-list/subscription-list.component';
+import { AnalyticsComponent } from '../analytics/analytics.component';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, BookingCardComponent, PriceConfirmModalComponent, TeamAssignModalComponent, NavbarComponent, BottomBarComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    BookingListComponent,
+    OrderListComponent,
+    SubscriptionListComponent,
+    AnalyticsComponent,
+    NavbarComponent,
+    BottomBarComponent
+  ],
   templateUrl: './dashboard.component.html',
   styles: `
     .dashboard-container {
@@ -23,290 +31,97 @@ import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
       padding-bottom: 80px;
     }
 
-    .tabs {
+    .view-tabs {
       display: flex;
-      background: #1a1a1a;
-      padding: 10px;
-      gap: 10px;
-      overflow-x: auto;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      background: #0a0a0a;
+      padding: 15px;
+      gap: 15px;
+      justify-content: center;
+      border-bottom: 2px solid #2a2a2a;
     }
 
-    .tab {
+    .view-tab {
       flex: 1;
-      min-width: 120px;
-      padding: 12px 20px;
-      background: #2a2a2a;
+      max-width: 200px;
+      padding: 15px 25px;
+      background: #1a1a1a;
       color: #999;
-      border: none;
-      border-radius: 10px;
+      border: 2px solid #2a2a2a;
+      border-radius: 15px;
       cursor: pointer;
       transition: all 0.3s;
       text-align: center;
-      white-space: nowrap;
+      font-weight: 600;
+      font-size: 16px;
     }
 
-    .tab.active {
+    .view-tab.active {
       background: #c3ff00;
       color: #0a0a0a;
-      font-weight: 600;
+      border-color: #c3ff00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(195, 255, 0, 0.3);
     }
 
     .content {
       padding: 20px;
     }
 
-    .section-title {
-      color: white;
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-
-    .empty-icon {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-
-
-    .refresh-btn {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      background: #c3ff00;
-      border-radius: 50%;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(195, 255, 0, 0.4);
-      transition: all 0.3s;
-    }
-
-    .refresh-btn:hover {
-      transform: scale(1.1);
-    }
-
-    @media (max-width: 480px) {
-      .tabs {
-        justify-content: flex-start;
-        padding: 8px;
-        gap: 6px;
+    @media (max-width: 768px) {
+      .view-tabs {
+        flex-direction: column;
+        gap: 10px;
       }
 
-      .tab {
-        min-width: 90px;
-        font-size: 12px;
-        padding: 10px 12px;
+      .view-tab {
+        max-width: 100%;
       }
 
       .content {
         padding: 15px;
       }
-
-      .section-title {
-        font-size: 18px;
-      }
     }
   `
 })
 export class DashboardComponent implements OnInit {
-  private bookingService = inject(BookingService);
   private authService = inject(AuthService);
   private pushNotificationService = inject(PushNotificationService);
   private router = inject(Router);
 
-  activeTab = 'pending';
-  pendingBookings: Booking[] = [];
-  confirmedBookings: Booking[] = [];
-  completedBookings: Booking[] = [];
-  loading = false;
+  viewType = signal<'bookings' | 'orders' | 'subscriptions' | 'analytics'>('bookings');
 
-  // Modal state
-  showPriceModal = false;
-  selectedBookingForCompletion: Booking | null = null;
-
-  showTeamModal = false;
-  selectedBookingForTeam: Booking | null = null;
+  constructor() {}
 
   ngOnInit() {
-    // The admin guard already ensures authentication, so we can just load data
-    this.loadBookings();
-    this.initializePushNotifications();
-
-    // Optional: Refresh user data in the background without redirecting
-    this.authService.refreshUserData().subscribe({
-      error: (err) => {
-        console.error('Error refreshing user data:', err);
-      }
-    });
+    this.requestNotificationPermission();
   }
 
-  private async initializePushNotifications() {
+  switchToBookings() {
+    this.viewType.set('bookings');
+  }
+
+  switchToOrders() {
+    this.viewType.set('orders');
+  }
+
+  switchToSubscriptions() {
+    this.viewType.set('subscriptions');
+  }
+
+  switchToAnalytics() {
+    this.viewType.set('analytics');
+  }
+
+  private async requestNotificationPermission() {
     try {
-      const permission = await this.pushNotificationService.requestPermission();
-      if (permission === 'granted') {
-        await this.pushNotificationService.subscribeToNotifications();
-        this.pushNotificationService.listenForMessages();
-      }
+      await this.pushNotificationService.requestPermission();
     } catch (error) {
-      console.error('Error initializing push notifications:', error);
+      console.error('Failed to request notification permission:', error);
     }
   }
 
-  loadBookings() {
-    this.loading = true;
-    this.bookingService.getAllBookings().subscribe({
-      next: (bookings) => {
-        this.pendingBookings = bookings.filter(b => b.status === 'pending');
-        this.confirmedBookings = bookings.filter(b => b.status === 'confirmed');
-        this.completedBookings = bookings.filter(b => b.status === 'completed');
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading bookings:', err);
-        this.loading = false;
-      }
-    });
-  }
-
-  onStatusChange(event: { id: string, status: string }) {
-    this.bookingService.updateBookingStatus(event.id, event.status).subscribe({
-      next: () => {
-        this.loadBookings();
-      },
-      error: (err) => {
-        console.error('Error updating booking:', err);
-      }
-    });
-  }
-
-  onRequestComplete(booking: Booking) {
-    this.selectedBookingForCompletion = booking;
-    this.showPriceModal = true;
-  }
-
-  onConfirmComplete(event: { id: string, price: number }) {
-    // First update the price if it changed
-    const booking = this.selectedBookingForCompletion;
-    if (!booking) return;
-
-    // Check if price changed
-    const priceChanged = booking.price !== event.price;
-
-    if (priceChanged) {
-      // Update price first, then status
-      this.bookingService.updateBookingPrice(event.id, event.price).subscribe({
-        next: () => {
-          // Now update status to completed
-          this.updateToCompleted(event.id);
-        },
-        error: (err) => {
-          console.error('Error updating price:', err);
-          alert('Erreur lors de la mise à jour du prix');
-        }
-      });
-    } else {
-      // Just update status to completed
-      this.updateToCompleted(event.id);
-    }
-  }
-
-  private updateToCompleted(bookingId: string) {
-    this.bookingService.updateBookingStatus(bookingId, 'completed').subscribe({
-      next: () => {
-        this.loadBookings();
-        this.closeModal();
-      },
-      error: (err) => {
-        console.error('Error completing booking:', err);
-        alert('Erreur lors de la complétion de la réservation');
-      }
-    });
-  }
-
-  closeModal() {
-    this.showPriceModal = false;
-    this.selectedBookingForCompletion = null;
-  }
-
-  onRequestConfirm(booking: Booking) {
-    this.selectedBookingForTeam = booking;
-    this.showTeamModal = true;
-  }
-
-  onConfirmAssign(event: { id: string, teamId: string }) {
-    // First assign team, then update status to confirmed
-    this.bookingService.assignTeam(event.id, event.teamId).subscribe({
-      next: () => {
-        // Now update status to confirmed
-        this.updateToConfirmed(event.id);
-      },
-      error: (err) => {
-        console.error('Error assigning team:', err);
-        alert('Erreur lors de l\'assignation de l\'équipe');
-      }
-    });
-  }
-
-  private updateToConfirmed(bookingId: string) {
-    this.bookingService.updateBookingStatus(bookingId, 'confirmed').subscribe({
-      next: () => {
-        this.loadBookings();
-        this.closeTeamModal();
-      },
-      error: (err) => {
-        console.error('Error confirming booking:', err);
-        alert('Erreur lors de la confirmation de la réservation');
-      }
-    });
-  }
-
-  closeTeamModal() {
-    this.showTeamModal = false;
-    this.selectedBookingForTeam = null;
-  }
-
-
-  get currentBookings() {
-    switch (this.activeTab) {
-      case 'pending':
-        return this.pendingBookings;
-      case 'confirmed':
-        return this.confirmedBookings;
-      case 'completed':
-        return this.completedBookings;
-      default:
-        return [];
-    }
-  }
-
-  get sectionTitle() {
-    switch (this.activeTab) {
-      case 'pending':
-        return 'Réservations en attente';
-      case 'confirmed':
-        return 'Réservations confirmées';
-      case 'completed':
-        return 'Historique';
-      default:
-        return '';
-    }
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/auth']);
   }
 }

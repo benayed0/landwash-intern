@@ -4,18 +4,20 @@ import { FormsModule } from '@angular/forms';
 import { Booking } from '../../models/booking.model';
 import { Team } from '../../models/team.model';
 import { TeamService } from '../../services/team.service';
+import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-team-assign-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
   templateUrl: './team-assign-modal.component.html',
   styleUrl: './team-assign-modal.component.css'
 })
 export class TeamAssignModalComponent implements OnInit {
   @Input() booking: Booking | null = null;
   @Input() isOpen = false;
-  @Output() confirmAssign = new EventEmitter<{ id: string, teamId: string }>();
+  @Output() confirmAssign = new EventEmitter<{ booking: Booking, teamId: string }>();
+  @Output() reassignTeam = new EventEmitter<{ booking: Booking, teamId: string }>();
   @Output() close = new EventEmitter<void>();
 
   private teamService = inject(TeamService);
@@ -23,6 +25,10 @@ export class TeamAssignModalComponent implements OnInit {
   teams: Team[] = [];
   selectedTeamId = '';
   loadingTeams = false;
+
+  get isReassignment(): boolean {
+    return this.booking?.teamId != null;
+  }
 
   ngOnInit() {
     if (this.isOpen) {
@@ -62,6 +68,12 @@ export class TeamAssignModalComponent implements OnInit {
     return labels[type] || type;
   }
 
+  getCurrentTeamName(): string {
+    if (!this.booking?.teamId) return 'N/A';
+    const team = this.booking.teamId;
+    return (team as any)?.name || 'N/A';
+  }
+
   formatDate(date: Date | string): string {
     const d = new Date(date);
     return new Intl.DateTimeFormat('fr-FR', {
@@ -75,7 +87,13 @@ export class TeamAssignModalComponent implements OnInit {
 
   confirm() {
     if (this.booking?._id && this.selectedTeamId) {
-      this.confirmAssign.emit({ id: this.booking._id, teamId: this.selectedTeamId });
+      if (this.isReassignment) {
+        // For reassignment, only update team without changing status
+        this.reassignTeam.emit({ booking: this.booking, teamId: this.selectedTeamId });
+      } else {
+        // For new assignment, assign team and confirm booking
+        this.confirmAssign.emit({ booking: this.booking, teamId: this.selectedTeamId });
+      }
     }
   }
 

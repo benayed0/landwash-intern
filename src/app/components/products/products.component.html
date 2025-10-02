@@ -1,0 +1,136 @@
+<div class="products-container">
+  <app-navbar></app-navbar>
+
+  <div class="content">
+    <div class="products-header">
+      <h2>🛍️ Gestion des Produits</h2>
+      <button class="add-btn" (click)="onAddProduct()">
+        ➕ Ajouter un produit
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <app-loading-spinner
+      *ngIf="loading"
+      [size]="'medium'"
+      [message]="'Chargement des produits...'"
+      [color]="'primary'">
+    </app-loading-spinner>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && products.length === 0">
+      <div class="empty-icon">📦</div>
+      <p>Aucun produit trouvé</p>
+      <button class="btn-primary" (click)="onAddProduct()">
+        Ajouter le premier produit
+      </button>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" *ngIf="!loading && products.length > 0">
+      <div class="product-card" [class.pack-card]="isProductPack(product)" *ngFor="let product of products">
+        <!-- Pack Indicator -->
+        <div class="pack-badge" *ngIf="isProductPack(product)">
+          📦 Pack de {{ product.nested_products?.length }} produits
+        </div>
+
+        <!-- Product Image -->
+        <div class="product-image">
+          <img [src]="getProductImageUrl(product)" [alt]="product.name" />
+          <div class="product-type">{{ product.type }}</div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-details">{{ product.details }}</p>
+          <div class="product-price">{{ formatPrice(product.price) }}</div>
+
+          <!-- Pack Contents (if it's a pack) -->
+          <div class="pack-contents" *ngIf="isProductPack(product)">
+            <h4 class="pack-title">Contenu du pack :</h4>
+            <div class="nested-products">
+              <div class="nested-product" *ngFor="let nestedProduct of product.nested_products">
+                <span class="nested-name">• {{ nestedProduct.name }}</span>
+                <span class="nested-price">{{ formatPrice(nestedProduct.price) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions (if available) -->
+          <div class="product-instructions" *ngIf="product.instructions_of_use">
+            <small>📋 {{ product.instructions_of_use }}</small>
+          </div>
+        </div>
+
+        <!-- Product Actions -->
+        <div class="product-actions">
+          <button class="action-btn edit-btn" (click)="onEditProduct(product)">
+            ✏️ Modifier
+          </button>
+          <button
+            class="action-btn delete-btn"
+            (click)="onDeleteProduct(product)"
+          >
+            🗑️ Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <button class="refresh-btn" (click)="loadProducts()">🔄</button>
+  </div>
+
+  <app-bottom-bar [activeTab]="'products'"></app-bottom-bar>
+
+  <!-- Delete Confirmation Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showDeleteConfirm"
+    (click)="closeDeleteConfirm()"
+  >
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>⚠️ Confirmer la suppression</h3>
+      </div>
+      <div class="modal-body" *ngIf="productToDelete">
+        <p>
+          Êtes-vous sûr de vouloir supprimer le produit
+          <strong>{{ productToDelete.name }}</strong> ?
+        </p>
+        <p class="warning">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeDeleteConfirm()">
+          Annuler
+        </button>
+        <button class="btn-delete" (click)="confirmDelete()" [disabled]="deleteLoading">
+          <span *ngIf="!deleteLoading">🗑️ Supprimer</span>
+          <span *ngIf="deleteLoading" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; border: 2px solid #ffffff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            Suppression...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Product Modal -->
+  <app-product-modal
+    [isOpen]="showAddModal"
+    [product]="null"
+    (productSaved)="onProductSaved()"
+    (close)="closeModals()"
+  >
+  </app-product-modal>
+
+  <!-- Edit Product Modal -->
+  <app-product-modal
+    [isOpen]="showEditModal"
+    [product]="selectedProduct"
+    (productSaved)="onProductSaved()"
+    (close)="closeModals()"
+  >
+  </app-product-modal>
+</div>

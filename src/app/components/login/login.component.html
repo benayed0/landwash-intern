@@ -43,7 +43,11 @@
       </div>
 
       <button type="submit" [disabled]="loading">
-        {{ loading ? "Connexion..." : "Se connecter" }}
+        <span *ngIf="!loading">Se connecter</span>
+        <span *ngIf="loading" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <div style="width: 16px; height: 16px; border: 2px solid #0a0a0a; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          Connexion...
+        </span>
       </button>
     </form>
   </div>

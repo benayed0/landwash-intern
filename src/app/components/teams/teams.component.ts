@@ -3,16 +3,40 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TeamService } from '../../services/team.service';
 import { Team } from '../../models/team.model';
-import { Personal } from '../../models/personal.model';
+import { CreatePersonalDto, Personal } from '../../models/personal.model';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
+import { AddPersonalModalComponent } from '../add-personal-modal/add-personal-modal.component';
+import { PersonalService } from '../../services/personal.service';
+import { HotToastService } from '@ngneat/hot-toast';
+import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavbarComponent, BottomBarComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    NavbarComponent,
+    BottomBarComponent,
+    AddPersonalModalComponent,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './teams.component.html',
   styles: `
+  .add-btn {
+
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  }
+.add-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  }
     .teams-container {
       min-height: 100vh;
       background: #0a0a0a;
@@ -204,13 +228,15 @@ import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
         font-size: 20px;
       }
     }
-  `
+  `,
 })
 export class TeamsComponent implements OnInit {
   private teamService = inject(TeamService);
-
+  private personalService = inject(PersonalService);
+  private toast = inject(HotToastService);
   teams: Team[] = [];
   personals: Personal[] = [];
+  showAddPersonalModal = false;
   loading = false;
 
   ngOnInit() {
@@ -226,7 +252,7 @@ export class TeamsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading teams:', err);
-      }
+      },
     });
 
     this.teamService.getAllPersonals().subscribe({
@@ -237,16 +263,24 @@ export class TeamsComponent implements OnInit {
       error: (err) => {
         console.error('Error loading personals:', err);
         this.loading = false;
-      }
+      },
     });
   }
 
   getMemberDetails(memberId: string): Personal | undefined {
-    return this.personals.find(p => p._id === memberId);
+    return this.personals.find((p) => p._id === memberId);
   }
-
+  createdAccount(data: Personal) {
+    this.personals.push(data);
+    this.showAddPersonalModal = false;
+  }
   getInitials(name: string): string {
     if (!name) return '?';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   }
 }

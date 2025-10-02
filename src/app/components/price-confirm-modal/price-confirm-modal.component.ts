@@ -312,7 +312,7 @@ import { Booking } from '../../models/booking.model';
 export class PriceConfirmModalComponent {
   @Input() booking: Booking | null = null;
   @Input() isOpen = false;
-  @Output() confirmComplete = new EventEmitter<{ id: string; price: number }>();
+  @Output() confirmComplete = new EventEmitter<{ booking: Booking; price: number }>();
   @Output() close = new EventEmitter<void>();
 
   finalPrice = 0;
@@ -365,7 +365,7 @@ export class PriceConfirmModalComponent {
   confirm() {
     if (this.booking?._id && this.finalPrice > 0) {
       this.confirmComplete.emit({
-        id: this.booking._id,
+        booking: this.booking,
         price: this.finalPrice,
       });
       this.close.emit();

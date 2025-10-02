@@ -8,10 +8,15 @@ import { AuthService } from '../../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './bottom-bar.component.html',
-  styleUrl: './bottom-bar.component.css'
+  styleUrl: './bottom-bar.component.css',
 })
 export class BottomBarComponent {
-  @Input() activeTab: 'dashboard' | 'bookings' | 'teams' | 'profile' = 'dashboard';
+  @Input() activeTab:
+    | 'dashboard'
+    | 'products'
+    | 'bookings'
+    | 'teams'
+    | 'profile' = 'dashboard';
 
   private authService = inject(AuthService);
 

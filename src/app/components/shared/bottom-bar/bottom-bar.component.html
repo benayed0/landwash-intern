@@ -11,6 +11,10 @@
     <span class="nav-icon">👥</span>
     <span class="nav-label">Équipes</span>
   </a>
+  <a routerLink="/products" class="nav-item" [class.active]="activeTab === 'products'" *ngIf="isAdmin()">
+    <span class="nav-icon">🛍️</span>
+    <span class="nav-label">Produits</span>
+  </a>
   <a routerLink="/profile" class="nav-item" [class.active]="activeTab === 'profile'">
     <span class="nav-icon">👤</span>
     <span class="nav-label">Profil</span>

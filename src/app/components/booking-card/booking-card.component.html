@@ -1,4 +1,6 @@
 <div class="booking-card">
+ @if (!isEditing) {
+  <!-- Normal View -->
   <div class="booking-header">
     <div class="vehicle-type">
       <div class="vehicle-icon">{{ getVehicleIcon(booking.type) }}</div>
@@ -19,63 +21,173 @@
           ? "Terminé"
           : booking.status === "rejected"
           ? "Rejeté"
+          : booking.status === "canceled"
+          ? "Annulé"
           : booking.status
       }}
     </span>
   </div>
+  } @else {
+  <!-- Edit Mode -->
+  <div class="edit-header">
+    <h3>Modifier la réservation</h3>
+    <div class="edit-actions">
+      <button class="save-btn" (click)="saveEdit()" [disabled]="!isValidEdit()">
+        💾 Sauvegarder
+      </button>
+      <button class="cancel-btn" (click)="cancelEdit()">✖️ Annuler</button>
+    </div>
+  </div>
 
+  <div class="edit-form">
+    <div class="form-group">
+      <label>Type de véhicule</label>
+      <select [(ngModel)]="editForm.type" class="form-input">
+        <option value="small">Citadines / Petites Voitures</option>
+        <option value="big">SUV / Grandes Voitures</option>
+        <option value="salon">Salon</option>
+      </select>
+    </div>
+
+    @if (editForm.type === 'salon') {
+    <div class="form-group">
+      <label>Nombre de sièges</label>
+      <input
+        type="number"
+        [(ngModel)]="editForm.salonsSeats"
+        min="1"
+        max="20"
+        class="form-input"
+      />
+    </div>
+    }
+
+    <div class="form-group">
+      <label>Prix (DT)</label>
+      <input
+        type="number"
+        [(ngModel)]="editForm.price"
+        min="0"
+        step="0.1"
+        class="form-input"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" [(ngModel)]="editForm.date" class="form-input" />
+    </div>
+
+    <div class="form-group">
+      <label>Statut</label>
+      <select [(ngModel)]="editForm.status" class="form-input">
+        <option value="pending">En attente</option>
+        <option value="confirmed">Confirmé</option>
+        <option value="completed">Terminé</option>
+        <option value="rejected">Rejeté</option>
+        <option value="canceled">Annulé</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Adresse</label>
+      <textarea
+        [(ngModel)]="editForm.address"
+        class="form-input textarea"
+        rows="2"
+      ></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Numéro secondaire</label>
+      <input
+        type="tel"
+        [(ngModel)]="editForm.secondaryNumber"
+        class="form-input"
+      />
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="editForm.withSub"
+          class="checkbox"
+        />
+        <span class="checkmark"></span>
+        Avec abonnement
+      </label>
+    </div>
+  </div>
+  } @if (!isEditing) {
   <div class="booking-date">📅 {{ formatDate(booking.date) }}</div>
 
   <div class="booking-address">
     <span>📍</span>
-    <span>{{ booking.address || "Adresse non spécifiée" }}</span>
+    <span>
+      <a
+        href="https://www.google.com/maps/search/?api=1&query={{
+          booking.location.lat
+        }},{{ booking.location.lng }}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{ booking.address || "Adresse non spécifiée" }}
+      </a></span
+    >
   </div>
-
-  <!-- Google Maps Button (primarily for workers) -->
-  @if ( booking.location) {
-  <a
-    [href]="getGoogleMapsUrl()"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="maps-btn"
-  >
-    <span class="maps-icon">🗺️</span>
-    <span>Ouvrir dans Google Maps</span>
-    <span class="maps-arrow">→</span>
-  </a>
-  }
 
   <!-- Client Information (enhanced for workers) -->
   @if (booking.userId) {
   <div class="user-info" [class.worker-view]="userRole === 'worker'">
     @if (booking.userId.name) {
-    <div class="client-name">
-      Client: {{ booking.userId.name }}
-      @if (booking.userId.phoneNumber) {
-      <a [href]="'tel:' + booking.userId.phoneNumber" class="phone-link">
-        📞
-      </a>
-      }
-    </div>
+    <div class="client-name">Client: {{ booking.userId.name }}</div>
     } @if (booking.userId.phoneNumber) {
-    <div class="client-phone">📱 {{ booking.userId.phoneNumber }}</div>
+    <div class="client-phone">
+      📱
+      <a href="tel:{{ booking.userId.phoneNumber }}" class="client-phone">{{
+        booking.userId.phoneNumber
+      }}</a>
+    </div>
     } @if (booking.secondaryNumber) {
     <div class="client-phone">
-      📱 Secondaire: {{ booking.secondaryNumber }}
-      <a [href]="'tel:' + booking.secondaryNumber" class="phone-link"> 📞 </a>
+      📱 Secondaire:
+      <a href="tel:{{ booking.secondaryNumber }}" class="client-phone">{{
+        booking.secondaryNumber
+      }}</a>
     </div>
     }
   </div>
   }
 
-  <div class="booking-price">{{ booking.price }} DT</div>
+  <div class="price-section">
+    <div class="booking-price">{{ booking.price }} DT</div>
+    @if (canEdit()) {
+    <button class="edit-btn" (click)="startEdit()" title="Modifier la réservation">
+      ✏️ Modifier
+    </button>
+    }
+  </div>
   @if (booking.teamId ) {
   <div class="team-info">
-    <span class="team-icon">👥</span>
-    <span class="team-label">Équipe assignée:</span>
-    <span class="team-name">{{ getTeamName(booking.teamId) }}</span>
-    @if (booking.teamId && getChiefName(booking.teamId)) {
-    <span class="team-chief"> (Chef: {{ getChiefName(booking.teamId) }}) </span>
+    <div class="team-details">
+      <span class="team-icon">👥</span>
+      <span class="team-label">Équipe assignée:</span>
+      <span class="team-name">{{ getTeamName(booking.teamId) }}</span>
+      @if (booking.teamId && getChiefName(booking.teamId)) {
+      <span class="team-chief">
+        (Chef: {{ getChiefName(booking.teamId) }})
+      </span>
+      }
+    </div>
+    @if (userRole === 'admin') {
+    <button
+      class="change-team-btn"
+      (click)="triggerRequestReassignTeam()"
+      title="Changer l'équipe"
+    >
+      🔄 Changer
+    </button>
     }
   </div>
   } @if (booking.status === 'pending') {
@@ -92,6 +204,15 @@
     <button class="action-btn complete-btn" (click)="completeBooking()">
       ✓ Marquer comme terminé
     </button>
+    <button class="action-btn reject-btn" (click)="rejectBooking()">
+      ✗ Rejeter
+    </button>
   </div>
-  }
+  } @if (booking.status === 'rejected') {
+  <div class="booking-actions">
+    <button class="action-btn confirm-btn" (click)="reconfirmBooking()">
+      🔄 Reconfirmer
+    </button>
+  </div>
+  } }
 </div>

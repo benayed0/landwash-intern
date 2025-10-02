@@ -1,0 +1,134 @@
+<div class="subscription-card">
+  <div class="subscription-header">
+    <div class="subscription-info">
+      <div class="subscription-icon">💳</div>
+      <div>
+        <div>{{ subscription.plan | titlecase }}</div>
+        <div class="detail-value">{{ subscription.userId.name }}</div>
+      </div>
+    </div>
+    <div class="status-badge" [ngClass]="getStatusClass(subscription.status)">
+      {{ subscription.status }}
+    </div>
+  </div>
+
+  <div class="subscription-details">
+    <div class="detail-item">
+      <div class="detail-label">Prix mensuel</div>
+      <div class="detail-value">{{ subscription.price | currency:'TND':'symbol':'1.0-0' }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Type de renouvellement</div>
+      <div class="detail-value">{{ subscription.renewalType === 'auto' ? 'Automatique' : 'Manuel' }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Date de début</div>
+      <div class="detail-value">{{ formatDate(subscription.startDate) }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Téléphone</div>
+      <div class="detail-value">{{ subscription.userId.phoneNumber }}</div>
+    </div>
+  </div>
+
+  <!-- Usage Section -->
+  <div class="usage-section">
+    <div class="detail-label">Utilisation des réservations</div>
+    <div class="usage-bar">
+      <div
+        class="usage-progress"
+        [ngClass]="getUsageClass()"
+        [style.width.%]="getUsagePercentage()">
+      </div>
+    </div>
+    <div class="usage-stats">
+      <span class="usage-text">
+        {{ subscription.used }} / {{ subscription.allowedBookingsPerMonth }} utilisées
+      </span>
+      <span class="usage-percentage">{{ getUsagePercentage() }}%</span>
+    </div>
+    <div class="usage-stats" *ngIf="getRemainingBookings() > 0">
+      <span class="usage-text">{{ getRemainingBookings() }} réservations restantes</span>
+    </div>
+  </div>
+
+  <!-- Renewal Information -->
+  <div class="renewal-info">
+    <div class="renewal-label">
+      {{ isExpired() ? 'Expiré le' : 'Renouvellement le' }}
+      <span *ngIf="isExpiringSoon() && !isExpired()" style="color: #ff9800;">(Bientôt)</span>
+    </div>
+    <div class="renewal-date">{{ formatDate(subscription.renewalDate) }}</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="subscription-actions" *ngIf="userRole === 'admin'">
+    <button class="action-btn edit-btn" (click)="toggleEdit()">
+      ✏️ {{ isEditing ? 'Annuler' : 'Modifier' }}
+    </button>
+    <button
+      *ngFor="let action of getAvailableActions()"
+      class="action-btn"
+      [ngClass]="action.class"
+      (click)="onActionClick(action.status)">
+      {{ action.label }}
+    </button>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="edit-modal-overlay" *ngIf="isEditing" (click)="toggleEdit()">
+    <div class="edit-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Modifier l'abonnement</h3>
+        <button class="close-btn" (click)="toggleEdit()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Prix mensuel (TND)</label>
+          <input
+            type="number"
+            [(ngModel)]="editForm.price"
+            class="form-input"
+            min="0"
+            step="0.1">
+        </div>
+
+        <div class="form-group">
+          <label>Réservations autorisées par mois</label>
+          <input
+            type="number"
+            [(ngModel)]="editForm.allowedBookingsPerMonth"
+            class="form-input"
+            min="1">
+        </div>
+
+        <div class="form-group">
+          <label>Type de renouvellement</label>
+          <select [(ngModel)]="editForm.renewalType" class="form-input">
+            <option value="auto">Automatique</option>
+            <option value="manual">Manuel</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Statut</label>
+          <select [(ngModel)]="editForm.status" class="form-input">
+            <option value="pending">En attente</option>
+            <option value="active">Actif</option>
+            <option value="inactive">Inactif</option>
+            <option value="canceled">Annulé</option>
+            <option value="expired">Expiré</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn cancel-btn" (click)="toggleEdit()">Annuler</button>
+        <button class="btn save-btn" (click)="saveChanges()" [disabled]="!isFormValid()">
+          Sauvegarder
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -106,6 +106,15 @@
   margin-left: 10px;
 }
 
+.current-team {
+  color: #c3ff00 !important;
+  background: rgba(195, 255, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(195, 255, 0, 0.3);
+  text-align: center !important;
+}
+
 .salon-seats {
   font-size: 13px;
   color: #c3ff00;

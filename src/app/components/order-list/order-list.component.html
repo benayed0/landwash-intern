@@ -1,0 +1,74 @@
+<div class="order-list-container">
+  <!-- Sub-tabs for Orders -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'pending'"
+      (click)="activeTab = 'pending'"
+    >
+      En attente ({{ pendingOrders.length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'confirmed'"
+      (click)="activeTab = 'confirmed'"
+    >
+      Confirmées ({{ confirmedOrders.length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'shipped'"
+      (click)="activeTab = 'shipped'"
+    >
+      Expédiées ({{ shippedOrders.length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'delivered'"
+      (click)="activeTab = 'delivered'"
+    >
+      Livrées ({{ deliveredOrders.length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'completed'"
+      (click)="activeTab = 'completed'"
+    >
+      Terminées ({{ completedOrders.length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'cancelled'"
+      (click)="activeTab = 'cancelled'"
+    >
+      Annulées ({{ cancelledOrders.length }})
+    </button>
+  </div>
+
+  <div class="content">
+    <h2 class="section-title">{{ sectionTitle }}</h2>
+
+    <app-loading-spinner
+      *ngIf="loading"
+      [size]="'medium'"
+      [message]="'Chargement des commandes...'"
+      [color]="'primary'"
+    >
+    </app-loading-spinner>
+
+    <div *ngIf="!loading && currentOrders.length === 0" class="empty-state">
+      <div class="empty-icon">📦</div>
+      <p>Aucune commande dans cette catégorie</p>
+    </div>
+
+    <div *ngIf="!loading && currentOrders.length > 0">
+      <app-order-card
+        *ngFor="let order of currentOrders"
+        [order]="order"
+        [userRole]="'admin'"
+        (statusChange)="onOrderStatusChange($event)"
+      >
+      </app-order-card>
+    </div>
+  </div>
+</div>

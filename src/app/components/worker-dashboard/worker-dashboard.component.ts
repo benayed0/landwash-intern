@@ -7,6 +7,7 @@ import { Booking } from '../../models/booking.model';
 import { BookingCardComponent } from '../booking-card/booking-card.component';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
+import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-worker-dashboard',
@@ -17,6 +18,7 @@ import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
     BookingCardComponent,
     NavbarComponent,
     BottomBarComponent,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './worker-dashboard.component.html',
   styleUrl: './worker-dashboard.component.css',
@@ -29,6 +31,7 @@ export class WorkerDashboardComponent implements OnInit {
   todoBookings: Booking[] = [];
   completedBookings: Booking[] = [];
   loading = false;
+  statusUpdateLoading: { [key: string]: boolean } = {};
   currentUser: any = null;
 
   ngOnInit() {
@@ -90,18 +93,25 @@ export class WorkerDashboardComponent implements OnInit {
 
   onStatusChange(event: { id: string; status: string }) {
     if (event.status === 'completed') {
+      this.statusUpdateLoading[event.id] = true;
       this.bookingService
         .updateBookingStatus(event.id, event.status)
         .subscribe({
           next: () => {
             this.loadBookings();
+            this.statusUpdateLoading[event.id] = false;
           },
           error: (err) => {
             console.error('Error updating booking status:', err);
+            this.statusUpdateLoading[event.id] = false;
             alert('Erreur lors de la mise à jour du statut');
           },
         });
     }
+  }
+
+  isStatusUpdateLoading(id: string): boolean {
+    return this.statusUpdateLoading[id] || false;
   }
 
   get currentBookings() {

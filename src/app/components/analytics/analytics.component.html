@@ -1,0 +1,208 @@
+<div class="analytics-container">
+  <h2 class="section-title">Analyses et Statistiques</h2>
+
+  <!-- View Tabs for Analytics -->
+  <div class="view-tabs">
+    <button
+      class="view-tab"
+      [class.active]="analyticsView() === 'all'"
+      (click)="analyticsView.set('all')"
+    >
+      Tout
+    </button>
+    <button
+      class="view-tab"
+      [class.active]="analyticsView() === 'bookings'"
+      (click)="analyticsView.set('bookings')"
+    >
+      Réservations
+    </button>
+    <button
+      class="view-tab"
+      [class.active]="analyticsView() === 'orders'"
+      (click)="analyticsView.set('orders')"
+    >
+      Commandes
+    </button>
+  </div>
+
+  <!-- Date Range Picker -->
+  <div class="date-filter-container">
+    <div class="date-filter-header">
+      <h3>Période d'analyse</h3>
+      <div class="preset-buttons">
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === '7days'"
+          (click)="setDatePreset('7days')">
+          7 jours
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === '30days'"
+          (click)="setDatePreset('30days')">
+          30 jours
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === '90days'"
+          (click)="setDatePreset('90days')">
+          3 mois
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === 'year'"
+          (click)="setDatePreset('year')">
+          1 an
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === 'custom'"
+          (click)="setDatePreset('custom')">
+          Personnalisé
+        </button>
+      </div>
+    </div>
+
+    <div class="date-inputs" *ngIf="selectedPreset() === 'custom'">
+      <div class="date-input-group">
+        <label>Date de début</label>
+        <input
+          type="date"
+          [value]="startDate()"
+          (input)="onStartDateChange($event)"
+          class="date-input">
+      </div>
+      <div class="date-input-group">
+        <label>Date de fin</label>
+        <input
+          type="date"
+          [value]="endDate()"
+          (input)="onEndDateChange($event)"
+          class="date-input">
+      </div>
+      <button class="apply-btn" (click)="applyDateFilter()" [disabled]="!isDateRangeValid()">
+        Appliquer
+      </button>
+    </div>
+
+    <div class="current-range" *ngIf="selectedPreset() !== 'custom'">
+      <span class="range-text">
+        Du {{ formatDisplayDate(startDate()) }} au {{ formatDisplayDate(endDate()) }}
+      </span>
+    </div>
+  </div>
+
+  <div class="analytics-content">
+    <!-- All Analytics View -->
+    <div *ngIf="analyticsView() === 'all'" class="analytics-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Réservations</h3>
+          <p class="stat-number">{{ totalBookings() }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Commandes</h3>
+          <p class="stat-number">{{ totalOrders() }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenus Réservations</h3>
+          <p class="stat-number">{{ bookingsRevenue() | currency : "EUR" }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenus Commandes</h3>
+          <p class="stat-number">{{ ordersRevenue() | currency : "EUR" }}</p>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-section">
+          <h4>Répartition des Types</h4>
+          <canvas #allTypeChart></canvas>
+        </div>
+        <div class="chart-section">
+          <h4>Évolution Mensuelle</h4>
+          <canvas #allMonthlyChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bookings Analytics View -->
+    <div *ngIf="analyticsView() === 'bookings'" class="analytics-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Réservations</h3>
+          <p class="stat-number">{{ totalBookings() }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenus Total</h3>
+          <p class="stat-number">{{ bookingsRevenue() | currency : "EUR" }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Prix Moyen</h3>
+          <p class="stat-number">
+            {{ averageBookingPrice() | currency : "EUR" }}
+          </p>
+        </div>
+        <div class="stat-card">
+          <h3>Taux de Confirmation</h3>
+          <p class="stat-number">{{ bookingConfirmationRate() }}%</p>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-section">
+          <h4>Types de Réservations</h4>
+          <canvas #bookingTypeChart></canvas>
+        </div>
+        <div class="chart-section">
+          <h4>Statuts des Réservations</h4>
+          <canvas #bookingStatusChart></canvas>
+        </div>
+        <div class="chart-section">
+          <h4>Évolution Mensuelle</h4>
+          <canvas #bookingMonthlyChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Analytics View -->
+    <div *ngIf="analyticsView() === 'orders'" class="analytics-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Commandes</h3>
+          <p class="stat-number">{{ totalOrders() }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenus Total</h3>
+          <p class="stat-number">{{ ordersRevenue() | currency : "EUR" }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Panier Moyen</h3>
+          <p class="stat-number">
+            {{ averageOrderValue() | currency : "EUR" }}
+          </p>
+        </div>
+        <div class="stat-card">
+          <h3>Taux de Livraison</h3>
+          <p class="stat-number">{{ orderDeliveryRate() }}%</p>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-section">
+          <h4>Statuts des Commandes</h4>
+          <canvas #orderStatusChart></canvas>
+        </div>
+        <div class="chart-section">
+          <h4>Évolution Mensuelle</h4>
+          <canvas #orderMonthlyChart></canvas>
+        </div>
+        <div class="chart-section">
+          <h4>Produits les Plus Vendus</h4>
+          <canvas #topProductsChart></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

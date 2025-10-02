@@ -74,6 +74,10 @@ import { Booking } from '../../models/booking.model';
       background: #f44336;
     }
 
+    .status-canceled {
+      background: #9e9e9e;
+    }
+
     .booking-date {
       color: #aaa;
       font-size: 14px;
@@ -89,12 +93,19 @@ import { Booking } from '../../models/booking.model';
       margin-bottom: 15px;
     }
 
+    .price-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      gap: 15px;
+    }
+
     .booking-price {
       font-size: 24px;
       font-weight: bold;
       color: #c3ff00;
-      text-align: right;
-      margin-bottom: 15px;
+      flex: 1;
     }
 
     .booking-actions {
@@ -227,9 +238,35 @@ import { Booking } from '../../models/booking.model';
       margin-top: 10px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
       font-size: 14px;
       border: 1px solid rgba(195, 255, 0, 0.2);
+    }
+
+    .team-details {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .change-team-btn {
+      background: #ff9800;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .change-team-btn:hover {
+      background: #f57c00;
+      transform: translateY(-1px);
     }
 
     .team-icon {
@@ -252,6 +289,142 @@ import { Booking } from '../../models/booking.model';
       margin-left: 5px;
     }
 
+    /* Edit Mode Styles */
+    .edit-btn {
+      background: #c3ff00;
+      color: #0a0a0a;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .edit-btn:hover {
+      background: #a8d400;
+      transform: translateY(-1px);
+    }
+
+    .edit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #333;
+    }
+
+    .edit-header h3 {
+      margin: 0;
+      color: #e5e5e5;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .save-btn, .cancel-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .save-btn {
+      background: #c3ff00;
+      color: #0a0a0a;
+    }
+
+    .save-btn:hover:not(:disabled) {
+      background: #a8d400;
+    }
+
+    .save-btn:disabled {
+      background: #666;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .cancel-btn {
+      background: #f44336;
+      color: white;
+    }
+
+    .cancel-btn:hover {
+      background: #d32f2f;
+    }
+
+    .edit-form {
+      display: grid;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e5e5e5;
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      background: #0a0a0a;
+      color: #e5e5e5;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #c3ff00;
+      box-shadow: 0 0 0 2px rgba(195, 255, 0, 0.1);
+    }
+
+    .textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .checkbox-group {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #e5e5e5;
+    }
+
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #c3ff00;
+    }
+
     @media (max-width: 480px) {
       .booking-card {
         padding: 15px;
@@ -260,15 +433,71 @@ import { Booking } from '../../models/booking.model';
       .booking-actions {
         flex-direction: column;
       }
+
+      .edit-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .edit-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .save-btn, .cancel-btn {
+        flex: 1;
+      }
+
+      .price-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .booking-price {
+        font-size: 20px;
+      }
+
+      .edit-btn {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
     }
   `,
 })
 export class BookingCardComponent {
   @Input() booking!: Booking;
   @Input() userRole: 'admin' | 'worker' = 'admin'; // Default to admin for backward compatibility
+  @Input() showMapsButton = true; // Control whether to show Google Maps button
   @Output() statusChange = new EventEmitter<{ id: string; status: string }>();
   @Output() requestComplete = new EventEmitter<Booking>();
   @Output() requestConfirm = new EventEmitter<Booking>();
+  @Output() requestReject = new EventEmitter<Booking>();
+  @Output() requestReconfirm = new EventEmitter<Booking>();
+  @Output() requestReassignTeam = new EventEmitter<Booking>();
+  @Output() bookingUpdate = new EventEmitter<{
+    bookingId: string;
+    updateData: Partial<Booking>;
+  }>();
+
+  // Edit mode properties
+  isEditing = false;
+  editForm = {
+    type: 'small' as 'small' | 'big' | 'salon',
+    price: 0,
+    date: '',
+    status: 'pending' as
+      | 'pending'
+      | 'confirmed'
+      | 'completed'
+      | 'rejected'
+      | 'canceled',
+    withSub: false,
+    salonsSeats: 0,
+    address: '',
+    secondaryNumber: '',
+  };
 
   getVehicleTypeLabel(type: string): string {
     const labels: any = {
@@ -300,9 +529,18 @@ export class BookingCardComponent {
   }
 
   rejectBooking() {
-    if (this.booking._id) {
-      this.statusChange.emit({ id: this.booking._id, status: 'rejected' });
-    }
+    // Emit the booking to open the reject confirmation modal
+    this.requestReject.emit(this.booking);
+  }
+
+  reconfirmBooking() {
+    // Emit the booking to open the team assignment modal for reconfirmation
+    this.requestReconfirm.emit(this.booking);
+  }
+
+  triggerRequestReassignTeam() {
+    // Emit the booking to open the team assignment modal for reassignment
+    this.requestReassignTeam.emit(this.booking);
   }
   getTeamName(team: any): string {
     return team && team.name ? team.name : 'N/A';
@@ -328,7 +566,7 @@ export class BookingCardComponent {
   // Generate Google Maps URL from coordinates
   getGoogleMapsUrl(): string {
     if (this.booking.location) {
-      return `https://www.google.com/maps/dir/?api=1&destination=${this.booking.location.lat},${this.booking.location.lng}`;
+      return `https://www.google.com/maps/search/?api=1&query=${this.booking.location.lat},${this.booking.location.lng}`;
     }
     return '#';
   }
@@ -341,5 +579,68 @@ export class BookingCardComponent {
   // Check if we should show complete button
   shouldShowCompleteButton(): boolean {
     return this.booking.status === 'confirmed';
+  }
+
+  // Edit mode methods
+  startEdit() {
+    this.isEditing = true;
+    this.editForm = {
+      type: this.booking.type,
+      price: this.booking.price,
+      date: new Date(this.booking.date).toISOString().split('T')[0],
+      status: this.booking.status,
+      withSub: this.booking.withSub,
+      salonsSeats: this.booking.salonsSeats || 0,
+      address: this.booking.address || '',
+      secondaryNumber: this.booking.secondaryNumber || '',
+    };
+  }
+
+  cancelEdit() {
+    this.isEditing = false;
+  }
+
+  saveEdit() {
+    if (!this.isValidEdit()) return;
+
+    const updateData: Partial<Booking> = {
+      type: this.editForm.type,
+      price: this.editForm.price,
+      date: new Date(this.editForm.date),
+      status: this.editForm.status,
+      withSub: this.editForm.withSub,
+      address: this.editForm.address,
+      secondaryNumber: this.editForm.secondaryNumber,
+    };
+
+    // Only include salonsSeats if it's a salon booking
+    if (this.editForm.type === 'salon') {
+      updateData.salonsSeats = this.editForm.salonsSeats;
+    }
+
+    this.bookingUpdate.emit({
+      bookingId: this.booking._id!,
+      updateData,
+    });
+
+    this.isEditing = false;
+  }
+
+  isValidEdit(): boolean {
+    return (
+      this.editForm.price > 0 &&
+      this.editForm.date !== '' &&
+      this.editForm.address.trim() !== ''
+    );
+  }
+
+  // Check if admin can edit (admin role and not editing)
+  canEdit(): boolean {
+    return this.userRole === 'admin' && !this.isEditing;
+  }
+
+  // Format date for input field
+  formatDateForInput(date: Date | string): string {
+    return new Date(date).toISOString().split('T')[0];
   }
 }

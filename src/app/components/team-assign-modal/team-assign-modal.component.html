@@ -1,7 +1,7 @@
 <div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2 class="modal-title">Assigner une équipe</h2>
+      <h2 class="modal-title">{{ isReassignment ? 'Changer l\'équipe' : 'Assigner une équipe' }}</h2>
       <button class="close-btn" (click)="onClose()">×</button>
     </div>
 
@@ -11,7 +11,10 @@
           <span class="info-label">Type de service:</span>
           <span class="info-value">
             {{ getVehicleTypeLabel(booking.type) }}
-            <span *ngIf="booking.type === 'salon' && booking.salonsSeats" class="salon-seats">
+            <span
+              *ngIf="booking.type === 'salon' && booking.salonsSeats"
+              class="salon-seats"
+            >
               ({{ booking.salonsSeats }} sièges)
             </span>
           </span>
@@ -22,30 +25,45 @@
         </div>
         <div class="info-row">
           <span class="info-label">Adresse:</span>
-          <span class="info-value">{{ booking.address || 'Non spécifiée' }}</span>
+          <span class="info-value">{{
+            booking.address || "Non spécifiée"
+          }}</span>
+        </div>
+        <div class="info-row" *ngIf="isReassignment && booking.teamId">
+          <span class="info-label">Équipe actuelle:</span>
+          <span class="info-value current-team">{{ getCurrentTeamName() }}</span>
         </div>
       </div>
 
       <div class="team-selection">
-        <label for="team-select" class="select-label">Sélectionner une équipe:</label>
+        <label for="team-select" class="select-label"
+          >Sélectionner une équipe:</label
+        >
 
-        <div class="loading" *ngIf="loadingTeams">
-          Chargement des équipes...
-        </div>
+        <app-loading-spinner
+          *ngIf="loadingTeams"
+          [size]="'small'"
+          [message]="'Chargement des équipes...'"
+          [color]="'primary'">
+        </app-loading-spinner>
 
         <select
           id="team-select"
           class="team-select"
           [(ngModel)]="selectedTeamId"
           *ngIf="!loadingTeams"
-          [disabled]="teams.length === 0">
+          [disabled]="teams.length === 0"
+        >
           <option value="">-- Choisir une équipe --</option>
           <option *ngFor="let team of teams" [value]="team._id">
-            {{ team.name }} ({{ team.members?.length || 0 }} membres)
+            {{ team.name }} ({{ team.members.length || 0 }} membres)
           </option>
         </select>
 
-        <div class="no-teams-message" *ngIf="!loadingTeams && teams.length === 0">
+        <div
+          class="no-teams-message"
+          *ngIf="!loadingTeams && teams.length === 0"
+        >
           Aucune équipe disponible. Veuillez créer une équipe d'abord.
         </div>
       </div>
@@ -56,8 +74,9 @@
       <button
         class="btn btn-confirm"
         (click)="confirm()"
-        [disabled]="!selectedTeamId || loadingTeams">
-        Confirmer et assigner
+        [disabled]="!selectedTeamId || loadingTeams"
+      >
+        {{ isReassignment ? 'Confirmer le changement' : 'Confirmer et assigner' }}
       </button>
     </div>
   </div>

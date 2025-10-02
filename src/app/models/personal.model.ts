@@ -10,3 +10,10 @@ export interface Personal {
   createdAt: Date;
   status: string;
 }
+export interface CreatePersonalDto {
+  email: string;
+  password: string;
+  role: Role;
+  phone?: string;
+  name: string;
+}

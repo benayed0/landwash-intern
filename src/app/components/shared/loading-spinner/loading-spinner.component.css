@@ -1,0 +1,135 @@
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-container.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.spinner {
+  display: inline-block;
+  position: relative;
+}
+
+.spinner-circle {
+  border-radius: 50%;
+  border-style: solid;
+  animation: spin 1s linear infinite;
+}
+
+/* Size variants */
+.small .spinner-circle {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.medium .spinner-circle {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+}
+
+.large .spinner-circle {
+  width: 60px;
+  height: 60px;
+  border-width: 4px;
+}
+
+/* Color variants */
+.primary .spinner-circle {
+  border-color: #c3ff00 transparent #c3ff00 transparent;
+}
+
+.white .spinner-circle {
+  border-color: #ffffff transparent #ffffff transparent;
+}
+
+.dark .spinner-circle {
+  border-color: #333333 transparent #333333 transparent;
+}
+
+.loading-message {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+  color: #e5e5e5;
+  font-weight: 500;
+}
+
+.primary .loading-message {
+  color: #e5e5e5;
+}
+
+.white .loading-message {
+  color: #ffffff;
+}
+
+.dark .loading-message {
+  color: #333333;
+}
+
+/* Spinner animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulsing effect for the wrapper */
+.spinner-wrapper {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive sizing */
+@media (max-width: 480px) {
+  .large .spinner-circle {
+    width: 50px;
+    height: 50px;
+    border-width: 3px;
+  }
+
+  .medium .spinner-circle {
+    width: 35px;
+    height: 35px;
+    border-width: 3px;
+  }
+
+  .small .spinner-circle {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+  }
+
+  .loading-message {
+    font-size: 13px;
+  }
+}
