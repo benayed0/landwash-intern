@@ -1,52 +1,146 @@
-<div class="dashboard-container">
-  <app-navbar></app-navbar>
+<div class="app-container" [class.webview-mode]="authService.isWebView()">
+  <!-- Desktop Sidebar Navigation - Visible for browser users -->
+  @if(!authService.isWebView()) {
+  <div class="desktop-sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <img src="assets/logo.png" class="logo-img" alt="Landwash Logo" />
+        <span class="logo-text">Landwash Admin</span>
+      </div>
+    </div>
 
-  <!-- Main View Tabs -->
-  <div class="view-tabs">
-    <button
-      class="view-tab"
-      [class.active]="viewType() === 'bookings'"
-      (click)="switchToBookings()"
-    >
-      🚗 Réservations
-    </button>
-    <button
-      class="view-tab"
-      [class.active]="viewType() === 'orders'"
-      (click)="switchToOrders()"
-    >
-      📦 Commandes
-    </button>
-    <button
-      class="view-tab"
-      [class.active]="viewType() === 'subscriptions'"
-      (click)="switchToSubscriptions()"
-    >
-      💳 Abonnements
-    </button>
-    <button
-      class="view-tab"
-      [class.active]="viewType() === 'analytics'"
-      (click)="switchToAnalytics()"
-    >
-      📊 Analytics
-    </button>
+    <nav class="sidebar-nav">
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'bookings'"
+        (click)="switchToBookings()"
+      >
+        <span class="nav-icon">🚗</span>
+        <span class="nav-label">Réservations</span>
+      </button>
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'orders'"
+        (click)="switchToOrders()"
+      >
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Commandes</span>
+      </button>
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'subscriptions'"
+        (click)="switchToSubscriptions()"
+      >
+        <span class="nav-icon">💳</span>
+        <span class="nav-label">Abonnements</span>
+      </button>
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'analytics'"
+        (click)="switchToAnalytics()"
+      >
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Analytics</span>
+      </button>
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'products'"
+        (click)="switchToProducts()"
+      >
+        <span class="nav-icon">🧴</span>
+        <span class="nav-label">Produits</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-text">Déconnexion</span>
+      </button>
+    </div>
   </div>
+  }
 
   <!-- Content Area -->
-  <div class="content">
+  <div
+    class="content-container"
+    [class.webview-mode]="authService.isWebView()"
+    [class.with-sidebar]="!authService.isWebView()"
+    pullToRefresh
+    (refresh)="onRefresh()"
+  >
     <!-- Bookings View -->
-    <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>
+    <div class="view-container" [class.active]="viewType() === 'bookings'">
+      <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>
+    </div>
 
     <!-- Orders View -->
-    <app-order-list *ngIf="viewType() === 'orders'"></app-order-list>
+    <div class="view-container" [class.active]="viewType() === 'orders'">
+      <app-order-list *ngIf="viewType() === 'orders'"></app-order-list>
+    </div>
 
     <!-- Subscriptions View -->
-    <app-subscription-list *ngIf="viewType() === 'subscriptions'"></app-subscription-list>
+    <div class="view-container" [class.active]="viewType() === 'subscriptions'">
+      <app-subscription-list
+        *ngIf="viewType() === 'subscriptions'"
+      ></app-subscription-list>
+    </div>
 
     <!-- Analytics View -->
-    <app-analytics *ngIf="viewType() === 'analytics'"></app-analytics>
-  </div>
+    <div class="view-container" [class.active]="viewType() === 'analytics'">
+      <app-analytics *ngIf="viewType() === 'analytics'"></app-analytics>
+    </div>
 
-  <app-bottom-bar></app-bottom-bar>
+    <!-- Products View -->
+    <div class="view-container" [class.active]="viewType() === 'products'">
+      <app-products *ngIf="viewType() === 'products'"></app-products>
+    </div>
+  </div>
+  @if(!authService.isWebView()) {
+  <!-- Mobile Bottom Navigation -->
+  <div class="mobile-nav" [class.webview-only]="!authService.isWebView()">
+    <div class="mobile-tab-bar">
+      <button
+        class="mobile-tab"
+        [class.active]="viewType() === 'bookings'"
+        (click)="switchToBookings()"
+      >
+        <span class="tab-icon">🚗</span>
+        <span class="tab-label">Réservations</span>
+      </button>
+      <button
+        class="mobile-tab"
+        [class.active]="viewType() === 'orders'"
+        (click)="switchToOrders()"
+      >
+        <span class="tab-icon">📦</span>
+        <span class="tab-label">Commandes</span>
+      </button>
+      <button
+        class="mobile-tab"
+        [class.active]="viewType() === 'subscriptions'"
+        (click)="switchToSubscriptions()"
+      >
+        <span class="tab-icon">💳</span>
+        <span class="tab-label">Abonnements</span>
+      </button>
+      <button
+        class="mobile-tab"
+        [class.active]="viewType() === 'analytics'"
+        (click)="switchToAnalytics()"
+      >
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">Analytics</span>
+      </button>
+      <button
+        class="mobile-tab"
+        [class.active]="viewType() === 'products'"
+        (click)="switchToProducts()"
+      >
+        <span class="tab-icon">🧴</span>
+        <span class="tab-label">Produits</span>
+      </button>
+    </div>
+  </div>
+  }
 </div>

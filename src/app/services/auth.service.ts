@@ -26,6 +26,7 @@ export class AuthService {
 
   private apiUrl = environment.apiUrl; // Update with your NestJS API URL
   private tokenKey = 'landwash_token';
+  private webViewKey = 'isWebView';
 
   private currentUserSubject = new BehaviorSubject<Personal | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -71,13 +72,6 @@ export class AuthService {
           this.loadUserData().subscribe();
         })
       );
-  }
-
-  logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.currentUserSubject.next(null);
-    this.userApiCall$ = null; // Clear cached API call
-    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
@@ -216,5 +210,79 @@ export class AuthService {
     const user = this.getCurrentUser();
     // Assuming the user has a teamId field if they're assigned to a team
     return (user as any)?.teamId || null;
+  }
+
+  // WebView specific methods
+  setWebViewMode(isWebView: boolean): void {
+    console.log('🔑 setWebViewMode:', isWebView);
+    if (isWebView) {
+      localStorage.setItem(this.webViewKey, 'true');
+    } else {
+      localStorage.removeItem(this.webViewKey);
+    }
+  }
+
+  isWebView(): boolean {
+    return localStorage.getItem(this.webViewKey) === 'true';
+  }
+
+  // Authenticate with token received from Flutter WebView
+  authenticateWithToken(token: string): Observable<Personal | null> {
+    console.log(
+      '🔑 authenticateWithToken: Received token for WebView authentication'
+    );
+
+    // Store the token
+    localStorage.setItem(this.tokenKey, token);
+
+    // Clear cache and load user data
+    this.userApiCall$ = null;
+
+    return this.loadUserData(true).pipe(
+      tap((user) => {
+        if (user) {
+          console.log(
+            '🔑 authenticateWithToken: Authentication successful, redirecting...'
+          );
+          // Redirect based on user role
+          this.redirectBasedOnRole(user);
+        } else {
+          console.error('🔑 authenticateWithToken: Failed to load user data');
+          this.logout();
+        }
+      }),
+      catchError((err) => {
+        console.error(
+          '🔑 authenticateWithToken: Error during token authentication:',
+          err
+        );
+        this.logout();
+        return of(null);
+      })
+    );
+  }
+
+  // Redirect user based on their role
+  private redirectBasedOnRole(user: Personal): void {
+    if (user.role === 'admin') {
+      // Default to bookings view for admin dashboard
+      this.router.navigate(['/dashboard', 'bookings']);
+    } else if (user.role === 'worker') {
+      this.router.navigate(['/worker-dashboard']);
+    } else {
+      this.router.navigate(['/profile']);
+    }
+  }
+
+  // Enhanced logout for WebView
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
+    this.currentUserSubject.next(null);
+    this.userApiCall$ = null;
+
+    // If in WebView, don't navigate to login (Flutter will handle this)
+    if (!this.isWebView()) {
+      this.router.navigate(['/login']);
+    }
   }
 }

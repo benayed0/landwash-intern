@@ -1,6 +1,4 @@
 <div class="products-container">
-  <app-navbar></app-navbar>
-
   <div class="content">
     <div class="products-header">
       <h2>🛍️ Gestion des Produits</h2>
@@ -14,7 +12,8 @@
       *ngIf="loading"
       [size]="'medium'"
       [message]="'Chargement des produits...'"
-      [color]="'primary'">
+      [color]="'primary'"
+    >
     </app-loading-spinner>
 
     <!-- Empty State -->
@@ -28,7 +27,11 @@
 
     <!-- Products Grid -->
     <div class="products-grid" *ngIf="!loading && products.length > 0">
-      <div class="product-card" [class.pack-card]="isProductPack(product)" *ngFor="let product of products">
+      <div
+        class="product-card"
+        [class.pack-card]="isProductPack(product)"
+        *ngFor="let product of products"
+      >
         <!-- Pack Indicator -->
         <div class="pack-badge" *ngIf="isProductPack(product)">
           📦 Pack de {{ product.nested_products?.length }} produits
@@ -50,9 +53,14 @@
           <div class="pack-contents" *ngIf="isProductPack(product)">
             <h4 class="pack-title">Contenu du pack :</h4>
             <div class="nested-products">
-              <div class="nested-product" *ngFor="let nestedProduct of product.nested_products">
+              <div
+                class="nested-product"
+                *ngFor="let nestedProduct of product.nested_products"
+              >
                 <span class="nested-name">• {{ nestedProduct.name }}</span>
-                <span class="nested-price">{{ formatPrice(nestedProduct.price) }}</span>
+                <span class="nested-price">{{
+                  formatPrice(nestedProduct.price)
+                }}</span>
               </div>
             </div>
           </div>
@@ -105,10 +113,31 @@
         <button class="btn-cancel" (click)="closeDeleteConfirm()">
           Annuler
         </button>
-        <button class="btn-delete" (click)="confirmDelete()" [disabled]="deleteLoading">
+        <button
+          class="btn-delete"
+          (click)="confirmDelete()"
+          [disabled]="deleteLoading"
+        >
           <span *ngIf="!deleteLoading">🗑️ Supprimer</span>
-          <span *ngIf="deleteLoading" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <div style="width: 16px; height: 16px; border: 2px solid #ffffff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <span
+            *ngIf="deleteLoading"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+            "
+          >
+            <div
+              style="
+                width: 16px;
+                height: 16px;
+                border: 2px solid #ffffff;
+                border-top: 2px solid transparent;
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+              "
+            ></div>
             Suppression...
           </span>
         </button>

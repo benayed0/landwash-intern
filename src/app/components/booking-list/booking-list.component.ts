@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookingService } from '../../services/booking.service';
+import { PullToRefreshService } from '../../services/pull-to-refresh.service';
 import { Booking } from '../../models/booking.model';
 import { BookingCardComponent } from '../booking-card/booking-card.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
@@ -110,6 +111,9 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .date-filter-header h3 {
@@ -117,6 +121,9 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
       color: #e5e5e5;
       font-size: 16px;
       font-weight: 600;
+      flex-shrink: 0;
+      white-space: nowrap;
+      margin-right: 16px;
     }
   .apply-btn{
 
@@ -135,7 +142,21 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
     .preset-buttons {
       display: flex;
       gap: 8px;
-      flex-wrap: wrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 2px 0;
+      width: 100%;
+      max-width: 100%;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .preset-buttons::-webkit-scrollbar {
+      display: none;
     }
 
     .preset-btn {
@@ -148,6 +169,9 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
       transition: all 0.3s;
       font-size: 12px;
       font-weight: 500;
+      flex-shrink: 0;
+      white-space: nowrap;
+      min-width: fit-content;
     }
 
     .preset-btn:hover {
@@ -239,14 +263,16 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
       }
 
       .preset-buttons {
-        width: 100%;
         justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .preset-btn {
-        flex: 1;
-        min-width: auto;
+        flex-shrink: 0;
+        min-width: fit-content;
         text-align: center;
+        white-space: nowrap;
       }
 
       .custom-date-inputs {
@@ -262,6 +288,7 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
 })
 export class BookingListComponent implements OnInit {
   private bookingService = inject(BookingService);
+  private pullToRefreshService = inject(PullToRefreshService);
 
   activeTab = 'pending';
   loading = false;
@@ -291,6 +318,13 @@ export class BookingListComponent implements OnInit {
 
   ngOnInit() {
     this.loadBookings();
+
+    // Subscribe to pull-to-refresh events
+    this.pullToRefreshService.refresh$.subscribe((component) => {
+      if (component === 'bookings' || component === 'global') {
+        this.loadBookings();
+      }
+    });
   }
 
   loadBookings() {
@@ -335,10 +369,22 @@ export class BookingListComponent implements OnInit {
         );
 
         this.loading = false;
+
+        // Complete pull-to-refresh if it was triggered
+        setTimeout(() => {
+          this.pullToRefreshService.completeRefresh();
+          console.log('✅ Bookings loaded, refresh indicator should be hidden');
+        }, 100);
       },
       error: (err) => {
         console.error('Error loading bookings:', err);
         this.loading = false;
+
+        // Complete pull-to-refresh even on error
+        setTimeout(() => {
+          this.pullToRefreshService.completeRefresh();
+          console.log('❌ Bookings load failed, refresh indicator should be hidden');
+        }, 100);
       },
     });
   }

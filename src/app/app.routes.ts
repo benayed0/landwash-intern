@@ -5,6 +5,7 @@ import { WorkerDashboardComponent } from './components/worker-dashboard/worker-d
 import { TeamsComponent } from './components/teams/teams.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { ProductsComponent } from './components/products/products.component';
+import { TokenAuthComponent } from './components/token-auth/token-auth.component';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { workerGuard } from './guards/worker.guard';
@@ -24,7 +25,17 @@ export const routes: Routes = [
     canActivate: [noAuthGuard] // Prevent logged-in users from accessing login
   },
   {
+    path: 'token-auth',
+    component: TokenAuthComponent
+    // No guard - this route should be accessible for WebView integration
+  },
+  {
     path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/:view',
     component: DashboardComponent,
     canActivate: [adminGuard]
   },
