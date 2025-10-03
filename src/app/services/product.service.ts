@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Product } from '../models/product.model';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000'; // Update with your NestJS API URL
+  private apiUrl = environment.apiUrl; // Update with your NestJS API URL
 
   constructor() {}
 
@@ -40,7 +41,11 @@ export class ProductService {
   }
 
   // Update a product (for editing, we'll use JSON since files might not change)
-  updateProduct(id: string, productData: Partial<Product>, newPictures?: File[]): Observable<Product> {
+  updateProduct(
+    id: string,
+    productData: Partial<Product>,
+    newPictures?: File[]
+  ): Observable<Product> {
     if (newPictures && newPictures.length > 0) {
       // If new pictures are provided, use FormData
       const formData = new FormData();
@@ -53,10 +58,16 @@ export class ProductService {
 
       newPictures.forEach((file) => formData.append('pictures', file));
 
-      return this.http.patch<Product>(`${this.apiUrl}/products/${id}`, formData);
+      return this.http.patch<Product>(
+        `${this.apiUrl}/products/${id}`,
+        formData
+      );
     } else {
       // If no new pictures, use JSON
-      return this.http.patch<Product>(`${this.apiUrl}/products/${id}`, productData);
+      return this.http.patch<Product>(
+        `${this.apiUrl}/products/${id}`,
+        productData
+      );
     }
   }
 

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreatePersonalDto, Personal } from '../models/personal.model';
+import { environment } from '../../environments/environment';
 
 export interface UpdatePersonalDto {
   name?: string;
@@ -14,7 +15,7 @@ export interface UpdatePersonalDto {
 })
 export class PersonalService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000'; // Update with your NestJS API URL
+  private apiUrl = environment.apiUrl; // Update with your NestJS API URL
 
   // Create a new personal
   createPersonal(
