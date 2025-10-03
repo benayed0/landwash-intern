@@ -66,8 +66,6 @@
     class="content-container"
     [class.webview-mode]="authService.isWebView()"
     [class.with-sidebar]="!authService.isWebView()"
-    pullToRefresh
-    (refresh)="onRefresh()"
   >
     <!-- Bookings View -->
     <div class="view-container" [class.active]="viewType() === 'bookings'">

@@ -9,7 +9,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookingService } from '../../services/booking.service';
-import { PullToRefreshService } from '../../services/pull-to-refresh.service';
 import { Booking } from '../../models/booking.model';
 import { BookingCardComponent } from '../booking-card/booking-card.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
@@ -288,7 +287,6 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
 })
 export class BookingListComponent implements OnInit {
   private bookingService = inject(BookingService);
-  private pullToRefreshService = inject(PullToRefreshService);
 
   activeTab = 'pending';
   loading = false;
@@ -318,13 +316,6 @@ export class BookingListComponent implements OnInit {
 
   ngOnInit() {
     this.loadBookings();
-
-    // Subscribe to pull-to-refresh events
-    this.pullToRefreshService.refresh$.subscribe((component) => {
-      if (component === 'bookings' || component === 'global') {
-        this.loadBookings();
-      }
-    });
   }
 
   loadBookings() {
@@ -369,22 +360,10 @@ export class BookingListComponent implements OnInit {
         );
 
         this.loading = false;
-
-        // Complete pull-to-refresh if it was triggered
-        setTimeout(() => {
-          this.pullToRefreshService.completeRefresh();
-          console.log('✅ Bookings loaded, refresh indicator should be hidden');
-        }, 100);
       },
       error: (err) => {
         console.error('Error loading bookings:', err);
         this.loading = false;
-
-        // Complete pull-to-refresh even on error
-        setTimeout(() => {
-          this.pullToRefreshService.completeRefresh();
-          console.log('❌ Bookings load failed, refresh indicator should be hidden');
-        }, 100);
       },
     });
   }

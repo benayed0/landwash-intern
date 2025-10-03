@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { PushNotificationService } from '../../services/push-notification.service';
-import { PullToRefreshService } from '../../services/pull-to-refresh.service';
-import { PullToRefreshDirective } from '../../directives/pull-to-refresh.directive';
 import { BookingListComponent } from '../booking-list/booking-list.component';
 import { OrderListComponent } from '../order-list/order-list.component';
 import { SubscriptionListComponent } from '../subscription-list/subscription-list.component';
@@ -22,7 +20,6 @@ import { ProductsComponent } from '../products/products.component';
     SubscriptionListComponent,
     AnalyticsComponent,
     ProductsComponent,
-    PullToRefreshDirective,
   ],
   templateUrl: './dashboard.component.html',
   styles: `
@@ -388,13 +385,12 @@ import { ProductsComponent } from '../products/products.component';
 export class DashboardComponent implements OnInit {
   authService = inject(AuthService);
   private pushNotificationService = inject(PushNotificationService);
-  private pullToRefreshService = inject(PullToRefreshService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  viewType = signal<'bookings' | 'orders' | 'subscriptions' | 'analytics' | 'products'>(
-    'bookings'
-  );
+  viewType = signal<
+    'bookings' | 'orders' | 'subscriptions' | 'analytics' | 'products'
+  >('bookings');
 
   constructor() {}
 
@@ -402,7 +398,7 @@ export class DashboardComponent implements OnInit {
     this.requestNotificationPermission();
 
     // Listen to route parameter changes
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       const view = params['view'];
       if (view && this.isValidViewType(view)) {
         this.viewType.set(view);
@@ -410,8 +406,21 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  private isValidViewType(view: string): view is 'bookings' | 'orders' | 'subscriptions' | 'analytics' | 'products' {
-    return ['bookings', 'orders', 'subscriptions', 'analytics', 'products'].includes(view);
+  private isValidViewType(
+    view: string
+  ): view is
+    | 'bookings'
+    | 'orders'
+    | 'subscriptions'
+    | 'analytics'
+    | 'products' {
+    return [
+      'bookings',
+      'orders',
+      'subscriptions',
+      'analytics',
+      'products',
+    ].includes(view);
   }
 
   switchToBookings() {
@@ -466,21 +475,6 @@ export class DashboardComponent implements OnInit {
     if ('vibrate' in navigator) {
       navigator.vibrate(10); // Very light vibration (10ms)
     }
-  }
-
-  onRefresh() {
-    console.log('🔄 Refreshing dashboard data...');
-
-    // Trigger refresh based on current view
-    const currentView = this.viewType();
-    this.pullToRefreshService.triggerRefresh(currentView);
-
-    // Note: Individual components will call completeRefresh() when their data loading finishes
-    // This provides a fallback timeout in case no component handles it
-    setTimeout(() => {
-      this.pullToRefreshService.completeRefresh();
-      console.log('✅ Dashboard refresh completed (fallback)');
-    }, 3000);
   }
 
   private async requestNotificationPermission() {
