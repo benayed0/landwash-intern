@@ -1,5 +1,5 @@
 <div class="booking-card">
- @if (!isEditing) {
+  @if (!isEditing) {
   <!-- Normal View -->
   <div class="booking-header">
     <div class="vehicle-type">
@@ -74,8 +74,12 @@
     </div>
 
     <div class="form-group">
-      <label>Date</label>
-      <input type="date" [(ngModel)]="editForm.date" class="form-input" />
+      <label>Date et heure</label>
+      <input
+        type="datetime-local"
+        [(ngModel)]="editForm.date"
+        class="date-input"
+      />
     </div>
 
     <div class="form-group">
@@ -163,7 +167,11 @@
   <div class="price-section">
     <div class="booking-price">{{ booking.price }} DT</div>
     @if (canEdit()) {
-    <button class="edit-btn" (click)="startEdit()" title="Modifier la réservation">
+    <button
+      class="edit-btn"
+      (click)="startEdit()"
+      title="Modifier la réservation"
+    >
       ✏️ Modifier
     </button>
     }

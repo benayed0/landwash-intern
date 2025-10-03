@@ -182,19 +182,19 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
       font-weight: 500;
     }
 
-    .date-input {
-      padding: 10px 12px;
-      background: #1a1a1a;
-      color: #e5e5e5;
-      border: 1px solid #444;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c3ff00'%3e%3cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3e%3c/svg%3e");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      background-size: 18px 18px;
+    .date-input {    padding: 10px 12px;
+    background-color: #0a0a0a;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    color: #e5e5e5;
+    font-size: 14px;
+    min-width: 150px;
+    position: relative;
+    background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c3ff00'%3e%3cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3e%3c/svg%3e);
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 18px 18px;
+    padding-right: 40px;
     }
 
     .date-input:focus {
@@ -297,15 +297,21 @@ export class BookingListComponent implements OnInit {
     this.loading = true;
     this.bookingService.getAllBookings().subscribe({
       next: (bookings) => {
-        this.pendingBookings.set(bookings.filter((b) => b.status === 'pending'));
-        this.confirmedBookings.set(bookings.filter(
-          (b) => b.status === 'confirmed'
-        ));
-        this.completedBookings.set(bookings.filter(
-          (b) => b.status === 'completed'
-        ));
-        this.rejectedBookings.set(bookings.filter((b) => b.status === 'rejected'));
-        this.canceledBookings.set(bookings.filter((b) => b.status === 'canceled'));
+        this.pendingBookings.set(
+          bookings.filter((b) => b.status === 'pending')
+        );
+        this.confirmedBookings.set(
+          bookings.filter((b) => b.status === 'confirmed')
+        );
+        this.completedBookings.set(
+          bookings.filter((b) => b.status === 'completed')
+        );
+        this.rejectedBookings.set(
+          bookings.filter((b) => b.status === 'rejected')
+        );
+        this.canceledBookings.set(
+          bookings.filter((b) => b.status === 'canceled')
+        );
         console.log('Loaded pending bookings:', this.pendingBookings().length);
         console.log(
           'Loaded confirmed bookings:',
@@ -315,8 +321,14 @@ export class BookingListComponent implements OnInit {
           'Loaded completed bookings:',
           this.completedBookings().length
         );
-        console.log('Loaded rejected bookings:', this.rejectedBookings().length);
-        console.log('Loaded canceled bookings:', this.canceledBookings().length);
+        console.log(
+          'Loaded rejected bookings:',
+          this.rejectedBookings().length
+        );
+        console.log(
+          'Loaded canceled bookings:',
+          this.canceledBookings().length
+        );
         console.log(
           'Filtered pending bookings:',
           this.filteredPendingBookings()
@@ -650,26 +662,38 @@ export class BookingListComponent implements OnInit {
     });
   }
 
-  onBookingUpdate(event: {bookingId: string, updateData: Partial<Booking>}) {
-    this.bookingService.updateBooking(event.bookingId, event.updateData).subscribe({
-      next: (updatedBooking) => {
-        // Update the booking in the appropriate array
-        this.updateBookingInArrays(updatedBooking);
-        console.log('Booking updated successfully:', updatedBooking);
-      },
-      error: (err: any) => {
-        console.error('Error updating booking:', err);
-      }
-    });
+  onBookingUpdate(event: { bookingId: string; updateData: Partial<Booking> }) {
+    this.bookingService
+      .updateBooking(event.bookingId, event.updateData)
+      .subscribe({
+        next: (updatedBooking) => {
+          // Update the booking in the appropriate array
+          this.updateBookingInArrays(updatedBooking);
+          console.log('Booking updated successfully:', updatedBooking);
+        },
+        error: (err: any) => {
+          console.error('Error updating booking:', err);
+        },
+      });
   }
 
   private updateBookingInArrays(updatedBooking: Booking) {
     // Remove from all arrays first
-    this.pendingBookings.set(this.pendingBookings().filter(b => b._id !== updatedBooking._id));
-    this.confirmedBookings.set(this.confirmedBookings().filter(b => b._id !== updatedBooking._id));
-    this.completedBookings.set(this.completedBookings().filter(b => b._id !== updatedBooking._id));
-    this.rejectedBookings.set(this.rejectedBookings().filter(b => b._id !== updatedBooking._id));
-    this.canceledBookings.set(this.canceledBookings().filter(b => b._id !== updatedBooking._id));
+    this.pendingBookings.set(
+      this.pendingBookings().filter((b) => b._id !== updatedBooking._id)
+    );
+    this.confirmedBookings.set(
+      this.confirmedBookings().filter((b) => b._id !== updatedBooking._id)
+    );
+    this.completedBookings.set(
+      this.completedBookings().filter((b) => b._id !== updatedBooking._id)
+    );
+    this.rejectedBookings.set(
+      this.rejectedBookings().filter((b) => b._id !== updatedBooking._id)
+    );
+    this.canceledBookings.set(
+      this.canceledBookings().filter((b) => b._id !== updatedBooking._id)
+    );
 
     // Add to the correct array based on status
     switch (updatedBooking.status) {
@@ -677,10 +701,16 @@ export class BookingListComponent implements OnInit {
         this.pendingBookings.set([...this.pendingBookings(), updatedBooking]);
         break;
       case 'confirmed':
-        this.confirmedBookings.set([...this.confirmedBookings(), updatedBooking]);
+        this.confirmedBookings.set([
+          ...this.confirmedBookings(),
+          updatedBooking,
+        ]);
         break;
       case 'completed':
-        this.completedBookings.set([...this.completedBookings(), updatedBooking]);
+        this.completedBookings.set([
+          ...this.completedBookings(),
+          updatedBooking,
+        ]);
         break;
       case 'rejected':
         this.rejectedBookings.set([...this.rejectedBookings(), updatedBooking]);

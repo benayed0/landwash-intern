@@ -9,6 +9,45 @@ import { Booking } from '../../models/booking.model';
   imports: [CommonModule, FormsModule],
   templateUrl: './booking-card.component.html',
   styles: `
+  
+    .date-input {
+      padding: 10px 12px;
+      background-color: #0a0a0a;
+      border: 1px solid #3a3a3a;
+      border-radius: 6px;
+      color: #e5e5e5;
+      font-size: 14px;
+      min-width: 180px;
+      position: relative;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c3ff00'%3e%3cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px 16px;
+      padding-right: 35px;
+    }
+
+    .date-input:focus {
+      outline: none;
+      border-color: #c3ff00;
+      box-shadow: 0 0 0 2px rgba(195, 255, 0, 0.1);
+    }
+
+    .date-input::-webkit-calendar-picker-indicator {
+      opacity: 0;
+      cursor: pointer;
+      position: absolute;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .date-input::-webkit-datetime-edit {
+      color: #e5e5e5;
+    }
+
+    .date-input::-webkit-datetime-edit-fields-wrapper {
+      color: #e5e5e5;
+    }
     .booking-card {
       background: #1a1a1a;
       border-radius: 15px;
@@ -520,6 +559,7 @@ export class BookingCardComponent {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      hour12: false,
     }).format(d);
   }
 
@@ -587,7 +627,7 @@ export class BookingCardComponent {
     this.editForm = {
       type: this.booking.type,
       price: this.booking.price,
-      date: new Date(this.booking.date).toISOString().split('T')[0],
+      date: this.formatDateTimeForInput(this.booking.date),
       status: this.booking.status,
       withSub: this.booking.withSub,
       salonsSeats: this.booking.salonsSeats || 0,
@@ -641,6 +681,15 @@ export class BookingCardComponent {
 
   // Format date for input field
   formatDateForInput(date: Date | string): string {
-    return new Date(date).toISOString().split('T')[0];
+    return new Date(date).toISOString().slice(0, 16);
+  }
+
+  // Format datetime for input field preserving local timezone
+  formatDateTimeForInput(date: Date | string): string {
+    const d = new Date(date);
+    // Get local timezone offset and adjust the date
+    const offsetMs = d.getTimezoneOffset() * 60000;
+    const localDate = new Date(d.getTime() - offsetMs);
+    return localDate.toISOString().slice(0, 16);
   }
 }
