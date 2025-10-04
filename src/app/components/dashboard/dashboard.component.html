@@ -71,15 +71,31 @@
           >Produits</span
         >
       </button>
-    </nav>
-
-    <div class="sidebar-footer">
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'personals'"
+        (click)="switchToPersonals()"
+      >
+        <span class="nav-icon">👤</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Personnels</span
+        >
+      </button>
       <button class="logout-btn" (click)="logout()">
         <span class="logout-icon">🚪</span>
         <span class="logout-text" [class.hidden]="sidebarCollapsed()"
           >Déconnexion</span
         >
       </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <!-- <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-text" [class.hidden]="sidebarCollapsed()"
+          >Déconnexion</span
+        >
+      </button> -->
     </div>
   </div>
   }
@@ -115,6 +131,10 @@
     <!-- Products View -->
     <div class="view-container" [class.active]="viewType() === 'products'">
       <app-products *ngIf="viewType() === 'products'"></app-products>
+    </div>
+    <!-- Personals View -->
+    <div class="view-container" [class.active]="viewType() === 'personals'">
+      <app-teams *ngIf="viewType() === 'personals'"></app-teams>
     </div>
   </div>
 </div>

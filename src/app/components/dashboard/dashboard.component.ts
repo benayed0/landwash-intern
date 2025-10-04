@@ -8,6 +8,7 @@ import { OrderListComponent } from '../order-list/order-list.component';
 import { SubscriptionListComponent } from '../subscription-list/subscription-list.component';
 import { AnalyticsComponent } from '../analytics/analytics.component';
 import { ProductsComponent } from '../products/products.component';
+import { TeamsComponent } from '../teams/teams.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +21,7 @@ import { ProductsComponent } from '../products/products.component';
     SubscriptionListComponent,
     AnalyticsComponent,
     ProductsComponent,
+    TeamsComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -31,7 +33,12 @@ export class DashboardComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   viewType = signal<
-    'bookings' | 'orders' | 'subscriptions' | 'analytics' | 'products'
+    | 'bookings'
+    | 'orders'
+    | 'subscriptions'
+    | 'analytics'
+    | 'products'
+    | 'personals'
   >('bookings');
 
   // Sidebar toggle state
@@ -58,13 +65,15 @@ export class DashboardComponent implements OnInit {
     | 'orders'
     | 'subscriptions'
     | 'analytics'
-    | 'products' {
+    | 'products'
+    | 'personals' {
     return [
       'bookings',
       'orders',
       'subscriptions',
       'analytics',
       'products',
+      'personals',
     ].includes(view);
   }
 
@@ -112,6 +121,14 @@ export class DashboardComponent implements OnInit {
       this.viewType.set('products');
     } else {
       this.router.navigate(['/dashboard/products']);
+    }
+  }
+  switchToPersonals() {
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      this.viewType.set('personals');
+    } else {
+      this.router.navigate(['/dashboard/personals']);
     }
   }
 

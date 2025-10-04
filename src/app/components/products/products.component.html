@@ -139,22 +139,22 @@
       </div>
     </div>
   </div>
-
-  <!-- Add Product Modal -->
-  <app-product-modal
-    [isOpen]="showAddModal"
-    [product]="null"
-    (productSaved)="onProductSaved()"
-    (close)="closeModals()"
-  >
-  </app-product-modal>
-
-  <!-- Edit Product Modal -->
-  <app-product-modal
-    [isOpen]="showEditModal"
-    [product]="selectedProduct"
-    (productSaved)="onProductSaved()"
-    (close)="closeModals()"
-  >
-  </app-product-modal>
 </div>
+
+<!-- Add Product Modal -->
+<app-product-modal
+  [isOpen]="showAddModal"
+  [product]="null"
+  (productSaved)="onProductSaved()"
+  (close)="closeModals()"
+>
+</app-product-modal>
+
+<!-- Edit Product Modal -->
+<app-product-modal
+  [isOpen]="showEditModal"
+  [product]="selectedProduct"
+  (productSaved)="onProductSaved()"
+  (close)="closeModals()"
+>
+</app-product-modal>
