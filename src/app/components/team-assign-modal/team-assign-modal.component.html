@@ -1,7 +1,9 @@
 <div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2 class="modal-title">{{ isReassignment ? 'Changer l\'équipe' : 'Assigner une équipe' }}</h2>
+      <h2 class="modal-title">
+        {{ isReassignment ? "Changer l'équipe" : "Assigner une équipe" }}
+      </h2>
       <button class="close-btn" (click)="onClose()">×</button>
     </div>
 
@@ -31,7 +33,9 @@
         </div>
         <div class="info-row" *ngIf="isReassignment && booking.teamId">
           <span class="info-label">Équipe actuelle:</span>
-          <span class="info-value current-team">{{ getCurrentTeamName() }}</span>
+          <span class="info-value current-team">{{
+            getCurrentTeamName()
+          }}</span>
         </div>
       </div>
 
@@ -44,7 +48,8 @@
           *ngIf="loadingTeams"
           [size]="'small'"
           [message]="'Chargement des équipes...'"
-          [color]="'primary'">
+          [color]="'primary'"
+        >
         </app-loading-spinner>
 
         <select
@@ -76,7 +81,9 @@
         (click)="confirm()"
         [disabled]="!selectedTeamId || loadingTeams"
       >
-        {{ isReassignment ? 'Confirmer le changement' : 'Confirmer et assigner' }}
+        {{
+          isReassignment ? "Confirmer le changement" : "Confirmer et assigner"
+        }}
       </button>
     </div>
   </div>

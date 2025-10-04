@@ -1,4 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Booking } from '../../models/booking.model';
@@ -11,13 +18,19 @@ import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinn
   standalone: true,
   imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
   templateUrl: './team-assign-modal.component.html',
-  styleUrl: './team-assign-modal.component.css'
+  styleUrl: './team-assign-modal.component.css',
 })
 export class TeamAssignModalComponent implements OnInit {
   @Input() booking: Booking | null = null;
   @Input() isOpen = false;
-  @Output() confirmAssign = new EventEmitter<{ booking: Booking, teamId: string }>();
-  @Output() reassignTeam = new EventEmitter<{ booking: Booking, teamId: string }>();
+  @Output() confirmAssign = new EventEmitter<{
+    booking: Booking;
+    teamId: string;
+  }>();
+  @Output() reassignTeam = new EventEmitter<{
+    booking: Booking;
+    teamId: string;
+  }>();
   @Output() close = new EventEmitter<void>();
 
   private teamService = inject(TeamService);
@@ -55,15 +68,15 @@ export class TeamAssignModalComponent implements OnInit {
       error: (err) => {
         console.error('Error loading teams:', err);
         this.loadingTeams = false;
-      }
+      },
     });
   }
 
   getVehicleTypeLabel(type: string): string {
     const labels: any = {
-      'small': 'Citadines / Petites Voitures',
-      'big': 'SUV / Grandes Voitures',
-      'salon': 'Salon'
+      small: 'Citadines / Petites Voitures',
+      big: 'SUV / Grandes Voitures',
+      salon: 'Salon',
     };
     return labels[type] || type;
   }
@@ -82,7 +95,7 @@ export class TeamAssignModalComponent implements OnInit {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: false,
     }).format(d);
   }
 
@@ -90,10 +103,16 @@ export class TeamAssignModalComponent implements OnInit {
     if (this.booking?._id && this.selectedTeamId) {
       if (this.isReassignment) {
         // For reassignment, only update team without changing status
-        this.reassignTeam.emit({ booking: this.booking, teamId: this.selectedTeamId });
+        this.reassignTeam.emit({
+          booking: this.booking,
+          teamId: this.selectedTeamId,
+        });
       } else {
         // For new assignment, assign team and confirm booking
-        this.confirmAssign.emit({ booking: this.booking, teamId: this.selectedTeamId });
+        this.confirmAssign.emit({
+          booking: this.booking,
+          teamId: this.selectedTeamId,
+        });
       }
     }
   }

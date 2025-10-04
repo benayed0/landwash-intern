@@ -215,30 +215,30 @@
       </app-booking-card>
     </div>
   </div>
-
-  <!-- Modals -->
-  <app-price-confirm-modal
-    [booking]="selectedBookingForCompletion"
-    [isOpen]="showPriceModal"
-    (confirmComplete)="onConfirmComplete($event)"
-    (close)="closeModal()"
-  >
-  </app-price-confirm-modal>
-
-  <app-team-assign-modal
-    [booking]="selectedBookingForTeam"
-    [isOpen]="showTeamModal"
-    (confirmAssign)="onConfirmAssign($event)"
-    (reassignTeam)="onReassignTeam($event)"
-    (close)="closeTeamModal()"
-  >
-  </app-team-assign-modal>
-
-  <app-reject-confirm-modal
-    [booking]="selectedBookingForRejection"
-    [isOpen]="showRejectModal"
-    (confirmReject)="onConfirmReject()"
-    (close)="closeRejectModal()"
-  >
-  </app-reject-confirm-modal>
 </div>
+
+<!-- Modals -->
+<app-price-confirm-modal
+  [booking]="selectedBookingForCompletion"
+  [isOpen]="showPriceModal"
+  (confirmComplete)="onConfirmComplete($event)"
+  (close)="closeModal()"
+>
+</app-price-confirm-modal>
+
+<app-team-assign-modal
+  [booking]="selectedBookingForTeam"
+  [isOpen]="showTeamModal"
+  (confirmAssign)="onConfirmAssign($event)"
+  (reassignTeam)="onReassignTeam($event)"
+  (close)="closeTeamModal()"
+>
+</app-team-assign-modal>
+
+<app-reject-confirm-modal
+  [booking]="selectedBookingForRejection"
+  [isOpen]="showRejectModal"
+  (confirmReject)="onConfirmReject()"
+  (close)="closeRejectModal()"
+>
+</app-reject-confirm-modal>

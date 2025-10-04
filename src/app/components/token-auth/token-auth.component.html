@@ -1,0 +1,33 @@
+<div class="token-auth-container">
+  <div class="auth-content">
+    <div class="logo-section">
+      <img src="assets/logo.png" class="logo" alt="Landwash Logo" />
+      <h1>Landwash Admin</h1>
+    </div>
+
+    <div class="status-section">
+      @if (isLoading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Authentification en cours...</p>
+      </div>
+      } @if (errorMessage) {
+      <div class="error-state">
+        <div class="error-icon">❌</div>
+        <h3>Erreur d'authentification</h3>
+        <p>{{ errorMessage }}</p>
+        <button class="retry-btn" (click)="goToLogin()">
+          Retour à la connexion
+        </button>
+      </div>
+      } @if (successMessage) {
+      <div class="success-state">
+        <div class="success-icon">✅</div>
+        <h3>Authentification réussie</h3>
+        <p>{{ successMessage }}</p>
+        <p class="redirect-text">Redirection en cours...</p>
+      </div>
+      }
+    </div>
+  </div>
+</div>
