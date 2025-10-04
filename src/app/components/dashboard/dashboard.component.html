@@ -21,6 +21,8 @@
   <!-- Sidebar Navigation -->
   <div class="sidebar" [class.open]="!sidebarCollapsed()">
     <nav class="sidebar-nav">
+      @if((authService.currentUser$ | async)?.role==='admin'){
+
       <button
         class="nav-item"
         [class.active]="viewType() === 'bookings'"
@@ -76,9 +78,41 @@
         [class.active]="viewType() === 'personals'"
         (click)="switchToPersonals()"
       >
-        <span class="nav-icon">👤</span>
+        <span class="nav-icon">👤👤</span>
         <span class="nav-label" [class.hidden]="sidebarCollapsed()"
           >Personnels</span
+        >
+      </button>
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'users'"
+        (click)="switchToUsers()"
+      >
+        <span class="nav-icon">🚗</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Clients</span
+        >
+      </button>
+      }@else{
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'worker-dashboard'"
+        (click)="switchToWorkerDashboard()"
+      >
+        <span class="nav-icon">👷</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Réservations</span
+        >
+      </button>
+      }
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'profile'"
+        (click)="switchToProfile()"
+      >
+        <span class="nav-icon">👤</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Mon Profil</span
         >
       </button>
       <button class="logout-btn" (click)="logout()">
@@ -110,6 +144,14 @@
     <div class="view-container" [class.active]="viewType() === 'bookings'">
       <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>
     </div>
+    <div
+      class="view-container"
+      [class.active]="viewType() === 'worker-dashboard'"
+    >
+      <app-worker-dashboard
+        *ngIf="viewType() === 'worker-dashboard'"
+      ></app-worker-dashboard>
+    </div>
 
     <!-- Orders View -->
     <div class="view-container" [class.active]="viewType() === 'orders'">
@@ -135,6 +177,14 @@
     <!-- Personals View -->
     <div class="view-container" [class.active]="viewType() === 'personals'">
       <app-teams *ngIf="viewType() === 'personals'"></app-teams>
+    </div>
+    <!-- Personals View -->
+    <div class="view-container" [class.active]="viewType() === 'profile'">
+      <app-profile *ngIf="viewType() === 'profile'"></app-profile>
+    </div>
+    <!-- Clients View -->
+    <div class="view-container" [class.active]="viewType() === 'users'">
+      <app-users *ngIf="viewType() === 'users'"></app-users>
     </div>
   </div>
 </div>

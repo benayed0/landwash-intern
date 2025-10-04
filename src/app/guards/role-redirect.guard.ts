@@ -21,11 +21,15 @@ export const roleRedirectGuard: CanActivateFn = (route, state) => {
   if (user) {
     // If we already have user data, redirect based on role
     if (user.role === 'admin') {
-      console.log('🔀 RoleRedirectGuard: User is admin, redirecting to admin dashboard');
-      return router.createUrlTree(['/dashboard']);
+      console.log(
+        '🔀 RoleRedirectGuard: User is admin, redirecting to admin dashboard'
+      );
+      return router.createUrlTree(['/dashboard/bookings']);
     } else if (user.role === 'worker') {
-      console.log('🔀 RoleRedirectGuard: User is worker, redirecting to worker dashboard');
-      return router.createUrlTree(['/worker-dashboard']);
+      console.log(
+        '🔀 RoleRedirectGuard: User is worker, redirecting to worker dashboard'
+      );
+      return router.createUrlTree(['/dashboard/worker-dashboard']);
     } else {
       console.log('🔀 RoleRedirectGuard: Unknown role, redirecting to login');
       return router.createUrlTree(['/login']);
@@ -35,15 +39,21 @@ export const roleRedirectGuard: CanActivateFn = (route, state) => {
   // If no user data cached, fetch it first
   console.log('🔀 RoleRedirectGuard: No cached user, fetching user data...');
   return authService.refreshUserData().pipe(
-    map(user => {
+    map((user) => {
       if (user?.role === 'admin') {
-        console.log('🔀 RoleRedirectGuard: User is admin, redirecting to admin dashboard');
-        return router.createUrlTree(['/dashboard']);
+        console.log(
+          '🔀 RoleRedirectGuard: User is admin, redirecting to admin dashboard'
+        );
+        return router.createUrlTree(['/dashboard/bookings']);
       } else if (user?.role === 'worker') {
-        console.log('🔀 RoleRedirectGuard: User is worker, redirecting to worker dashboard');
-        return router.createUrlTree(['/worker-dashboard']);
+        console.log(
+          '🔀 RoleRedirectGuard: User is worker, redirecting to worker dashboard'
+        );
+        return router.createUrlTree(['/dashboard/worker-dashboard']);
       } else {
-        console.log('🔀 RoleRedirectGuard: No valid user role, redirecting to login');
+        console.log(
+          '🔀 RoleRedirectGuard: No valid user role, redirecting to login'
+        );
         return router.createUrlTree(['/login']);
       }
     })

@@ -1,0 +1,95 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>👤 Ajouter un nouvel utilisateur</h3>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="onSubmit()" #userForm="ngForm">
+        <!-- Name Field -->
+        <div class="form-group">
+          <label for="name">Nom complet *</label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="newUser.name"
+            name="name"
+            class="form-input"
+            [class.error]="nameError"
+            placeholder="Ex: Ahmed Ben Ali"
+            required
+            [disabled]="isSubmitting"
+          />
+          <span class="error-message" *ngIf="nameError">{{ nameError }}</span>
+        </div>
+
+        <!-- Phone Field -->
+        <div class="form-group">
+          <label for="phone">Numéro de téléphone *</label>
+          <div class="phone-input-container" [class.error]="phoneError">
+            <div class="phone-prefix">🇹🇳 +216</div>
+            <input
+              type="tel"
+              id="phone"
+              [(ngModel)]="phoneDigits"
+              (input)="onPhoneInput($event)"
+              (keydown)="onPhoneKeydown($event)"
+              name="phone"
+              class="form-input phone-input"
+              [class.error]="phoneError"
+              placeholder="XX XXX XXX"
+              maxlength="10"
+              required
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <span class="error-message" *ngIf="phoneError">{{ phoneError }}</span>
+        </div>
+
+        <!-- Email Field (Optional) -->
+        <div class="form-group">
+          <label for="email">Adresse email</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newUser.email"
+            name="email"
+            class="form-input"
+            [class.error]="emailError"
+            placeholder="Ex: ahmed.benali@example.com (optionnel)"
+            [disabled]="isSubmitting"
+          />
+          <span class="error-message" *ngIf="emailError">{{ emailError }}</span>
+        </div>
+
+        <div class="info-message">
+          <p>
+            📱 L'utilisateur pourra se connecter en utilisant son numéro de
+            téléphone et recevra un code de vérification par SMS.
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="onCancel()"
+        [disabled]="isSubmitting"
+      >
+        Annuler
+      </button>
+      <button
+        type="button"
+        class="btn-confirm"
+        (click)="onSubmit()"
+        [disabled]="isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">✓ Créer l'utilisateur</span>
+        <span *ngIf="isSubmitting">⏳ Création...</span>
+      </button>
+    </div>
+  </div>
+</div>

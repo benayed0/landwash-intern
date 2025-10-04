@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Subscription } from '../models/subscription.model';
+import {
+  Subscription,
+  SubscriptionTransaction,
+} from '../models/subscription.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -14,16 +17,32 @@ export class SubscriptionService {
   getAllSubscriptions(): Observable<Subscription[]> {
     return this.http.get<Subscription[]>(this.apiUrl);
   }
+  getAllSubscriptionsHistory(): Observable<SubscriptionTransaction[]> {
+    return this.http.get<SubscriptionTransaction[]>(
+      `${this.apiUrl}/transactions`
+    );
+  }
 
-  updateSubscription(id: string, updateData: Partial<Subscription>): Observable<Subscription> {
-    return this.http.patch<Subscription>(`${this.apiUrl}/update/${id}`, updateData);
+  updateSubscription(
+    id: string,
+    updateData: Partial<Subscription>
+  ): Observable<Subscription> {
+    return this.http.patch<Subscription>(
+      `${this.apiUrl}/update/${id}`,
+      updateData
+    );
   }
 
   deleteSubscription(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  updateSubscriptionStatus(id: string, status: string): Observable<Subscription> {
-    return this.http.patch<Subscription>(`${this.apiUrl}/update/${id}`, { status });
+  updateSubscriptionStatus(
+    id: string,
+    status: string
+  ): Observable<Subscription> {
+    return this.http.patch<Subscription>(`${this.apiUrl}/update/${id}`, {
+      status,
+    });
   }
 }

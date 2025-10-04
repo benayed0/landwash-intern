@@ -1,6 +1,4 @@
 <div class="dashboard-container">
-  <app-navbar></app-navbar>
-
   <!-- Welcome Section -->
   <div class="welcome-section" *ngIf="currentUser">
     <h2>Bonjour, {{ currentUser.name || currentUser.email }}!</h2>
@@ -33,7 +31,8 @@
       *ngIf="loading"
       [size]="'medium'"
       [message]="'Chargement des réservations...'"
-      [color]="'primary'">
+      [color]="'primary'"
+    >
     </app-loading-spinner>
 
     <div *ngIf="!loading && currentBookings.length === 0" class="empty-state">
@@ -52,9 +51,4 @@
       </app-booking-card>
     </div>
   </div>
-
-  <!-- Refresh Button -->
-  <button class="refresh-btn" (click)="loadBookings()">🔄</button>
-
-  <app-bottom-bar [activeTab]="'dashboard'"></app-bottom-bar>
 </div>

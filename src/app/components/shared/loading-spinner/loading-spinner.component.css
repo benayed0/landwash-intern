@@ -33,6 +33,9 @@
   animation: spin 1s linear infinite;
 }
 
+::ng-deep .custom-spinner .p-progress-spinner-circle {
+  stroke: #b1e500 !important;
+}
 /* Size variants */
 .small .spinner-circle {
   width: 20px;
@@ -101,7 +104,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

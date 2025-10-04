@@ -22,7 +22,9 @@ export class BottomBarComponent {
 
   getDashboardRoute(): string {
     const user = this.authService.getCurrentUser();
-    return user?.role === 'worker' ? '/worker-dashboard' : '/dashboard';
+    let route = 'dashboard';
+    route += user?.role === 'worker' ? '/worker-dashboard' : '/bookings';
+    return route;
   }
 
   isAdmin(): boolean {

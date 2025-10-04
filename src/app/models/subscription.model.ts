@@ -1,7 +1,21 @@
-export type SubscriptionStatus = 'pending' | 'active' | 'inactive' | 'canceled' | 'expired';
+export type SubscriptionStatus =
+  | 'pending'
+  | 'active'
+  | 'inactive'
+  | 'canceled'
+  | 'expired';
 
 export type SubscriptionRenewalType = 'auto' | 'manual';
-
+export type SubscriptionTransactionType =
+  | 'new'
+  | 'renewal'
+  | 'upgrade'
+  | 'downgrade';
+export type SubscriptionTransactionStatus =
+  | 'paid'
+  | 'pending'
+  | 'failed'
+  | 'refunded';
 export interface Subscription {
   _id?: string;
   userId: {
@@ -19,4 +33,25 @@ export interface Subscription {
   renewalDate: Date;
   status: SubscriptionStatus;
   renewalType: SubscriptionRenewalType;
+}
+export interface SubscriptionTransaction {
+  _id?: string;
+  subscriptionId: Omit<Subscription, 'userId'> & { userId: string };
+  userId: {
+    _id: string;
+    name: string;
+    email: string | null;
+    phoneNumber: string;
+    memberSince: Date;
+  };
+  plan: string;
+  amount: number;
+  type: SubscriptionTransactionType;
+  startDate: Date;
+  endDate: Date;
+  status: SubscriptionTransactionStatus;
+  paidAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
 }

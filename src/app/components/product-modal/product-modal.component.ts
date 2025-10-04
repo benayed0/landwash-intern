@@ -1,4 +1,14 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnChanges,
+  inject,
+  ViewEncapsulation,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
@@ -9,23 +19,30 @@ import { Product } from '../../models/product.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './product-modal.component.html',
-  styleUrl: './product-modal.component.css'
+  styleUrl: './product-modal.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class ProductModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() product: Product | null = null; // For editing
   @Output() productSaved = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
-
+  el = inject(ElementRef);
   private productService = inject(ProductService);
 
+  ngOnDestroy() {
+    // Clean up when component destroyed
+    if (document.body.contains(this.el.nativeElement)) {
+      document.body.removeChild(this.el.nativeElement);
+    }
+  }
   formData: Partial<Product> = {
     name: '',
     type: '',
     price: 0,
     details: '',
     instructions_of_use: '',
-    nested_products: []
+    nested_products: [],
   };
 
   selectedFiles: File[] = [];
@@ -40,6 +57,7 @@ export class ProductModalComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.resetForm();
+    document.body.appendChild(this.el.nativeElement);
   }
 
   ngOnChanges() {
@@ -57,13 +75,16 @@ export class ProductModalComponent implements OnInit, OnChanges {
         price: this.product.price,
         details: this.product.details,
         instructions_of_use: this.product.instructions_of_use || '',
-        nested_products: this.product.nested_products || []
+        nested_products: this.product.nested_products || [],
       };
       // For editing, show existing images as previews
       this.previewUrls = [...(this.product.pictures || [])];
       // Set pack mode if editing a pack
-      this.isPackMode = !!(this.product.nested_products && this.product.nested_products.length > 0);
-      this.selectedProductIds = this.product.nested_products?.map(p => p._id) || [];
+      this.isPackMode = !!(
+        this.product.nested_products && this.product.nested_products.length > 0
+      );
+      this.selectedProductIds =
+        this.product.nested_products?.map((p) => p._id) || [];
     } else {
       // Add mode
       this.formData = {
@@ -72,7 +93,7 @@ export class ProductModalComponent implements OnInit, OnChanges {
         price: 0,
         details: '',
         instructions_of_use: '',
-        nested_products: []
+        nested_products: [],
       };
       this.previewUrls = [];
       this.isPackMode = false;
@@ -93,7 +114,7 @@ export class ProductModalComponent implements OnInit, OnChanges {
       this.selectedFiles.push(...files);
 
       // Create preview URLs for new files
-      files.forEach(file => {
+      files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           this.previewUrls.push(e.target?.result as string);
@@ -152,7 +173,11 @@ export class ProductModalComponent implements OnInit, OnChanges {
     this.isSubmitting = true;
 
     const operation = this.product
-      ? this.productService.updateProduct(this.product._id, this.formData, this.selectedFiles)
+      ? this.productService.updateProduct(
+          this.product._id,
+          this.formData,
+          this.selectedFiles
+        )
       : this.productService.addProduct(this.formData, this.selectedFiles);
 
     operation.subscribe({
@@ -169,7 +194,7 @@ export class ProductModalComponent implements OnInit, OnChanges {
         } else {
           alert('Erreur lors de la sauvegarde du produit');
         }
-      }
+      },
     });
   }
 
@@ -183,14 +208,15 @@ export class ProductModalComponent implements OnInit, OnChanges {
     this.productService.getAllProducts().subscribe({
       next: (products) => {
         // Filter out the current product (if editing) and products that are already packs
-        this.availableProducts = products.filter(p =>
-          p._id !== this.product?._id &&
-          (!p.nested_products || p.nested_products.length === 0)
+        this.availableProducts = products.filter(
+          (p) =>
+            p._id !== this.product?._id &&
+            (!p.nested_products || p.nested_products.length === 0)
         );
       },
       error: (err) => {
         console.error('Error loading products:', err);
-      }
+      },
     });
   }
 
@@ -212,14 +238,16 @@ export class ProductModalComponent implements OnInit, OnChanges {
     if (selected) {
       this.selectedProductIds.push(productId);
     } else {
-      this.selectedProductIds = this.selectedProductIds.filter(id => id !== productId);
+      this.selectedProductIds = this.selectedProductIds.filter(
+        (id) => id !== productId
+      );
     }
     this.updatePackData();
   }
 
   updatePackData() {
     if (this.isPackMode) {
-      this.formData.nested_products = this.availableProducts.filter(p =>
+      this.formData.nested_products = this.availableProducts.filter((p) =>
         this.selectedProductIds.includes(p._id)
       );
       this.updatePackPrice();
@@ -228,7 +256,10 @@ export class ProductModalComponent implements OnInit, OnChanges {
 
   updatePackPrice() {
     if (this.isPackMode && this.formData.nested_products) {
-      const totalPrice = this.formData.nested_products.reduce((sum, product) => sum + product.price, 0);
+      const totalPrice = this.formData.nested_products.reduce(
+        (sum, product) => sum + product.price,
+        0
+      );
       this.formData.price = totalPrice;
     }
   }
@@ -240,7 +271,7 @@ export class ProductModalComponent implements OnInit, OnChanges {
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-TN', {
       style: 'currency',
-      currency: 'TND'
+      currency: 'TND',
     }).format(price);
   }
 

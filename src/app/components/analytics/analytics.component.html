@@ -24,6 +24,13 @@
     >
       Commandes
     </button>
+    <button
+      class="view-tab"
+      [class.active]="analyticsView() === 'subscriptions'"
+      (click)="analyticsView.set('subscriptions')"
+    >
+      Abonnements
+    </button>
   </div>
 
   <!-- Date Range Picker -->
@@ -106,12 +113,24 @@
           <p class="stat-number">{{ totalOrders() }}</p>
         </div>
         <div class="stat-card">
+          <h3>Total Abonnements</h3>
+          <p class="stat-number">{{ totalSubscriptions() }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenus Total</h3>
+          <p class="stat-number total-revenue">{{ totalRevenue() | currency : "EUR" }}</p>
+        </div>
+        <div class="stat-card">
           <h3>Revenus Réservations</h3>
           <p class="stat-number">{{ bookingsRevenue() | currency : "EUR" }}</p>
         </div>
         <div class="stat-card">
           <h3>Revenus Commandes</h3>
           <p class="stat-number">{{ ordersRevenue() | currency : "EUR" }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenus Abonnements</h3>
+          <p class="stat-number">{{ subscriptionRevenue() | currency : "EUR" }}</p>
         </div>
       </div>
 
@@ -201,6 +220,45 @@
         <div class="chart-section">
           <h4>Produits les Plus Vendus</h4>
           <canvas #topProductsChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscriptions Analytics -->
+    <div *ngIf="analyticsView() === 'subscriptions'" class="analytics-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Abonnements</h3>
+          <p class="stat-number">{{ totalSubscriptions() }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenus Abonnements</h3>
+          <p class="stat-number">{{ subscriptionRevenue() | currency : "EUR" }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Prix Moyen</h3>
+          <p class="stat-number">
+            {{ averageSubscriptionPrice() | currency : "EUR" }}
+          </p>
+        </div>
+        <div class="stat-card">
+          <h3>Taux de Paiement</h3>
+          <p class="stat-number">{{ paidSubscriptionsRate() }}%</p>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-section">
+          <h4>Statuts des Abonnements</h4>
+          <canvas #subscriptionStatusChart></canvas>
+        </div>
+        <div class="chart-section">
+          <h4>Évolution Mensuelle</h4>
+          <canvas #subscriptionMonthlyChart></canvas>
+        </div>
+        <div class="chart-section">
+          <h4>Répartition par Plan</h4>
+          <canvas #subscriptionPlanChart></canvas>
         </div>
       </div>
     </div>

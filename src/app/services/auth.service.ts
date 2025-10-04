@@ -268,7 +268,7 @@ export class AuthService {
       // Default to bookings view for admin dashboard
       this.router.navigate(['/dashboard', 'bookings']);
     } else if (user.role === 'worker') {
-      this.router.navigate(['/worker-dashboard']);
+      this.router.navigate(['/dashboard', 'worker-dashboard']);
     } else {
       this.router.navigate(['/profile']);
     }

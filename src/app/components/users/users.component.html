@@ -1,0 +1,163 @@
+<div class="users-container">
+  <div class="page-header">
+    <h1>Gestion des Utilisateurs</h1>
+    <button class="add-user-btn" (click)="openAddUserModal()">
+      ➕ Ajouter un utilisateur
+    </button>
+  </div>
+
+  <div class="content">
+    <div *ngIf="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Chargement des utilisateurs...</p>
+    </div>
+
+    <div *ngIf="error" class="error-state">
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadUsers()">Réessayer</button>
+    </div>
+
+    <div *ngIf="!loading && !error">
+      <div class="search-section">
+        <div class="search-bar">
+          <div class="search-input-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Rechercher par nom, téléphone ou email..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+            />
+            <button
+              *ngIf="searchTerm"
+              class="clear-search-btn"
+              (click)="clearSearch()"
+              title="Effacer la recherche"
+            >
+              ✕
+            </button>
+          </div>
+          <div class="search-results-info" *ngIf="searchTerm">
+            {{ filteredUsers.length }} résultat(s) trouvé(s)
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stat-card">
+          <div class="stat-number">{{ filteredUsers.length }}</div>
+          <div class="stat-label">
+            {{ searchTerm ? "Résultats" : "Total Utilisateurs" }}
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ activeUsers().length }}</div>
+          <div class="stat-label">Abonnés Actifs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ withBookings().length }}</div>
+          <div class="stat-label">Avec Réservations</div>
+        </div>
+      </div>
+
+      <div class="section-title">Liste des Utilisateurs</div>
+
+      <div
+        *ngIf="filteredUsers.length === 0 && !searchTerm"
+        class="empty-state"
+      >
+        <p>Aucun utilisateur trouvé</p>
+      </div>
+
+      <div *ngIf="filteredUsers.length === 0 && searchTerm" class="empty-state">
+        <p>
+          Aucun utilisateur ne correspond à votre recherche "{{ searchTerm }}"
+        </p>
+        <button class="clear-search-btn-alt" (click)="clearSearch()">
+          Effacer la recherche
+        </button>
+      </div>
+
+      <div
+        class="user-card"
+        *ngFor="let user of filteredUsers; trackBy: trackByUserId"
+      >
+        <div class="user-header">
+          <div class="user-avatar">
+            {{ getInitials(user.name) }}
+          </div>
+          <div class="user-main-info">
+            <div class="user-name">
+              {{ user.name || "Utilisateur Anonyme" }}
+            </div>
+            <div class="user-contact">
+              <span class="phone">{{ user.phoneNumber }}</span>
+              <span class="email" *ngIf="user.email">{{ user.email }}</span>
+            </div>
+            <div class="user-member-since">
+              Membre depuis: {{ formatDate(user.memberSince) }}
+            </div>
+          </div>
+          <div class="user-badges">
+            <div
+              class="subscription-badge"
+              [style.background-color]="
+                getSubscriptionStatusColor(user.subscription?.status)
+              "
+            >
+              {{ getSubscriptionStatusText(user.subscription?.status) }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="user-details"
+          *ngIf="
+            user.subscription ||
+            user.bookings.length > 0 ||
+            user.orders.length > 0
+          "
+        >
+          <div class="detail-section" *ngIf="user.subscription">
+            <div class="detail-title">Abonnement</div>
+            <div class="subscription-info">
+              <div class="subscription-plan">
+                Plan: {{ user.subscription.plan | titlecase }}
+              </div>
+              <div class="subscription-usage">
+                {{ user.subscription.used }}/{{
+                  user.subscription.allowedBookingsPerMonth
+                }}
+                réservations utilisées
+              </div>
+              <div class="subscription-renewal">
+                Renouvellement: {{ formatDate(user.subscription.renewalDate) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-title">Activité</div>
+            <div class="activity-stats">
+              <div class="activity-item">
+                <span class="activity-count">{{ withBookings().length }}</span>
+                <span class="activity-label">Réservations</span>
+              </div>
+              <div class="activity-item">
+                <span class="activity-count">{{ withOrders().length }}</span>
+                <span class="activity-label">Commandes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<app-add-user-modal
+  [isOpen]="showAddUserModal"
+  (confirmAdd)="onUserAdded($event)"
+  (close)="closeAddUserModal()"
+></app-add-user-modal>

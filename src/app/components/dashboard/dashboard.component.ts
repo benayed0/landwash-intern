@@ -1,6 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import {
+  RouterModule,
+  Router,
+  ActivatedRoute,
+  NavigationEnd,
+} from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { PushNotificationService } from '../../services/push-notification.service';
 import { BookingListComponent } from '../booking-list/booking-list.component';
@@ -9,6 +15,9 @@ import { SubscriptionListComponent } from '../subscription-list/subscription-lis
 import { AnalyticsComponent } from '../analytics/analytics.component';
 import { ProductsComponent } from '../products/products.component';
 import { TeamsComponent } from '../teams/teams.component';
+import { UsersComponent } from '../users/users.component';
+import { ProfileComponent } from '../profile/profile.component';
+import { WorkerDashboardComponent } from '../worker-dashboard/worker-dashboard.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +31,9 @@ import { TeamsComponent } from '../teams/teams.component';
     AnalyticsComponent,
     ProductsComponent,
     TeamsComponent,
+    UsersComponent,
+    ProfileComponent,
+    WorkerDashboardComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -39,6 +51,9 @@ export class DashboardComponent implements OnInit {
     | 'analytics'
     | 'products'
     | 'personals'
+    | 'users'
+    | 'profile'
+    | 'worker-dashboard'
   >('bookings');
 
   // Sidebar toggle state
@@ -49,13 +64,23 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.requestNotificationPermission();
 
-    // Listen to route parameter changes
-    this.route.params.subscribe((params) => {
-      const view = params['view'];
-      if (view && this.isValidViewType(view)) {
-        this.viewType.set(view);
+    // Listen to route changes and set initial view
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        const currentUrl = event.url;
+        const view = currentUrl.split('/dashboard/')[1];
+        if (view && this.isValidViewType(view)) {
+          this.viewType.set(view);
+        }
       }
     });
+
+    // Set initial view based on current URL
+    const currentUrl = this.router.url;
+    const view = currentUrl.split('/dashboard/')[1];
+    if (view && this.isValidViewType(view)) {
+      this.viewType.set(view);
+    }
   }
 
   private isValidViewType(
@@ -66,7 +91,10 @@ export class DashboardComponent implements OnInit {
     | 'subscriptions'
     | 'analytics'
     | 'products'
-    | 'personals' {
+    | 'personals'
+    | 'users'
+    | 'profile'
+    | 'worker-dashboard' {
     return [
       'bookings',
       'orders',
@@ -74,6 +102,9 @@ export class DashboardComponent implements OnInit {
       'analytics',
       'products',
       'personals',
+      'users',
+      'profile',
+      'worker-dashboard',
     ].includes(view);
   }
 
@@ -85,6 +116,28 @@ export class DashboardComponent implements OnInit {
     } else {
       // In browser mode, navigate to route
       this.router.navigate(['/dashboard/bookings']);
+    }
+  }
+  switchToUsers() {
+    console.log('Switching to Users view');
+
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      // In WebView mode, just update the signal (Flutter handles navigation)
+      this.viewType.set('users');
+    } else {
+      // In browser mode, navigate to route
+      this.router.navigate(['/dashboard/users']);
+    }
+  }
+  switchToWorkerDashboard() {
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      // In WebView mode, just update the signal (Flutter handles navigation)
+      this.viewType.set('worker-dashboard');
+    } else {
+      // In browser mode, navigate to route
+      this.router.navigate(['/dashboard/worker-dashboard']);
     }
   }
 
@@ -129,6 +182,14 @@ export class DashboardComponent implements OnInit {
       this.viewType.set('personals');
     } else {
       this.router.navigate(['/dashboard/personals']);
+    }
+  }
+  switchToProfile() {
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      this.viewType.set('profile');
+    } else {
+      this.router.navigate(['/dashboard/profile']);
     }
   }
 

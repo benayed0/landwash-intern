@@ -1,7 +1,7 @@
 <div class="loading-container" [class.overlay]="overlay">
   <div class="spinner-wrapper" [ngClass]="[size, color]">
-    <div class="spinner">
-      <div class="spinner-circle"></div>
+    <div class="flex justify-content-center align-items-center h-screen">
+      <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
     </div>
     <p class="loading-message" *ngIf="message">{{ message }}</p>
   </div>

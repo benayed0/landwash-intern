@@ -6,9 +6,11 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   background: #0a0a0a;
   color: #e5e5e5;
   overflow-x: hidden;
@@ -37,7 +39,9 @@ body {
   -webkit-touch-callout: none;
 }
 
-input, textarea, button {
+input,
+textarea,
+button {
   -webkit-touch-callout: auto;
 }
 
@@ -87,8 +91,12 @@ input, textarea, button {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive utilities */
@@ -100,7 +108,8 @@ input, textarea, button {
 
 /* iOS specific fixes */
 @supports (-webkit-overflow-scrolling: touch) {
-  input, textarea {
+  input,
+  textarea {
     font-size: 16px !important;
   }
 }
@@ -113,7 +122,8 @@ body {
 /* Mobile App Specific Styles */
 
 /* Touch-friendly button base */
-button, .btn {
+button,
+.btn {
   min-height: 44px;
   min-width: 44px;
   touch-action: manipulation;
@@ -127,11 +137,13 @@ button, .btn {
 }
 
 /* Mobile app button states */
-button:active, .btn:active {
+button:active,
+.btn:active {
   transform: scale(0.95);
 }
 
-button:disabled, .btn:disabled {
+button:disabled,
+.btn:disabled {
   opacity: 0.6;
   transform: none;
   cursor: not-allowed;
@@ -262,13 +274,21 @@ button:disabled, .btn:disabled {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* Mobile input styles */
@@ -290,7 +310,9 @@ select {
   min-height: 48px;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: none;
   border-color: #c3ff00;
   background: rgba(42, 42, 42, 1);
@@ -329,7 +351,10 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* Optimize touch interactions */
-button, .btn, .mobile-tab, .mobile-list-item {
+button,
+.btn,
+.mobile-tab,
+.mobile-list-item {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   will-change: transform;
@@ -360,9 +385,15 @@ button, .btn, .mobile-tab, .mobile-list-item {
 
 /* Enhanced mobile tap feedback */
 @keyframes tapFeedback {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.95); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .tap-feedback:active {
@@ -370,7 +401,8 @@ button, .btn, .mobile-tab, .mobile-list-item {
 }
 
 /* Improved scroll performance */
-.mobile-container, .mobile-modal-content {
+.mobile-container,
+.mobile-modal-content {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
@@ -383,7 +415,7 @@ button, .btn, .mobile-tab, .mobile-list-item {
 
   .smooth-transition {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Micro-interactions for better UX */
@@ -415,5 +447,36 @@ button, .btn, .mobile-tab, .mobile-list-item {
   }
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+/* styles.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: #1a1a1a;
+  border-radius: 15px;
+  padding: 25px;
+  max-width: 450px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2a2a2a;
+}
