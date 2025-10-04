@@ -1,17 +1,30 @@
 <div class="app-container" [class.webview-mode]="authService.isWebView()">
-  <!-- Sidebar Navigation - Visible for all browser users -->
+  <!-- Mobile Navbar - Visible for all browser users on mobile -->
   @if(!authService.isWebView()) {
-  <div class="sidebar" [class.collapsed]="sidebarCollapsed()">
+  <div class="mobile-navbar">
+    <div class="navbar-logo">
+      <img src="assets/logo.png" class="logo-img" alt="Landwash Logo" />
+      <span class="logo-text">Landwash</span>
+    </div>
+    <button class="menu-toggle" (click)="toggleSidebar()">
+      <span class="menu-icon">☰</span>
+    </button>
+  </div>
+
+  <!-- Sidebar Overlay -->
+  <div
+    class="sidebar-overlay"
+    [class.active]="!sidebarCollapsed()"
+    (click)="closeSidebar()"
+  ></div>
+
+  <!-- Sidebar Navigation -->
+  <div class="sidebar" [class.open]="!sidebarCollapsed()">
     <div class="sidebar-header">
       <div class="logo">
         <img src="assets/logo.png" class="logo-img" alt="Landwash Logo" />
-        <span class="logo-text" [class.hidden]="sidebarCollapsed()"
-          >Landwash Admin</span
-        >
+        <span class="logo-text">Landwash</span>
       </div>
-      <button class="sidebar-toggle" (click)="toggleSidebar()">
-        <span class="toggle-icon">{{ sidebarCollapsed() ? "→" : "←" }}</span>
-      </button>
     </div>
 
     <nav class="sidebar-nav">
@@ -82,8 +95,7 @@
   <div
     class="content-container"
     [class.webview-mode]="authService.isWebView()"
-    [class.with-sidebar]="!authService.isWebView()"
-    [class.sidebar-collapsed]="!authService.isWebView() && sidebarCollapsed()"
+    [class.with-navbar]="!authService.isWebView()"
   >
     <!-- Bookings View -->
     <div class="view-container" [class.active]="viewType() === 'bookings'">

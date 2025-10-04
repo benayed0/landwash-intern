@@ -28,6 +28,7 @@ import { ProductsComponent } from '../products/products.component';
       background: linear-gradient(180deg, #0a0a0a 0%, #121212 100%);
       color: #e5e5e5;
       display: flex;
+      flex-direction: column;
       position: relative;
     }
 
@@ -35,10 +36,80 @@ import { ProductsComponent } from '../products/products.component';
       flex-direction: column;
     }
 
+    /* Mobile Navbar */
+    .mobile-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: rgba(16, 16, 16, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .navbar-logo .logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .navbar-logo .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #c3ff00;
+    }
+
+    .menu-toggle {
+      background: rgba(195, 255, 0, 0.1);
+      color: #c3ff00;
+      border: 1px solid rgba(195, 255, 0, 0.3);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 18px;
+    }
+
+    .menu-toggle:hover {
+      background: rgba(195, 255, 0, 0.2);
+      transform: scale(1.05);
+    }
+
+    /* Sidebar Overlay */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
     /* Sidebar Navigation */
     .sidebar {
       width: 280px;
-      // height:100vh;
       background: rgba(16, 16, 16, 0.95);
       backdrop-filter: blur(20px);
       border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -48,12 +119,13 @@ import { ProductsComponent } from '../products/products.component';
       left: 0;
       top: 0;
       bottom: 0;
-      z-index: 100;
-      transition: width 0.3s ease;
+      z-index: 1001;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
     }
 
-    .sidebar.collapsed {
-      width: 70px;
+    .sidebar.open {
+      transform: translateX(0);
     }
 
     .sidebar-header {
@@ -64,16 +136,10 @@ import { ProductsComponent } from '../products/products.component';
       align-items: center;
     }
 
-    .sidebar.collapsed .sidebar-header {
-      padding: 24px 10px;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .sidebar-toggle {
-      background: rgba(195, 255, 0, 0.1);
-      color: #c3ff00;
-      border: 1px solid rgba(195, 255, 0, 0.3);
+    .sidebar-close {
+      background: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+      border: 1px solid rgba(244, 67, 54, 0.3);
       border-radius: 8px;
       padding: 8px;
       cursor: pointer;
@@ -83,16 +149,12 @@ import { ProductsComponent } from '../products/products.component';
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .sidebar-toggle:hover {
-      background: rgba(195, 255, 0, 0.2);
-      transform: scale(1.05);
-    }
-
-    .toggle-icon {
       font-size: 16px;
-      font-weight: bold;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(244, 67, 54, 0.2);
+      transform: scale(1.05);
     }
 
     .sidebar-header .logo {
@@ -210,20 +272,17 @@ import { ProductsComponent } from '../products/products.component';
       position: relative;
     }
 
-    .content-container.with-sidebar {
-      margin-left: 280px;
-      padding: 20px;
-      transition: margin-left 0.3s ease;
-    }
-
-    .content-container.with-sidebar.sidebar-collapsed {
-      margin-left: 70px;
-      width: calc(100vw - 70px) !important;
+    .content-container.with-navbar {
+      margin-top: 60px;
+      padding: 0;
+      height: calc(100vh - 60px);
+      overflow: hidden;
     }
 
     .content-container.webview-mode {
-      margin-left: 0;
+      margin-top: 0;
       padding: 16px;
+      height: 100vh;
     }
 
     /* Utility classes */
@@ -426,7 +485,7 @@ export class DashboardComponent implements OnInit {
   >('bookings');
 
   // Sidebar toggle state
-  sidebarCollapsed = signal(false);
+  sidebarCollapsed = signal(true);
 
   constructor() {}
 
@@ -510,7 +569,12 @@ export class DashboardComponent implements OnInit {
     this.sidebarCollapsed.set(!this.sidebarCollapsed());
   }
 
+  closeSidebar() {
+    this.sidebarCollapsed.set(true);
+  }
+
   private hapticFeedback() {
+    this.toggleSidebar();
     // Add subtle haptic feedback for mobile devices
     if ('vibrate' in navigator) {
       navigator.vibrate(10); // Very light vibration (10ms)
