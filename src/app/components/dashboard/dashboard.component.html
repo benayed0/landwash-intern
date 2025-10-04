@@ -1,12 +1,17 @@
 <div class="app-container" [class.webview-mode]="authService.isWebView()">
-  <!-- Desktop Sidebar Navigation - Visible for browser users -->
+  <!-- Sidebar Navigation - Visible for all browser users -->
   @if(!authService.isWebView()) {
-  <div class="desktop-sidebar">
+  <div class="sidebar" [class.collapsed]="sidebarCollapsed()">
     <div class="sidebar-header">
       <div class="logo">
         <img src="assets/logo.png" class="logo-img" alt="Landwash Logo" />
-        <span class="logo-text">Landwash Admin</span>
+        <span class="logo-text" [class.hidden]="sidebarCollapsed()"
+          >Landwash Admin</span
+        >
       </div>
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <span class="toggle-icon">{{ sidebarCollapsed() ? "→" : "←" }}</span>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
@@ -16,7 +21,9 @@
         (click)="switchToBookings()"
       >
         <span class="nav-icon">🚗</span>
-        <span class="nav-label">Réservations</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Réservations</span
+        >
       </button>
       <button
         class="nav-item"
@@ -24,7 +31,9 @@
         (click)="switchToOrders()"
       >
         <span class="nav-icon">📦</span>
-        <span class="nav-label">Commandes</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Commandes</span
+        >
       </button>
       <button
         class="nav-item"
@@ -32,7 +41,9 @@
         (click)="switchToSubscriptions()"
       >
         <span class="nav-icon">💳</span>
-        <span class="nav-label">Abonnements</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Abonnements</span
+        >
       </button>
       <button
         class="nav-item"
@@ -40,7 +51,9 @@
         (click)="switchToAnalytics()"
       >
         <span class="nav-icon">📊</span>
-        <span class="nav-label">Analytics</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Analytics</span
+        >
       </button>
       <button
         class="nav-item"
@@ -48,14 +61,18 @@
         (click)="switchToProducts()"
       >
         <span class="nav-icon">🧴</span>
-        <span class="nav-label">Produits</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Produits</span
+        >
       </button>
     </nav>
 
     <div class="sidebar-footer">
       <button class="logout-btn" (click)="logout()">
         <span class="logout-icon">🚪</span>
-        <span class="logout-text">Déconnexion</span>
+        <span class="logout-text" [class.hidden]="sidebarCollapsed()"
+          >Déconnexion</span
+        >
       </button>
     </div>
   </div>
@@ -66,6 +83,7 @@
     class="content-container"
     [class.webview-mode]="authService.isWebView()"
     [class.with-sidebar]="!authService.isWebView()"
+    [class.sidebar-collapsed]="!authService.isWebView() && sidebarCollapsed()"
   >
     <!-- Bookings View -->
     <div class="view-container" [class.active]="viewType() === 'bookings'">
@@ -94,51 +112,4 @@
       <app-products *ngIf="viewType() === 'products'"></app-products>
     </div>
   </div>
-  @if(!authService.isWebView()) {
-  <!-- Mobile Bottom Navigation -->
-  <div class="mobile-nav" [class.webview-only]="!authService.isWebView()">
-    <div class="mobile-tab-bar">
-      <button
-        class="mobile-tab"
-        [class.active]="viewType() === 'bookings'"
-        (click)="switchToBookings()"
-      >
-        <span class="tab-icon">🚗</span>
-        <span class="tab-label">Réservations</span>
-      </button>
-      <button
-        class="mobile-tab"
-        [class.active]="viewType() === 'orders'"
-        (click)="switchToOrders()"
-      >
-        <span class="tab-icon">📦</span>
-        <span class="tab-label">Commandes</span>
-      </button>
-      <button
-        class="mobile-tab"
-        [class.active]="viewType() === 'subscriptions'"
-        (click)="switchToSubscriptions()"
-      >
-        <span class="tab-icon">💳</span>
-        <span class="tab-label">Abonnements</span>
-      </button>
-      <button
-        class="mobile-tab"
-        [class.active]="viewType() === 'analytics'"
-        (click)="switchToAnalytics()"
-      >
-        <span class="tab-icon">📊</span>
-        <span class="tab-label">Analytics</span>
-      </button>
-      <button
-        class="mobile-tab"
-        [class.active]="viewType() === 'products'"
-        (click)="switchToProducts()"
-      >
-        <span class="tab-icon">🧴</span>
-        <span class="tab-label">Produits</span>
-      </button>
-    </div>
-  </div>
-  }
 </div>

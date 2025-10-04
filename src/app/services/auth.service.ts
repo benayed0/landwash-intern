@@ -223,7 +223,7 @@ export class AuthService {
   }
 
   isWebView(): boolean {
-    return localStorage.getItem(this.webViewKey) === 'true';
+    return (localStorage.getItem(this.webViewKey) ?? 'false') === 'true';
   }
 
   // Authenticate with token received from Flutter WebView

@@ -35,9 +35,10 @@ import { ProductsComponent } from '../products/products.component';
       flex-direction: column;
     }
 
-    /* Desktop Sidebar Navigation */
-    .desktop-sidebar {
+    /* Sidebar Navigation */
+    .sidebar {
       width: 280px;
+      // height:100vh;
       background: rgba(16, 16, 16, 0.95);
       backdrop-filter: blur(20px);
       border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -48,11 +49,50 @@ import { ProductsComponent } from '../products/products.component';
       top: 0;
       bottom: 0;
       z-index: 100;
+      transition: width 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
     }
 
     .sidebar-header {
       padding: 24px 20px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar.collapsed .sidebar-header {
+      padding: 24px 10px;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-toggle {
+      background: rgba(195, 255, 0, 0.1);
+      color: #c3ff00;
+      border: 1px solid rgba(195, 255, 0, 0.3);
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 36px;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-toggle:hover {
+      background: rgba(195, 255, 0, 0.2);
+      transform: scale(1.05);
+    }
+
+    .toggle-icon {
+      font-size: 16px;
+      font-weight: bold;
     }
 
     .sidebar-header .logo {
@@ -75,7 +115,7 @@ import { ProductsComponent } from '../products/products.component';
 
     .sidebar-nav {
       flex: 1;
-      padding: 20px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -96,6 +136,11 @@ import { ProductsComponent } from '../products/products.component';
       transition: all 0.2s ease;
       text-align: left;
       position: relative;
+    }
+
+    .sidebar.collapsed .nav-item {
+      padding: 16px 10px;
+      justify-content: center;
     }
 
     .nav-item:hover {
@@ -131,7 +176,7 @@ import { ProductsComponent } from '../products/products.component';
     }
 
     .sidebar-footer {
-      padding: 20px;
+      padding: 12px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -140,7 +185,6 @@ import { ProductsComponent } from '../products/products.component';
       align-items: center;
       gap: 12px;
       width: 100%;
-      padding: 16px 20px;
       background: rgba(244, 67, 54, 0.1);
       color: #f44336;
       border: 1px solid rgba(244, 67, 54, 0.3);
@@ -169,12 +213,22 @@ import { ProductsComponent } from '../products/products.component';
     .content-container.with-sidebar {
       margin-left: 280px;
       padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .content-container.with-sidebar.sidebar-collapsed {
+      margin-left: 70px;
+      width: calc(100vw - 70px) !important;
     }
 
     .content-container.webview-mode {
       margin-left: 0;
       padding: 16px;
-      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
+
+    /* Utility classes */
+    .hidden {
+      display: none;
     }
 
     /* Mobile Header Styles */
@@ -340,46 +394,25 @@ import { ProductsComponent } from '../products/products.component';
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      /* Hide sidebar on mobile/tablet screens */
-      .desktop-sidebar {
-        display: none;
-      }
+    /* Mobile responsive adjustments */
+    // @media (max-width: 768px) {
+    //   .sidebar {
+    //     transform: translateX(-100%);
+    //     z-index: 1000;
+    //   }
 
-      .content-container.with-sidebar {
-        margin-left: 0;
-        padding: 16px;
-        padding-bottom: calc(100px + env(safe-area-inset-bottom));
-      }
+    //   .sidebar:not(.collapsed) {
+    //     transform: translateX(0);
+    //   }
 
-      /* Show mobile navigation on small screens */
-      .mobile-nav.webview-only {
-        display: block !important;
-      }
-    }
+    //   .content-container.with-sidebar {
+    //     margin-left: 0;
+    //   }
 
-    @media (min-width: 769px) {
-      /* Hide mobile navigation on desktop screens when not in WebView */
-      .mobile-nav.webview-only {
-        display: none !important;
-      }
-    }
-
-    /* Extra small screens */
-    @media (max-width: 360px) {
-      .tab-label {
-        display: none;
-      }
-
-      .mobile-tab {
-        min-width: 50px;
-      }
-
-      .view-container {
-        transform: translateX(50px);
-      }
-    }
+    //   .content-container.with-sidebar.sidebar-collapsed {
+    //     margin-left: 0;
+    //   }
+    // }
   `,
 })
 export class DashboardComponent implements OnInit {
@@ -391,6 +424,9 @@ export class DashboardComponent implements OnInit {
   viewType = signal<
     'bookings' | 'orders' | 'subscriptions' | 'analytics' | 'products'
   >('bookings');
+
+  // Sidebar toggle state
+  sidebarCollapsed = signal(false);
 
   constructor() {}
 
@@ -468,6 +504,10 @@ export class DashboardComponent implements OnInit {
     } else {
       this.router.navigate(['/dashboard/products']);
     }
+  }
+
+  toggleSidebar() {
+    this.sidebarCollapsed.set(!this.sidebarCollapsed());
   }
 
   private hapticFeedback() {

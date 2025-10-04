@@ -6,43 +6,113 @@
       [class.active]="activeTab === 'pending'"
       (click)="activeTab = 'pending'"
     >
-      En attente ({{ pendingOrders.length }})
+      En attente ({{ filteredPendingOrders().length }})
     </button>
     <button
       class="tab"
       [class.active]="activeTab === 'confirmed'"
       (click)="activeTab = 'confirmed'"
     >
-      Confirmées ({{ confirmedOrders.length }})
+      Confirmées ({{ filteredConfirmedOrders().length }})
     </button>
     <button
       class="tab"
       [class.active]="activeTab === 'shipped'"
       (click)="activeTab = 'shipped'"
     >
-      Expédiées ({{ shippedOrders.length }})
+      Expédiées ({{ filteredShippedOrders().length }})
     </button>
     <button
       class="tab"
       [class.active]="activeTab === 'delivered'"
       (click)="activeTab = 'delivered'"
     >
-      Livrées ({{ deliveredOrders.length }})
+      Livrées ({{ filteredDeliveredOrders().length }})
     </button>
     <button
       class="tab"
       [class.active]="activeTab === 'completed'"
       (click)="activeTab = 'completed'"
     >
-      Terminées ({{ completedOrders.length }})
+      Terminées ({{ filteredCompletedOrders().length }})
     </button>
     <button
       class="tab"
       [class.active]="activeTab === 'cancelled'"
       (click)="activeTab = 'cancelled'"
     >
-      Annulées ({{ cancelledOrders.length }})
+      Annulées ({{ filteredCancelledOrders().length }})
     </button>
+  </div>
+
+  <!-- Date Range Picker -->
+  <div class="date-filter">
+    <h3>Filtrer par date</h3>
+    <div class="preset-buttons">
+      <button
+        class="preset-btn"
+        [class.active]="selectedPreset() === 'all'"
+        (click)="setDatePreset('all')"
+      >
+        Tout
+      </button>
+      <button
+        class="preset-btn"
+        [class.active]="selectedPreset() === 'today'"
+        (click)="setDatePreset('today')"
+      >
+        Aujourd'hui
+      </button>
+      <button
+        class="preset-btn"
+        [class.active]="selectedPreset() === '7days'"
+        (click)="setDatePreset('7days')"
+      >
+        7 jours
+      </button>
+      <button
+        class="preset-btn"
+        [class.active]="selectedPreset() === '30days'"
+        (click)="setDatePreset('30days')"
+      >
+        30 jours
+      </button>
+      <button
+        class="preset-btn"
+        [class.active]="selectedPreset() === 'custom'"
+        (click)="setDatePreset('custom')"
+      >
+        Personnalisé
+      </button>
+    </div>
+
+    <div class="custom-date-inputs" *ngIf="selectedPreset() === 'custom'">
+      <div class="date-input-group">
+        <label>Date de début</label>
+        <input
+          type="date"
+          [value]="startDate()"
+          (input)="onStartDateChange($event)"
+          class="date-input"
+        />
+      </div>
+      <div class="date-input-group">
+        <label>Date de fin</label>
+        <input
+          type="date"
+          [value]="endDate()"
+          (input)="onEndDateChange($event)"
+          class="date-input"
+        />
+      </div>
+      <button
+        class="apply-btn"
+        (click)="applyDateFilter()"
+        [disabled]="!isDateRangeValid()"
+      >
+        Appliquer
+      </button>
+    </div>
   </div>
 
   <div class="content">

@@ -283,6 +283,125 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
         width: 100%;
       }
     }
+
+    /* Date Filter Styles */
+    .date-filter {
+      background: #1a1a1a;
+      padding: 15px;
+      border-bottom: 1px solid #333;
+      flex-shrink: 0;
+      width: 100%;
+    }
+
+    .date-filter h3 {
+      color: #c3ff00;
+      margin: 0 0 15px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .preset-buttons {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 2px 0;
+      width: 100%;
+      max-width: 100%;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .preset-buttons::-webkit-scrollbar {
+      display: none;
+    }
+
+    .preset-btn {
+      padding: 8px 16px;
+      background: #1a1a1a;
+      color: #999;
+      border: 1px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 12px;
+      font-weight: 500;
+      flex-shrink: 0;
+      white-space: nowrap;
+      min-width: fit-content;
+    }
+
+    .preset-btn:hover {
+      background: #333;
+      color: #e5e5e5;
+    }
+
+    .preset-btn.active {
+      background: #c3ff00;
+      color: #0a0a0a;
+      border-color: #c3ff00;
+    }
+
+    .custom-date-inputs {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #444;
+    }
+
+    .date-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+    }
+
+    .date-input-group label {
+      font-size: 12px;
+      color: #888;
+      font-weight: 500;
+    }
+
+    .date-input {
+      padding: 8px 12px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #e5e5e5;
+      font-size: 14px;
+      transition: border-color 0.3s;
+      width: 100%;
+    }
+
+    .date-input:focus {
+      outline: none;
+      border-color: #c3ff00;
+      background: #333;
+    }
+
+    .apply-btn {
+      background: #c3ff00;
+      color: #0a0a0a;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+      height: fit-content;
+      align-self: flex-end;
+    }
+
+    .apply-btn:hover {
+      background: #a8d400;
+      transform: translateY(-1px);
+    }
+
+    .apply-btn:active {
+      transform: scale(0.95);
+    }
   `,
 })
 export class BookingListComponent implements OnInit {
