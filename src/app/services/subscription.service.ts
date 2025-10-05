@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
+  CreateSubscriptionDto,
   Subscription,
   SubscriptionTransaction,
 } from '../models/subscription.model';
@@ -23,6 +24,15 @@ export class SubscriptionService {
     );
   }
 
+  createSubscription(
+    userId: string,
+    creationData: CreateSubscriptionDto
+  ): Observable<Subscription> {
+    return this.http.post<Subscription>(
+      `${this.apiUrl}/admin/create/${userId}`,
+      creationData
+    );
+  }
   updateSubscription(
     id: string,
     updateData: Partial<Subscription>

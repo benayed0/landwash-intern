@@ -23,4 +23,16 @@ export class TeamService {
   getAllPersonals(): Observable<Personal[]> {
     return this.http.get<Personal[]>(`${this.apiUrl}/personals`);
   }
+
+  createTeam(team: Partial<Team>): Observable<Team> {
+    return this.http.post<Team>(`${this.apiUrl}/teams`, team);
+  }
+
+  updateTeam(id: string, team: Partial<Team>): Observable<Team> {
+    return this.http.patch<Team>(`${this.apiUrl}/teams/${id}`, team);
+  }
+
+  deleteTeam(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/teams/${id}`);
+  }
 }

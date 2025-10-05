@@ -22,8 +22,8 @@
       <div class="detail-value">
         <a
           href="https://www.google.com/maps/search/?api=1&query={{
-            order.location.lat
-          }},{{ order.location.lng }}"
+            order.coordinates[1]
+          }},{{ order.coordinates[0] }}"
           target="_blank"
           >{{ order.shippingAddress }}</a
         >
@@ -92,5 +92,40 @@
     >
       {{ action.label }}
     </button>
+  </div>
+
+  <!-- Delivery Date Modal -->
+  <div class="modal-overlay" *ngIf="showDeliveryDateModal" (click)="closeDeliveryDateModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Date de livraison estimée</h3>
+        <button class="close-btn" (click)="closeDeliveryDateModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label for="deliveryDate">Sélectionnez la date de livraison estimée :</label>
+          <input
+            id="deliveryDate"
+            type="date"
+            [(ngModel)]="estimatedDeliveryDate"
+            [min]="getTomorrowDate()"
+            class="date-input"
+            required
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeDeliveryDateModal()">
+          Annuler
+        </button>
+        <button
+          class="btn-confirm"
+          (click)="onConfirmWithDeliveryDate()"
+          [disabled]="!estimatedDeliveryDate"
+        >
+          Confirmer la commande
+        </button>
+      </div>
+    </div>
   </div>
 </div>

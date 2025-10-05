@@ -5,19 +5,12 @@
 }
 
 .page-header {
-  background: #1a1a1a;
   padding: 20px;
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(195, 255, 0, 0.2);
-}
-
-.page-header h1 {
-  margin: 0;
-  font-size: 24px;
-  color: #c3ff00;
 }
 
 .add-user-btn {
@@ -41,11 +34,18 @@
   box-shadow: 0 4px 12px rgba(195, 255, 0, 0.3);
 }
 
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #c3ff00;
+}
+
 .content {
   padding: 20px;
 }
 
-.loading-state, .error-state {
+.loading-state,
+.error-state {
   text-align: center;
   padding: 40px;
   color: #666;
@@ -62,8 +62,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .retry-btn {
@@ -315,7 +319,9 @@
   gap: 5px;
 }
 
-.subscription-plan, .subscription-usage, .subscription-renewal {
+.subscription-plan,
+.subscription-usage,
+.subscription-renewal {
   font-size: 13px;
   color: #ccc;
 }

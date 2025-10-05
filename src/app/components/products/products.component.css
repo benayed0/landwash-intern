@@ -32,6 +32,8 @@
 }
 
 .add-btn {
+  width: 100%;
+  justify-content: center;
   background: linear-gradient(135deg, #c3ff00, #a8d900);
   color: #000;
   border: none;

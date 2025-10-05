@@ -19,10 +19,6 @@ export class OrderService {
     return this.http.get<Order>(`${this.apiUrl}/one/${id}`);
   }
 
-  updateOrderStatus(id: string, status: string): Observable<Order> {
-    return this.http.patch<Order>(`${this.apiUrl}/${id}/status`, { status });
-  }
-
   updateOrder(id: string, orderData: Partial<Order>): Observable<Order> {
     return this.http.patch<Order>(`${this.apiUrl}/${id}`, orderData);
   }

@@ -1,0 +1,275 @@
+<div class="create-subscription-container">
+  <div class="header">
+    <h2>Créer un nouvel abonnement</h2>
+    <button class="close-btn" (click)="onCancel()">✕</button>
+  </div>
+
+  <div class="form-container">
+    <form (ngSubmit)="onSubmit()" #subscriptionForm="ngForm">
+      <!-- User Selection -->
+      <div class="form-section">
+        <h3>Utilisateur</h3>
+        <div class="form-group">
+          <label for="userId">Sélectionner un utilisateur *</label>
+          <select
+            id="userId"
+            [(ngModel)]="userId"
+            name="userId"
+            class="form-input"
+            required
+            [class.error]="!isUserIdValid() && submitted"
+          >
+            <option value="">Choisir un utilisateur</option>
+            <option *ngFor="let user of users()" [value]="user._id">
+              {{ user.name }} - {{ user.phoneNumber }}
+            </option>
+          </select>
+          <div class="error-message" *ngIf="!isUserIdValid() && submitted">
+            Veuillez sélectionner un utilisateur
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscription Details -->
+      <div class="form-section">
+        <h3>Détails de l'abonnement</h3>
+
+        <div class="form-group">
+          <label for="plan">Plan d'abonnement *</label>
+          <input
+            type="text"
+            id="plan"
+            [(ngModel)]="formData.plan"
+            name="plan"
+            class="form-input"
+            placeholder="ex: Premium, Basic..."
+            required
+            [class.error]="!isPlanValid() && submitted"
+          />
+          <div class="error-message" *ngIf="!isPlanValid() && submitted">
+            Le plan est requis
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Prix mensuel (TND) *</label>
+            <input
+              type="number"
+              id="price"
+              [(ngModel)]="formData.price"
+              name="price"
+              class="form-input"
+              min="0"
+              step="0.1"
+              placeholder="0.00"
+              required
+              [class.error]="!isPriceValid() && submitted"
+            />
+            <div class="error-message" *ngIf="!isPriceValid() && submitted">
+              Le prix doit être supérieur à 0
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="allowedBookingsPerMonth"
+              >Réservations autorisées par mois *</label
+            >
+            <input
+              type="number"
+              id="allowedBookingsPerMonth"
+              [(ngModel)]="formData.allowedBookingsPerMonth"
+              name="allowedBookingsPerMonth"
+              class="form-input"
+              min="1"
+              placeholder="10"
+              required
+              [class.error]="!isAllowedBookingsValid() && submitted"
+            />
+            <div
+              class="error-message"
+              *ngIf="!isAllowedBookingsValid() && submitted"
+            >
+              Le nombre de réservations doit être supérieur à 0
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Date de début *</label>
+            <input
+              type="date"
+              id="startDate"
+              [(ngModel)]="formData.startDate"
+              name="startDate"
+              class="form-input"
+              required
+              (change)="onStartDateChange()"
+              [class.error]="!isStartDateValid() && submitted"
+            />
+            <div class="error-message" *ngIf="!isStartDateValid() && submitted">
+              La date de début est requise
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="renewalDate">Date de renouvellement *</label>
+            <input
+              type="date"
+              id="renewalDate"
+              [(ngModel)]="formData.renewalDate"
+              name="renewalDate"
+              class="form-input"
+              required
+              [class.error]="!isRenewalDateValid() && submitted"
+            />
+            <div
+              class="error-message"
+              *ngIf="!isRenewalDateValid() && submitted"
+            >
+              La date de renouvellement doit être postérieure à la date de début
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="status">Statut initial</label>
+            <select
+              id="status"
+              [(ngModel)]="formData.status"
+              name="status"
+              class="form-input"
+            >
+              <option value="pending">En attente</option>
+              <option value="active">Actif</option>
+              <option value="inactive">Inactif</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="renewalType">Type de renouvellement</label>
+            <select
+              id="renewalType"
+              [(ngModel)]="formData.renewalType"
+              name="renewalType"
+              class="form-input"
+            >
+              <option value="auto">Automatique</option>
+              <option value="manual">Manuel</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="used">Réservations déjà utilisées</label>
+          <input
+            type="number"
+            id="used"
+            [(ngModel)]="formData.used"
+            name="used"
+            class="form-input"
+            min="0"
+            [max]="formData.allowedBookingsPerMonth"
+            placeholder="0"
+          />
+        </div>
+      </div>
+
+      <!-- Preview Section - Dark Card Style -->
+      <div class="preview-section" *ngIf="isFormValid()">
+        <h3>Aperçu</h3>
+        <div class="subscription-card">
+          <div class="card-header">
+            <div class="subscription-icon">💳</div>
+            <div class="subscription-info">
+              <div class="plan-name">{{ formData.plan || "Plan" }}</div>
+              <div class="user-name">
+                {{ getSelectedUserName() || "Utilisateur" }}
+              </div>
+            </div>
+            <div class="status-badge" [ngClass]="'status-' + formData.status">
+              {{ getStatusText(formData.status) }}
+            </div>
+          </div>
+
+          <div class="card-details">
+            <div class="detail-group">
+              <div class="detail-label">PRIX MENSUEL</div>
+              <div class="detail-value">TND{{ formData.price }}</div>
+            </div>
+
+            <div class="detail-group">
+              <div class="detail-label">TYPE DE RENOUVELLEMENT</div>
+              <div class="detail-value">
+                {{ formData.renewalType === "auto" ? "Automatique" : "Manuel" }}
+              </div>
+            </div>
+
+            <div class="detail-group">
+              <div class="detail-label">DATE DE DÉBUT</div>
+              <div class="detail-value">
+                {{ formatDisplayDate(formData.startDate) }}
+              </div>
+            </div>
+
+            <div class="detail-group">
+              <div class="detail-label">TÉLÉPHONE</div>
+              <div class="detail-value">
+                {{ getSelectedUserPhone() || "Non spécifié" }}
+              </div>
+            </div>
+          </div>
+
+          <div class="usage-section">
+            <div class="usage-label">UTILISATION DES RÉSERVATIONS</div>
+            <div class="usage-bar">
+              <div
+                class="usage-fill"
+                [style.width.%]="getUsagePercentage()"
+              ></div>
+            </div>
+            <div class="usage-stats">
+              <span
+                >{{ formData.used }} /
+                {{ formData.allowedBookingsPerMonth }} utilisées</span
+              >
+              <span class="usage-percentage">{{ getUsagePercentage() }}%</span>
+            </div>
+            <div class="remaining-bookings">
+              {{ getRemainingBookings() }} réservations restantes
+            </div>
+          </div>
+
+          <div class="renewal-section">
+            <div class="renewal-label">Renouvellement le</div>
+            <div class="renewal-date">
+              {{ formatDisplayDate(formData.renewalDate) }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">
+          Annuler
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+          <span *ngIf="isLoading()">Création en cours...</span>
+          <span *ngIf="!isLoading()">Créer l'abonnement</span>
+        </button>
+      </div>
+    </form>
+  </div>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <app-loading-spinner
+      [size]="'medium'"
+      [message]="'Création de l\'abonnement en cours...'"
+      [color]="'primary'"
+    >
+    </app-loading-spinner>
+  </div>
+</div>

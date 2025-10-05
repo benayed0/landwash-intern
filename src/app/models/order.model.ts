@@ -35,9 +35,11 @@ export interface Order {
   products: OrderProduct[];
   totalPrice: number;
   date: Date;
+  estimatedDeliveryDate?: Date;
+  deliveredAt?: Date;
   status: OrderStatus;
   shippingAddress: string;
-  location: { lat: number; lng: number };
+  coordinates: [number, number]; // [lng, lat]
   paymentMethod: string;
   transactionId?: string;
   notes?: string;

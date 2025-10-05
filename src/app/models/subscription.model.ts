@@ -16,6 +16,16 @@ export type SubscriptionTransactionStatus =
   | 'pending'
   | 'failed'
   | 'refunded';
+export interface CreateSubscriptionDto {
+  plan: string;
+  price: number;
+  allowedBookingsPerMonth: number;
+  used: number;
+  startDate: Date;
+  renewalDate: Date;
+  status: SubscriptionStatus;
+  renewalType: SubscriptionRenewalType;
+}
 export interface Subscription {
   _id?: string;
   userId: {

@@ -24,7 +24,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
   z-index: 1000;
 }
 
@@ -55,6 +54,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 18px;
+  margin-right: 5px;
 }
 
 .menu-toggle:hover {
@@ -80,6 +80,20 @@
 .sidebar-overlay.active {
   opacity: 1;
   visibility: visible;
+}
+
+.page-header {
+  background: #1a1a1a;
+  padding: 20px;
+  color: white;
+  text-align: center;
+  border-bottom: 1px solid rgba(195, 255, 0, 0.2);
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #c3ff00;
 }
 
 /* Sidebar Navigation */

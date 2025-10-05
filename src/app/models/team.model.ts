@@ -3,4 +3,6 @@ export interface Team {
   name: string;
   members: string[];
   createdAt?: Date;
+  coordinates?: [number, number];
+  radius?: number;
 }

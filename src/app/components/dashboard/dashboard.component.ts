@@ -18,6 +18,7 @@ import { TeamsComponent } from '../teams/teams.component';
 import { UsersComponent } from '../users/users.component';
 import { ProfileComponent } from '../profile/profile.component';
 import { WorkerDashboardComponent } from '../worker-dashboard/worker-dashboard.component';
+import { CreateBookingComponent } from '../create-booking/create-booking.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +35,7 @@ import { WorkerDashboardComponent } from '../worker-dashboard/worker-dashboard.c
     UsersComponent,
     ProfileComponent,
     WorkerDashboardComponent,
+    CreateBookingComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -46,6 +48,7 @@ export class DashboardComponent implements OnInit {
 
   viewType = signal<
     | 'bookings'
+    | 'create-booking'
     | 'orders'
     | 'subscriptions'
     | 'analytics'
@@ -87,6 +90,7 @@ export class DashboardComponent implements OnInit {
     view: string
   ): view is
     | 'bookings'
+    | 'create-booking'
     | 'orders'
     | 'subscriptions'
     | 'analytics'
@@ -97,6 +101,7 @@ export class DashboardComponent implements OnInit {
     | 'worker-dashboard' {
     return [
       'bookings',
+      'create-booking',
       'orders',
       'subscriptions',
       'analytics',
@@ -107,7 +112,32 @@ export class DashboardComponent implements OnInit {
       'worker-dashboard',
     ].includes(view);
   }
-
+  getPageTitle(): string {
+    switch (this.viewType()) {
+      case 'bookings':
+        return 'Réservations';
+      case 'create-booking':
+        return 'Créer une réservation';
+      case 'orders':
+        return 'Commandes';
+      case 'subscriptions':
+        return 'Abonnements';
+      case 'analytics':
+        return 'Analytique';
+      case 'products':
+        return 'Produits';
+      case 'personals':
+        return 'Personnels';
+      case 'users':
+        return 'Utilisateurs';
+      case 'profile':
+        return 'Profil';
+      case 'worker-dashboard':
+        return 'Tableau de bord des employés';
+      default:
+        return '';
+    }
+  }
   switchToBookings() {
     this.hapticFeedback();
     if (this.authService.isWebView()) {
@@ -116,6 +146,15 @@ export class DashboardComponent implements OnInit {
     } else {
       // In browser mode, navigate to route
       this.router.navigate(['/dashboard/bookings']);
+    }
+  }
+
+  switchToCreateBooking() {
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      this.viewType.set('create-booking');
+    } else {
+      this.router.navigate(['/dashboard/create-booking']);
     }
   }
   switchToUsers() {

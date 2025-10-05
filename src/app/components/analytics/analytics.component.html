@@ -1,6 +1,4 @@
 <div class="analytics-container">
-  <h2 class="section-title">Analyses et Statistiques</h2>
-
   <!-- View Tabs for Analytics -->
   <div class="view-tabs">
     <button
@@ -41,31 +39,36 @@
         <button
           class="preset-btn"
           [class.active]="selectedPreset() === '7days'"
-          (click)="setDatePreset('7days')">
+          (click)="setDatePreset('7days')"
+        >
           7 jours
         </button>
         <button
           class="preset-btn"
           [class.active]="selectedPreset() === '30days'"
-          (click)="setDatePreset('30days')">
+          (click)="setDatePreset('30days')"
+        >
           30 jours
         </button>
         <button
           class="preset-btn"
           [class.active]="selectedPreset() === '90days'"
-          (click)="setDatePreset('90days')">
+          (click)="setDatePreset('90days')"
+        >
           3 mois
         </button>
         <button
           class="preset-btn"
           [class.active]="selectedPreset() === 'year'"
-          (click)="setDatePreset('year')">
+          (click)="setDatePreset('year')"
+        >
           1 an
         </button>
         <button
           class="preset-btn"
           [class.active]="selectedPreset() === 'custom'"
-          (click)="setDatePreset('custom')">
+          (click)="setDatePreset('custom')"
+        >
           Personnalisé
         </button>
       </div>
@@ -78,7 +81,8 @@
           type="date"
           [value]="startDate()"
           (input)="onStartDateChange($event)"
-          class="date-input">
+          class="date-input"
+        />
       </div>
       <div class="date-input-group">
         <label>Date de fin</label>
@@ -86,16 +90,22 @@
           type="date"
           [value]="endDate()"
           (input)="onEndDateChange($event)"
-          class="date-input">
+          class="date-input"
+        />
       </div>
-      <button class="apply-btn" (click)="applyDateFilter()" [disabled]="!isDateRangeValid()">
+      <button
+        class="apply-btn"
+        (click)="applyDateFilter()"
+        [disabled]="!isDateRangeValid()"
+      >
         Appliquer
       </button>
     </div>
 
     <div class="current-range" *ngIf="selectedPreset() !== 'custom'">
       <span class="range-text">
-        Du {{ formatDisplayDate(startDate()) }} au {{ formatDisplayDate(endDate()) }}
+        Du {{ formatDisplayDate(startDate()) }} au
+        {{ formatDisplayDate(endDate()) }}
       </span>
     </div>
   </div>
@@ -118,7 +128,9 @@
         </div>
         <div class="stat-card">
           <h3>Revenus Total</h3>
-          <p class="stat-number total-revenue">{{ totalRevenue() | currency : "EUR" }}</p>
+          <p class="stat-number total-revenue">
+            {{ totalRevenue() | currency : "EUR" }}
+          </p>
         </div>
         <div class="stat-card">
           <h3>Revenus Réservations</h3>
@@ -130,7 +142,9 @@
         </div>
         <div class="stat-card">
           <h3>Revenus Abonnements</h3>
-          <p class="stat-number">{{ subscriptionRevenue() | currency : "EUR" }}</p>
+          <p class="stat-number">
+            {{ subscriptionRevenue() | currency : "EUR" }}
+          </p>
         </div>
       </div>
 
@@ -233,7 +247,9 @@
         </div>
         <div class="stat-card">
           <h3>Revenus Abonnements</h3>
-          <p class="stat-number">{{ subscriptionRevenue() | currency : "EUR" }}</p>
+          <p class="stat-number">
+            {{ subscriptionRevenue() | currency : "EUR" }}
+          </p>
         </div>
         <div class="stat-card">
           <h3>Prix Moyen</h3>

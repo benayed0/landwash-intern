@@ -32,6 +32,146 @@
 
 .content {
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Search Styles */
+.search-container {
+  margin-bottom: 30px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 100%;
+  padding: 15px 50px 15px 45px;
+  background: #1a1a1a;
+  border: 2px solid #2a2a2a;
+  border-radius: 25px;
+  color: #e5e5e5;
+  font-size: 16px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #c3ff00;
+  box-shadow: 0 0 0 3px rgba(195, 255, 0, 0.1);
+}
+
+.search-input::placeholder {
+  color: #666;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  color: #666;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #999;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+
+.clear-search-btn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.search-results {
+  margin-top: 10px;
+  color: #999;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Grid Layouts */
+.teams-grid {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.personals-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .personals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.pagination-btn {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  color: #e5e5e5;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #2a2a2a;
+  border-color: #c3ff00;
+  transform: translateY(-1px);
+}
+
+.pagination-btn.active {
+  background: #c3ff00;
+  color: #000;
+  border-color: #c3ff00;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #0a0a0a;
 }
 
 .section-title {
@@ -57,6 +197,48 @@
   margin-bottom: 15px;
 }
 
+.team-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.team-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.edit-btn:hover {
+  background: rgba(195, 255, 0, 0.2);
+  border-color: rgba(195, 255, 0, 0.4);
+}
+
+.delete-btn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: rgba(244, 67, 54, 0.4);
+}
+
 .team-name {
   font-size: 18px;
   font-weight: 600;
@@ -69,6 +251,35 @@
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.team-location {
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(195, 255, 0, 0.05);
+  border: 1px solid rgba(195, 255, 0, 0.2);
+  border-radius: 8px;
+}
+
+.location-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.location-item:last-child {
+  margin-bottom: 0;
+}
+
+.location-icon {
+  font-size: 14px;
+}
+
+.location-text {
+  color: #c3ff00;
+  font-size: 13px;
+  font-family: "Courier New", monospace;
 }
 
 .member-list {
@@ -119,10 +330,6 @@
   padding: 3px 8px;
   border-radius: 12px;
   font-size: 11px;
-}
-
-.personals-section {
-  margin-top: 30px;
 }
 
 .personal-card {
@@ -192,11 +399,60 @@
     align-items: flex-start;
   }
 
+  .team-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .content {
     padding: 15px;
   }
 
   .page-header h1 {
     font-size: 20px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    min-width: 28px;
+    height: 28px;
+    padding: 4px 6px;
+  }
+
+  .search-input {
+    padding: 12px 40px 12px 35px;
+    font-size: 14px;
+  }
+
+  .search-icon {
+    left: 12px;
+    font-size: 16px;
+  }
+
+  .clear-search-btn {
+    right: 12px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .add-btn {
+    align-self: center;
+  }
+
+  .pagination {
+    gap: 4px;
+    margin: 15px 0;
+  }
+
+  .pagination-btn {
+    padding: 6px 8px;
+    min-width: 32px;
+    font-size: 14px;
   }
 }

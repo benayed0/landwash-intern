@@ -21,6 +21,16 @@
   <!-- Sidebar Navigation -->
   <div class="sidebar" [class.open]="!sidebarCollapsed()">
     <nav class="sidebar-nav">
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'create-booking'"
+        (click)="switchToCreateBooking()"
+      >
+        <span class="nav-icon">➕</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Nouvelle Réservation</span
+        >
+      </button>
       @if((authService.currentUser$ | async)?.role==='admin'){
 
       <button
@@ -88,7 +98,7 @@
         [class.active]="viewType() === 'users'"
         (click)="switchToUsers()"
       >
-        <span class="nav-icon">🚗</span>
+        <span class="nav-icon">🧍</span>
         <span class="nav-label" [class.hidden]="sidebarCollapsed()"
           >Clients</span
         >
@@ -140,9 +150,23 @@
     [class.webview-mode]="authService.isWebView()"
     [class.with-navbar]="!authService.isWebView()"
   >
+    <div class="page-header">
+      <h1>{{ getPageTitle() }}</h1>
+    </div>
+
     <!-- Bookings View -->
     <div class="view-container" [class.active]="viewType() === 'bookings'">
       <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>
+    </div>
+
+    <!-- Create Booking View -->
+    <div
+      class="view-container"
+      [class.active]="viewType() === 'create-booking'"
+    >
+      <app-create-booking
+        *ngIf="viewType() === 'create-booking'"
+      ></app-create-booking>
     </div>
     <div
       class="view-container"

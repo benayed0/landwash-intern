@@ -99,6 +99,13 @@
     </button>
     <button
       class="tab"
+      [class.active]="activeTab === 'in-progress'"
+      (click)="activeTab = 'in-progress'"
+    >
+      En cours ({{ filteredInProgressBookings().length }})
+    </button>
+    <button
+      class="tab"
       [class.active]="activeTab === 'completed'"
       (click)="activeTab = 'completed'"
     >
@@ -114,72 +121,145 @@
       }})
     </button>
   </div>
-  <div class="date-filter">
-    <h3>Filtrer par date</h3>
-    <div class="preset-buttons">
-      <button
-        class="preset-btn"
-        [class.active]="selectedPreset() === 'all'"
-        (click)="setDatePreset('all')"
-      >
-        Tout
-      </button>
-      <button
-        class="preset-btn"
-        [class.active]="selectedPreset() === 'today'"
-        (click)="setDatePreset('today')"
-      >
-        Aujourd'hui
-      </button>
-      <button
-        class="preset-btn"
-        [class.active]="selectedPreset() === '7days'"
-        (click)="setDatePreset('7days')"
-      >
-        7 jours
-      </button>
-      <button
-        class="preset-btn"
-        [class.active]="selectedPreset() === '30days'"
-        (click)="setDatePreset('30days')"
-      >
-        30 jours
-      </button>
-      <button
-        class="preset-btn"
-        [class.active]="selectedPreset() === 'custom'"
-        (click)="setDatePreset('custom')"
-      >
-        Personnalisé
-      </button>
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <!-- Date Filter -->
+    <div class="filter-group">
+      <h3>Filtrer par date</h3>
+      <div class="preset-buttons">
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === 'all'"
+          (click)="setDatePreset('all')"
+        >
+          Tout
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === 'today'"
+          (click)="setDatePreset('today')"
+        >
+          Aujourd'hui
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === '7days'"
+          (click)="setDatePreset('7days')"
+        >
+          7 jours
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === '30days'"
+          (click)="setDatePreset('30days')"
+        >
+          30 jours
+        </button>
+        <button
+          class="preset-btn"
+          [class.active]="selectedPreset() === 'custom'"
+          (click)="setDatePreset('custom')"
+        >
+          Personnalisé
+        </button>
+      </div>
+
+      <div class="custom-date-inputs" *ngIf="selectedPreset() === 'custom'">
+        <div class="date-input-group">
+          <label>Date de début</label>
+          <input
+            type="date"
+            [value]="startDate()"
+            (input)="onStartDateChange($event)"
+            class="date-input"
+          />
+        </div>
+        <div class="date-input-group">
+          <label>Date de fin</label>
+          <input
+            type="date"
+            [value]="endDate()"
+            (input)="onEndDateChange($event)"
+            class="date-input"
+          />
+        </div>
+        <button
+          class="apply-btn"
+          (click)="applyDateFilter()"
+          [disabled]="!isDateRangeValid()"
+        >
+          Appliquer
+        </button>
+      </div>
     </div>
 
-    <div class="custom-date-inputs" *ngIf="selectedPreset() === 'custom'">
-      <div class="date-input-group">
-        <label>Date de début</label>
-        <input
-          type="date"
-          [value]="startDate()"
-          (input)="onStartDateChange($event)"
-          class="date-input"
-        />
+    <!-- Team/Personnel/Client Filters -->
+    <div class="advanced-filters">
+      <h3>Filtres avancés</h3>
+      <div class="filter-dropdowns">
+        <!-- Team Filter -->
+        <div class="dropdown-filter">
+          <label>Équipe</label>
+          <div class="searchable-select">
+            <select [(ngModel)]="selectedTeam" class="filter-select">
+              <option value="all">Toutes les équipes</option>
+              <option *ngFor="let team of filteredTeams()" [value]="team._id">
+                {{ team.name }}
+              </option>
+            </select>
+            <input
+              type="text"
+              placeholder="Rechercher une équipe..."
+              [(ngModel)]="teamSearchTerm"
+              class="search-input"
+              (focus)="onSearchFocus($event)"
+              (blur)="onSearchBlur($event)"
+            />
+          </div>
+        </div>
+
+        <!-- Personnel Filter -->
+        <div class="dropdown-filter">
+          <label>Personnel</label>
+          <div class="searchable-select">
+            <select [(ngModel)]="selectedPersonnel" class="filter-select">
+              <option value="all">Tout le personnel</option>
+              <option *ngFor="let person of filteredPersonnel()" [value]="person._id">
+                {{ person.name }} ({{ person.email }})
+              </option>
+            </select>
+            <input
+              type="text"
+              placeholder="Rechercher du personnel..."
+              [(ngModel)]="personnelSearchTerm"
+              class="search-input"
+              (focus)="onSearchFocus($event)"
+              (blur)="onSearchBlur($event)"
+            />
+          </div>
+        </div>
+
+        <!-- Client Filter -->
+        <div class="dropdown-filter">
+          <label>Client</label>
+          <div class="searchable-select">
+            <select [(ngModel)]="selectedClient" class="filter-select">
+              <option value="all">Tous les clients</option>
+              <option *ngFor="let client of filteredClients()" [value]="client._id">
+                {{ client.name }} ({{ client.email }})
+              </option>
+            </select>
+            <input
+              type="text"
+              placeholder="Rechercher un client..."
+              [(ngModel)]="clientSearchTerm"
+              class="search-input"
+              (focus)="onSearchFocus($event)"
+              (blur)="onSearchBlur($event)"
+            />
+          </div>
+        </div>
       </div>
-      <div class="date-input-group">
-        <label>Date de fin</label>
-        <input
-          type="date"
-          [value]="endDate()"
-          (input)="onEndDateChange($event)"
-          class="date-input"
-        />
-      </div>
-      <button
-        class="apply-btn"
-        (click)="applyDateFilter()"
-        [disabled]="!isDateRangeValid()"
-      >
-        Appliquer
-      </button>
     </div>
   </div>
   <div class="content">
@@ -210,6 +290,7 @@
         (requestReject)="onRequestReject($event)"
         (requestReconfirm)="onRequestReconfirm($event)"
         (requestReassignTeam)="onRequestReassignTeam($event)"
+        (requestStartProgress)="onRequestStartProgress($event)"
         (bookingUpdate)="onBookingUpdate($event)"
       >
       </app-booking-card>

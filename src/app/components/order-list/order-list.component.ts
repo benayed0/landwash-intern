@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../services/order.service';
-import { Order } from '../../models/order.model';
+import { Order, OrderStatus } from '../../models/order.model';
 import { OrderCardComponent } from '../order-card/order-card.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 
@@ -136,18 +136,45 @@ export class OrderListComponent implements OnInit {
     }
   }
 
-  onOrderStatusChange(event: { orderId: string; status: string }) {
+  onOrderStatusChange(event: {
+    orderId: string;
+    status: string;
+    estimatedDeliveryDate?: string;
+  }) {
     this.operationLoading[`order-status-${event.orderId}`] = true;
-    this.orderService.updateOrderStatus(event.orderId, event.status).subscribe({
-      next: () => {
-        this.loadOrders();
-        this.operationLoading[`order-status-${event.orderId}`] = false;
-      },
-      error: (err) => {
-        console.error('Error updating order:', err);
-        this.operationLoading[`order-status-${event.orderId}`] = false;
-      },
-    });
+
+    if (event.estimatedDeliveryDate) {
+      // Update with estimated delivery date
+      this.orderService
+        .updateOrder(event.orderId, {
+          status: event.status as OrderStatus,
+          estimatedDeliveryDate: new Date(event.estimatedDeliveryDate),
+        })
+        .subscribe({
+          next: () => {
+            this.loadOrders();
+            this.operationLoading[`order-status-${event.orderId}`] = false;
+          },
+          error: (err) => {
+            console.error('Error updating order:', err);
+            this.operationLoading[`order-status-${event.orderId}`] = false;
+          },
+        });
+    } else {
+      // Regular status update
+      this.orderService
+        .updateOrder(event.orderId, { status: event.status as OrderStatus })
+        .subscribe({
+          next: () => {
+            this.loadOrders();
+            this.operationLoading[`order-status-${event.orderId}`] = false;
+          },
+          error: (err) => {
+            console.error('Error updating order:', err);
+            this.operationLoading[`order-status-${event.orderId}`] = false;
+          },
+        });
+    }
   }
 
   isOperationLoading(operation: string, id: string): boolean {

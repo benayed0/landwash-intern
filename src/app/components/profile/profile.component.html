@@ -1,16 +1,16 @@
 <div class="profile-container">
   <div class="content">
     <div class="profile-header">
-      <div class="profile-title">
-        <h2>Mon Profil</h2>
-        <button class="edit-btn" (click)="toggleEdit()" *ngIf="!isEditing">
-          ✏️ Modifier
-        </button>
-      </div>
+      <div class="profile-title"></div>
     </div>
 
     <div class="profile-card" *ngIf="currentUser">
       <!-- Avatar Section -->
+      <div style="display: flex; justify-content: end">
+        <button class="edit-btn" (click)="toggleEdit()" *ngIf="!isEditing">
+          ✏️ Modifier
+        </button>
+      </div>
       <div class="avatar-section">
         <div class="avatar">
           {{ (currentUser.name || currentUser.email || "?")[0].toUpperCase() }}

@@ -1,8 +1,4 @@
 <div class="teams-container">
-  <div class="page-header">
-    <h1>Équipes et Personnel</h1>
-  </div>
-
   <div class="content">
     <app-loading-spinner
       *ngIf="loading"
@@ -13,86 +9,251 @@
     </app-loading-spinner>
 
     <div *ngIf="!loading">
-      <div class="section-title">Équipes</div>
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+            placeholder="Rechercher équipes ou personnel..."
+            class="search-input"
+          />
+          <button
+            *ngIf="searchTerm"
+            class="clear-search-btn"
+            (click)="clearSearch()"
+          >
+            ✕
+          </button>
+          <div class="search-icon">🔍</div>
+        </div>
+        <div class="search-results" *ngIf="searchTerm">
+          <span
+            >{{ filteredTeams.length }} équipe(s) •
+            {{ filteredPersonals.length }} personnel(s)</span
+          >
+        </div>
+      </div>
 
-      <div *ngIf="teams.length === 0" class="empty-state">
+      <!-- Teams Section -->
+      <div class="section-header">
+        <div class="section-title">Équipes</div>
+        <button class="add-btn" (click)="showCreateTeamModal = true">
+          Créer une Équipe
+        </button>
+      </div>
+
+      <div
+        *ngIf="filteredTeams.length === 0 && !searchTerm"
+        class="empty-state"
+      >
         <p>Aucune équipe disponible</p>
       </div>
 
-      <div class="team-card" *ngFor="let team of teams">
-        <div class="team-header">
-          <div class="team-name">{{ team.name }}</div>
-          <div class="team-badge">{{ team.members.length || 0 }} membres</div>
-        </div>
+      <div *ngIf="filteredTeams.length === 0 && searchTerm" class="empty-state">
+        <p>Aucun résultat trouvé pour "{{ searchTerm }}"</p>
+      </div>
 
-        <div
-          class="member-list"
-          *ngIf="team.members && team.members.length > 0"
-        >
-          <div class="member-item" *ngFor="let memberId of team.members">
-            <div
-              class="member-avatar"
-              *ngIf="getMemberDetails(memberId) as member"
-            >
-              {{ getInitials(member.name) }}
-            </div>
-            <div
-              class="member-info"
-              *ngIf="getMemberDetails(memberId) as member"
-            >
-              <div class="member-name">{{ member.name }}</div>
-              <div class="member-contact">
-                {{ member.phone }} • {{ member.email }}
+      <div class="teams-grid">
+        <div class="team-card" *ngFor="let team of paginatedTeams">
+          <div class="team-header">
+            <div class="team-name">{{ team.name }}</div>
+            <div class="team-header-actions">
+              <div class="team-badge">
+                {{ team.members.length || 0 }} membres
+              </div>
+              <div class="team-actions">
+                <button
+                  class="action-btn edit-btn"
+                  (click)="openEditTeam(team)"
+                  title="Modifier l'équipe"
+                >
+                  ✏️
+                </button>
+                <button
+                  class="action-btn delete-btn"
+                  (click)="openDeleteConfirm(team)"
+                  title="Supprimer l'équipe"
+                >
+                  🗑️
+                </button>
               </div>
             </div>
-            <div
-              class="member-role"
-              *ngIf="getMemberDetails(memberId) as member"
-            >
-              {{ member.role }}
+          </div>
+
+          <!-- Location and Radius Info -->
+          <div class="team-location" *ngIf="team.coordinates">
+            <div class="location-item">
+              <span class="location-icon">📍</span>
+              <span class="location-text"
+                >{{ team.coordinates[1].toFixed(4) }},
+                {{ team.coordinates[0].toFixed(4) }}</span
+              >
+            </div>
+            <div class="location-item" *ngIf="team.radius">
+              <span class="location-icon">🎯</span>
+              <span class="location-text">Rayon: {{ team.radius }}km</span>
+            </div>
+          </div>
+
+          <div
+            class="member-list"
+            *ngIf="team.members && team.members.length > 0"
+          >
+            <div class="member-item" *ngFor="let memberId of team.members">
+              <div
+                class="member-avatar"
+                *ngIf="getMemberDetails(memberId) as member"
+              >
+                {{ getInitials(member.name) }}
+              </div>
+              <div
+                class="member-info"
+                *ngIf="getMemberDetails(memberId) as member"
+              >
+                <div class="member-name">{{ member.name }}</div>
+                <div class="member-contact">
+                  {{ member.phone }} • {{ member.email }}
+                </div>
+              </div>
+              <div
+                class="member-role"
+                *ngIf="getMemberDetails(memberId) as member"
+              >
+                {{ member.role }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="personals-section">
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
+        <!-- Teams Pagination -->
+        <div class="pagination" *ngIf="totalTeamPages > 1">
+          <button
+            class="pagination-btn"
+            [disabled]="currentTeamPage === 1"
+            (click)="onTeamPageChange(currentTeamPage - 1)"
+          >
+            ←
+          </button>
+
+          <button
+            *ngFor="let page of getTeamPageNumbers()"
+            class="pagination-btn"
+            [class.active]="page === currentTeamPage"
+            (click)="onTeamPageChange(page)"
+          >
+            {{ page }}
+          </button>
+
+          <button
+            class="pagination-btn"
+            [disabled]="currentTeamPage === totalTeamPages"
+            (click)="onTeamPageChange(currentTeamPage + 1)"
+          >
+            →
+          </button>
+        </div>
+
+        <!-- Personnel Section -->
+        <div class="section-header">
           <div class="section-title">Tout le Personnel</div>
           <button class="add-btn" (click)="showAddPersonalModal = true">
             Créer un Compte
           </button>
         </div>
-        <div *ngIf="personals.length === 0" class="empty-state">
+
+        <div
+          *ngIf="filteredPersonals.length === 0 && !searchTerm"
+          class="empty-state"
+        >
           <p>Aucun personnel disponible</p>
         </div>
 
-        <div class="personal-card" *ngFor="let personal of personals">
-          <div class="personal-avatar">
-            {{ getInitials(personal.name) }}
-          </div>
-          <div class="personal-info">
-            <div class="personal-name">{{ personal.name }}</div>
-            <div class="personal-details">
-              {{ personal.email }}<br />
-              {{ personal.phone }}
+        <div
+          *ngIf="filteredPersonals.length === 0 && searchTerm"
+          class="empty-state"
+        >
+          <p>Aucun personnel trouvé pour "{{ searchTerm }}"</p>
+        </div>
+
+        <div class="personals-grid">
+          <div
+            class="personal-card"
+            *ngFor="let personal of paginatedPersonals"
+          >
+            <div class="personal-avatar">
+              {{ getInitials(personal.name) }}
+            </div>
+            <div class="personal-info">
+              <div class="personal-name">{{ personal.name }}</div>
+              <div class="personal-details">
+                {{ personal.email }}<br />
+                {{ personal.phone }}
+              </div>
+            </div>
+            <div class="personal-role">
+              {{ personal.role === "admin" ? "Administrateur" : "Employé" }}
             </div>
           </div>
-          <div class="personal-role">
-            {{ personal.role === "admin" ? "Administrateur" : "Employé" }}
-          </div>
+        </div>
+
+        <!-- Personnel Pagination -->
+        <div class="pagination" *ngIf="totalPersonalPages > 1">
+          <button
+            class="pagination-btn"
+            [disabled]="currentPersonalPage === 1"
+            (click)="onPersonalPageChange(currentPersonalPage - 1)"
+          >
+            ←
+          </button>
+
+          <button
+            *ngFor="let page of getPersonalPageNumbers()"
+            class="pagination-btn"
+            [class.active]="page === currentPersonalPage"
+            (click)="onPersonalPageChange(page)"
+          >
+            {{ page }}
+          </button>
+
+          <button
+            class="pagination-btn"
+            [disabled]="currentPersonalPage === totalPersonalPages"
+            (click)="onPersonalPageChange(currentPersonalPage + 1)"
+          >
+            →
+          </button>
         </div>
       </div>
     </div>
+    <app-add-personal-modal
+      (close)="showAddPersonalModal = false"
+      [isOpen]="showAddPersonalModal"
+      (confirmAdd)="createdAccount($event)"
+    ></app-add-personal-modal>
+
+    <app-create-team-modal
+      (close)="showCreateTeamModal = false"
+      [isOpen]="showCreateTeamModal"
+      [availablePersonals]="personals"
+      (teamCreated)="teamCreated($event)"
+    ></app-create-team-modal>
+
+    <app-edit-team-modal
+      (close)="showEditTeamModal = false"
+      [isOpen]="showEditTeamModal"
+      [team]="selectedTeam"
+      [availablePersonals]="personals"
+      (teamUpdated)="teamUpdated($event)"
+    ></app-edit-team-modal>
+
+    <app-delete-confirm-modal
+      (close)="closeDeleteConfirm()"
+      [isOpen]="showDeleteConfirmModal"
+      [teamName]="selectedTeam?.name || ''"
+      [isDeleting]="isDeleting"
+      (confirm)="confirmDelete()"
+    ></app-delete-confirm-modal>
   </div>
-  <app-add-personal-modal
-    (close)="showAddPersonalModal = false"
-    [isOpen]="showAddPersonalModal"
-    (confirmAdd)="createdAccount($event)"
-  ></app-add-personal-modal>
 </div>

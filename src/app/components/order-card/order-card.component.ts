@@ -16,7 +16,11 @@ export class OrderCardComponent {
   @Output() statusChange = new EventEmitter<{
     orderId: string;
     status: string;
+    estimatedDeliveryDate?: string;
   }>();
+
+  showDeliveryDateModal = false;
+  estimatedDeliveryDate = '';
 
   getStatusClass(status: string): string {
     return `status-${status.toLowerCase()}`;
@@ -68,6 +72,32 @@ export class OrderCardComponent {
   }
 
   onActionClick(status: string): void {
-    this.statusChange.emit({ orderId: this.order._id!, status });
+    if (status === 'shipped') {
+      this.showDeliveryDateModal = true;
+    } else {
+      this.statusChange.emit({ orderId: this.order._id!, status });
+    }
+  }
+
+  onConfirmWithDeliveryDate(): void {
+    if (this.estimatedDeliveryDate) {
+      this.statusChange.emit({
+        orderId: this.order._id!,
+        status: 'shipped',
+        estimatedDeliveryDate: this.estimatedDeliveryDate,
+      });
+      this.closeDeliveryDateModal();
+    }
+  }
+
+  closeDeliveryDateModal(): void {
+    this.showDeliveryDateModal = false;
+    this.estimatedDeliveryDate = '';
+  }
+
+  getTomorrowDate(): string {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
   }
 }

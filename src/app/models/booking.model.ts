@@ -3,6 +3,7 @@ export type BookingStatus =
   | 'pending'
   | 'rejected'
   | 'confirmed'
+  | 'in-progress'
   | 'completed'
   | 'canceled';
 
@@ -23,11 +24,12 @@ export interface Booking {
   createdAt: Date;
   price: number;
   date: Date;
+  startDate?: Date;
   status: BookingStatus;
   withSub: boolean;
   salonsSeats?: number;
   address?: string;
-  location: { lat: number; lng: number };
+  coordinates: [number, number]; // [lng, lat]
   userId: {
     memberSince: Date;
     _id: string;

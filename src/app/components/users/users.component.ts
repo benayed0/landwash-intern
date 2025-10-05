@@ -14,7 +14,7 @@ interface Subscription {
   renewalDate: Date;
 }
 
-interface User {
+export interface User {
   _id: string;
   email?: string | null;
   memberSince: Date;
@@ -119,7 +119,7 @@ export class UsersComponent implements OnInit {
     }
 
     const searchLower = this.searchTerm.toLowerCase().trim();
-    this.filteredUsers = this.users.filter(user => {
+    this.filteredUsers = this.users.filter((user) => {
       const phoneMatch = user.phoneNumber?.toLowerCase().includes(searchLower);
       const emailMatch = user.email?.toLowerCase().includes(searchLower);
       const nameMatch = user.name?.toLowerCase().includes(searchLower);
@@ -134,13 +134,17 @@ export class UsersComponent implements OnInit {
   }
 
   withBookings() {
-    return this.filteredUsers.filter((u) => u.bookings && u.bookings.length > 0);
+    return this.filteredUsers.filter(
+      (u) => u.bookings && u.bookings.length > 0
+    );
   }
   withOrders() {
     return this.filteredUsers.filter((u) => u.orders && u.orders.length > 0);
   }
   activeUsers() {
-    return this.filteredUsers.filter((u) => u.subscription?.status === 'active');
+    return this.filteredUsers.filter(
+      (u) => u.subscription?.status === 'active'
+    );
   }
 
   openAddUserModal() {

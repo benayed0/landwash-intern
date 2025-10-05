@@ -1,3 +1,8 @@
+<div class="page-header">
+  <button class="add-user-btn" (click)="showCreateModal()">
+    ➕ Créer un abonnement
+  </button>
+</div>
 <div class="subscription-list-container">
   <!-- Sub-tabs for Subscriptions -->
   <div class="tabs">
@@ -67,5 +72,15 @@
       >
       </app-subscription-card>
     </div>
+  </div>
+</div>
+<!-- Create Subscription Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="hideCreateModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <app-create-subscription
+      (subscriptionCreated)="onSubscriptionCreated()"
+      (cancelled)="hideCreateModal()"
+    >
+    </app-create-subscription>
   </div>
 </div>

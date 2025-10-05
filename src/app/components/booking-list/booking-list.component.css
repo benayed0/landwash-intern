@@ -370,3 +370,152 @@
 .apply-btn:active {
   transform: scale(0.95);
 }
+
+/* Filters Section */
+.filters-section {
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.filter-group {
+  padding: 15px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.filter-group:last-child {
+  border-bottom: none;
+}
+
+.filter-group h3 {
+  color: #c3ff00;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Advanced Filters */
+.advanced-filters {
+  padding: 15px;
+}
+
+.advanced-filters h3 {
+  color: #c3ff00;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.filter-dropdowns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.dropdown-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dropdown-filter label {
+  font-size: 14px;
+  color: #e5e5e5;
+  font-weight: 600;
+}
+
+/* Searchable Select */
+.searchable-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.searchable-select.focused {
+  border-color: #c3ff00;
+  box-shadow: 0 0 0 2px rgba(195, 255, 0, 0.1);
+}
+
+.filter-select {
+  background: transparent;
+  border: none;
+  color: #e5e5e5;
+  padding: 12px 15px;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.filter-select option {
+  background: #2a2a2a;
+  color: #e5e5e5;
+  padding: 8px;
+}
+
+.search-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  border: none;
+  color: #e5e5e5;
+  padding: 12px 15px;
+  font-size: 14px;
+  outline: none;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.searchable-select.focused .search-input {
+  pointer-events: all;
+  opacity: 1;
+  background: #333;
+}
+
+.searchable-select.focused .filter-select {
+  opacity: 0;
+}
+
+.search-input::placeholder {
+  color: #888;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .filter-dropdowns {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .advanced-filters {
+    padding: 12px;
+  }
+
+  .filter-group {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .searchable-select {
+    margin-bottom: 10px;
+  }
+
+  .filter-select,
+  .search-input {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}

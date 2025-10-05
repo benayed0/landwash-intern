@@ -131,8 +131,8 @@
     <span>
       <a
         href="https://www.google.com/maps/search/?api=1&query={{
-          booking.location.lat
-        }},{{ booking.location.lng }}"
+          booking.coordinates[1]
+        }},{{ booking.coordinates[0] }}"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -209,11 +209,40 @@
   </div>
   } @if (booking.status === 'confirmed') {
   <div class="booking-actions">
+    <button class="action-btn start-progress-btn" (click)="startProgress()">
+      ▶️ Commencer
+    </button>
     <button class="action-btn complete-btn" (click)="completeBooking()">
       ✓ Marquer comme terminé
     </button>
     <button class="action-btn reject-btn" (click)="rejectBooking()">
       ✗ Rejeter
+    </button>
+  </div>
+  } @if (booking.status === 'in-progress') {
+  <!-- Progress Section -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Progression</span>
+      <span class="time-remaining">{{ formatTimeRemaining() }}</span>
+    </div>
+    <div class="progress-bar-container">
+      <div
+        class="progress-bar"
+        [style.width.%]="getTimeRemaining().percentage"
+      ></div>
+    </div>
+    <div class="progress-info">
+      <span class="duration-info">
+        Durée: {{ getBookingDuration() }} min @if (booking.type === 'salon' &&
+        booking.salonsSeats) { ({{ booking.salonsSeats }} sièges × 20min) }
+      </span>
+    </div>
+  </div>
+
+  <div class="booking-actions">
+    <button class="action-btn complete-btn" (click)="completeBooking()">
+      ✓ Marquer comme terminé
     </button>
   </div>
   } @if (booking.status === 'rejected') {

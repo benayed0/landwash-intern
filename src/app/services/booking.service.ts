@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Booking } from '../models/booking.model';
+import { Booking, BookingStatus } from '../models/booking.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -27,8 +27,12 @@ export class BookingService {
     return this.http.get<Booking[]>(`${this.apiUrl}?status=confirmed`);
   }
 
-  updateBookingStatus(id: string, status: string): Observable<Booking> {
-    return this.http.patch<Booking>(`${this.apiUrl}/${id}`, { status });
+  updateBookingStatus(id: string, status: BookingStatus): Observable<Booking> {
+    const update: Partial<Booking> = { status };
+    if (status === 'in-progress') {
+      update['startDate'] = new Date();
+    }
+    return this.http.patch<Booking>(`${this.apiUrl}/${id}`, update);
   }
 
   updateBookingPrice(id: string, price: number): Observable<Booking> {
@@ -46,5 +50,15 @@ export class BookingService {
   // Get bookings for a specific team
   getTeamBookings(teamId: string): Observable<Booking[]> {
     return this.http.get<Booking[]>(`${this.apiUrl}/team/${teamId}`);
+  }
+
+  // Create a new booking
+  createBooking(bookingData: Partial<Booking>): Observable<Booking> {
+    return this.http.post<Booking>(`${this.apiUrl}`, bookingData);
+  }
+
+  // Delete a booking
+  deleteBooking(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

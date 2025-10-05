@@ -1,0 +1,240 @@
+<div class="create-booking-container">
+  <div class="header">
+    <p>Remplissez les informations ci-dessous pour créer une réservation</p>
+  </div>
+
+  <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" class="booking-form">
+    <!-- Service Type Selection -->
+    <div class="form-section">
+      <h2>Type de service</h2>
+      <div class="service-types">
+        <div
+          *ngFor="let type of bookingTypes"
+          class="service-card"
+          [class.selected]="bookingForm.get('type')?.value === type.value"
+          (click)="onTypeChange(type.value)"
+        >
+          <div class="service-icon">{{ type.icon }}</div>
+          <div class="service-label">{{ type.label }}</div>
+        </div>
+      </div>
+      <div class="error-message" *ngIf="isFieldInvalid('type')">
+        {{ getFieldError("type") }}
+      </div>
+    </div>
+
+    <!-- Salon Seats (only for salon type) -->
+    <div
+      class="form-section"
+      *ngIf="bookingForm.get('type')?.value === 'salon'"
+    >
+      <h2>Nombre de sièges</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="salonsSeats">Sièges à nettoyer</label>
+          <input
+            type="number"
+            id="salonsSeats"
+            formControlName="salonsSeats"
+            class="form-input"
+            [class.invalid]="isFieldInvalid('salonsSeats')"
+            min="1"
+            max="20"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('salonsSeats')">
+            {{ getFieldError("salonsSeats") }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="form-section">
+      <h2>Tarification</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="estimated-price">
+            <span class="price-label">Prix estimé:</span>
+            <span class="price-amount">{{ calculateEstimatedPrice() }} DT</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="withSub" class="checkbox" />
+            <span class="checkmark"></span>
+            Avec abonnement
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Date and Time -->
+    <div class="form-section">
+      <h2>Date et heure</h2>
+      <div class="form-group">
+        <label for="date">Date et heure du service</label>
+        <input
+          type="datetime-local"
+          id="date"
+          formControlName="date"
+          class="form-input date-input"
+          [class.invalid]="isFieldInvalid('date')"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('date')">
+          {{ getFieldError("date") }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-section">
+      <h2>Localisation</h2>
+      <div class="form-group">
+        <label for="address">Adresse</label>
+        <div class="address-input-group">
+          <textarea
+            id="address"
+            formControlName="address"
+            class="form-input textarea"
+            [class.invalid]="isFieldInvalid('address')"
+            placeholder="Entrez l'adresse ou cliquez sur 'Choisir sur la carte'"
+            rows="3"
+          ></textarea>
+          <button
+            type="button"
+            class="location-btn"
+            (click)="openLocationPicker()"
+          >
+            📍 Choisir sur la carte
+          </button>
+        </div>
+        <div class="error-message" *ngIf="isFieldInvalid('address')">
+          {{ getFieldError("address") }}
+        </div>
+        <div class="location-status" *ngIf="selectedLocation()">
+          <span class="location-icon">✓</span>
+          <span>Localisation sélectionnée</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Information -->
+    <div class="form-section">
+      <h2>Informations client</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="clientName">Nom complet</label>
+          <input
+            type="text"
+            id="clientName"
+            formControlName="clientName"
+            class="form-input"
+            [class.invalid]="isFieldInvalid('clientName')"
+            placeholder="Nom et prénom du client"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('clientName')">
+            {{ getFieldError("clientName") }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="clientEmail">Email</label>
+          <input
+            type="email"
+            id="clientEmail"
+            formControlName="clientEmail"
+            class="form-input"
+            [class.invalid]="isFieldInvalid('clientEmail')"
+            placeholder="email@exemple.com"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('clientEmail')">
+            {{ getFieldError("clientEmail") }}
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="clientPhone">Téléphone</label>
+          <input
+            type="tel"
+            id="clientPhone"
+            formControlName="clientPhone"
+            class="form-input"
+            [class.invalid]="isFieldInvalid('clientPhone')"
+            placeholder="+216 XX XXX XXX"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('clientPhone')">
+            {{ getFieldError("clientPhone") }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="secondaryNumber">Téléphone secondaire (optionnel)</label>
+          <input
+            type="tel"
+            id="secondaryNumber"
+            formControlName="secondaryNumber"
+            class="form-input"
+            placeholder="+216 XX XXX XXX"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Assignment (Optional) -->
+    <div class="form-section">
+      <h2>Assignation d'équipe (optionnel)</h2>
+      <div class="form-group">
+        <label for="teamId">Équipe</label>
+        <select id="teamId" formControlName="teamId" class="form-input">
+          <option value="">Assigner plus tard</option>
+          <option *ngFor="let team of teams()" [value]="team._id">
+            {{ team.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="onCancel()"
+        [disabled]="loading()"
+      >
+        Annuler
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="loading()">
+        <span *ngIf="!loading()">Créer la réservation</span>
+        <span *ngIf="loading()">Création en cours...</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Location Picker Modal (placeholder for now) -->
+<div
+  class="modal"
+  *ngIf="showLocationPicker()"
+  (click)="showLocationPicker.set(false)"
+>
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Sélectionner la localisation</h3>
+      <button class="close-btn" (click)="showLocationPicker.set(false)">
+        ✕
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Fonctionnalité de carte à implémenter</p>
+      <p>Pour l'instant, veuillez saisir l'adresse manuellement.</p>
+      <button
+        class="btn-primary"
+        (click)="
+          onLocationSelected({ lat: 36.8065, lng: 10.1815 }, 'Tunis, Tunisie')
+        "
+      >
+        Utiliser Tunis comme exemple
+      </button>
+    </div>
+  </div>
+</div>

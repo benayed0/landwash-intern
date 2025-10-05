@@ -4,11 +4,17 @@ import { SubscriptionService } from '../../services/subscription.service';
 import { Subscription } from '../../models/subscription.model';
 import { SubscriptionCardComponent } from '../subscription-card/subscription-card.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
+import { CreateSubscriptionComponent } from '../create-subscription/create-subscription.component';
 
 @Component({
   selector: 'app-subscription-list',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent, SubscriptionCardComponent],
+  imports: [
+    CommonModule,
+    LoadingSpinnerComponent,
+    SubscriptionCardComponent,
+    CreateSubscriptionComponent,
+  ],
   templateUrl: './subscription-list.component.html',
   styleUrls: ['./subscription-list.component.css'],
 })
@@ -16,6 +22,7 @@ export class SubscriptionListComponent implements OnInit {
   subscriptions = signal<Subscription[]>([]);
   loading = signal<boolean>(false);
   activeTab = signal<string>('pending');
+  showModal = false;
 
   pendingSubscriptions = computed(() =>
     this.subscriptions().filter((sub) => sub.status === 'pending')
@@ -118,23 +125,43 @@ export class SubscriptionListComponent implements OnInit {
       });
   }
 
-  onSubscriptionUpdate(event: { subscriptionId: string; updateData: Partial<Subscription> }) {
+  onSubscriptionUpdate(event: {
+    subscriptionId: string;
+    updateData: Partial<Subscription>;
+  }) {
     this.loading.set(true);
-    this.subscriptionService.updateSubscription(event.subscriptionId, event.updateData).subscribe({
-      next: (updatedSubscription) => {
-        const currentSubscriptions = this.subscriptions();
-        const index = currentSubscriptions.findIndex(sub => sub._id === event.subscriptionId);
-        if (index !== -1) {
-          const updated = [...currentSubscriptions];
-          updated[index] = updatedSubscription;
-          this.subscriptions.set(updated);
-        }
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error updating subscription:', error);
-        this.loading.set(false);
-      }
-    });
+    this.subscriptionService
+      .updateSubscription(event.subscriptionId, event.updateData)
+      .subscribe({
+        next: (updatedSubscription) => {
+          const currentSubscriptions = this.subscriptions();
+          const index = currentSubscriptions.findIndex(
+            (sub) => sub._id === event.subscriptionId
+          );
+          if (index !== -1) {
+            const updated = [...currentSubscriptions];
+            updated[index] = updatedSubscription;
+            this.subscriptions.set(updated);
+          }
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error('Error updating subscription:', error);
+          this.loading.set(false);
+        },
+      });
+  }
+
+  showCreateModal() {
+    this.showModal = true;
+  }
+
+  hideCreateModal() {
+    this.showModal = false;
+  }
+
+  onSubscriptionCreated() {
+    this.hideCreateModal();
+    this.loadSubscriptions(); // Refresh the list
   }
 }

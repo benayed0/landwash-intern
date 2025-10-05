@@ -1,7 +1,15 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+  OnChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Booking } from '../../models/booking.model';
+import { Booking, BookingStatus } from '../../models/booking.model';
 
 @Component({
   selector: 'app-booking-card',
@@ -10,7 +18,7 @@ import { Booking } from '../../models/booking.model';
   templateUrl: './booking-card.component.html',
   styleUrls: ['./booking-card.component.css'],
 })
-export class BookingCardComponent {
+export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   @Input() booking!: Booking;
   @Input() userRole: 'admin' | 'worker' = 'admin'; // Default to admin for backward compatibility
   @Input() showMapsButton = true; // Control whether to show Google Maps button
@@ -20,10 +28,14 @@ export class BookingCardComponent {
   @Output() requestReject = new EventEmitter<Booking>();
   @Output() requestReconfirm = new EventEmitter<Booking>();
   @Output() requestReassignTeam = new EventEmitter<Booking>();
+  @Output() requestStartProgress = new EventEmitter<Booking>();
   @Output() bookingUpdate = new EventEmitter<{
     bookingId: string;
     updateData: Partial<Booking>;
   }>();
+
+  // Progress timer
+  private progressTimer: any;
 
   // Edit mode properties
   isEditing = false;
@@ -31,12 +43,7 @@ export class BookingCardComponent {
     type: 'small' as 'small' | 'big' | 'salon',
     price: 0,
     date: '',
-    status: 'pending' as
-      | 'pending'
-      | 'confirmed'
-      | 'completed'
-      | 'rejected'
-      | 'canceled',
+    status: 'pending' as BookingStatus,
     withSub: false,
     salonsSeats: 0,
     address: '',
@@ -110,8 +117,8 @@ export class BookingCardComponent {
 
   // Generate Google Maps URL from coordinates
   getGoogleMapsUrl(): string {
-    if (this.booking.location) {
-      return `https://www.google.com/maps/search/?api=1&query=${this.booking.location.lat},${this.booking.location.lng}`;
+    if (this.booking.coordinates) {
+      return `https://www.google.com/maps/search/?api=1&query=${this.booking.coordinates[1]},${this.booking.coordinates[0]}`;
     }
     return '#';
   }
@@ -123,7 +130,64 @@ export class BookingCardComponent {
 
   // Check if we should show complete button
   shouldShowCompleteButton(): boolean {
+    return (
+      this.booking.status === 'confirmed' ||
+      this.booking.status === 'in-progress'
+    );
+  }
+
+  // Check if we should show start progress button
+  shouldShowStartProgressButton(): boolean {
     return this.booking.status === 'confirmed';
+  }
+
+  // Start progress for confirmed booking
+  startProgress() {
+    this.requestStartProgress.emit(this.booking);
+  }
+
+  // Calculate duration based on booking type and salon seats
+  getBookingDuration(): number {
+    if (this.booking.type === 'salon' && this.booking.salonsSeats) {
+      return this.booking.salonsSeats * 20; // 20 minutes per salon seat
+    }
+    return 120; // 2 hours (120 minutes) for car wash
+  }
+
+  // Calculate time remaining for in-progress bookings
+  getTimeRemaining(): { minutes: number; seconds: number; percentage: number } {
+    if (this.booking.status !== 'in-progress') {
+      return { minutes: 0, seconds: 0, percentage: 0 };
+    }
+
+    const bookingDate = new Date(this.booking.startDate || this.booking.date);
+    const now = new Date();
+    const duration = this.getBookingDuration() * 60 * 1000; // Convert to milliseconds
+    const endTime = new Date(bookingDate.getTime() + duration);
+
+    const timeLeft = endTime.getTime() - now.getTime();
+
+    if (timeLeft <= 0) {
+      return { minutes: 0, seconds: 0, percentage: 100 };
+    }
+
+    const totalSeconds = Math.floor(timeLeft / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    const elapsed = now.getTime() - bookingDate.getTime();
+    const percentage = Math.min(100, Math.max(0, (elapsed / duration) * 100));
+
+    return { minutes, seconds, percentage };
+  }
+
+  // Format time remaining display
+  formatTimeRemaining(): string {
+    const time = this.getTimeRemaining();
+    if (time.minutes === 0 && time.seconds === 0) {
+      return 'Terminé';
+    }
+    return `${time.minutes}:${time.seconds.toString().padStart(2, '0')}`;
   }
 
   // Edit mode methods
@@ -196,5 +260,36 @@ export class BookingCardComponent {
     const offsetMs = d.getTimezoneOffset() * 60000;
     const localDate = new Date(d.getTime() - offsetMs);
     return localDate.toISOString().slice(0, 16);
+  }
+
+  ngOnInit() {
+    this.startProgressTimer();
+  }
+
+  ngOnDestroy() {
+    this.stopProgressTimer();
+  }
+
+  private startProgressTimer() {
+    // Only start timer for in-progress bookings
+    if (this.booking.status === 'in-progress') {
+      this.progressTimer = setInterval(() => {
+        // Update progress every second
+        // The template will automatically update through change detection
+      }, 1000);
+    }
+  }
+
+  private stopProgressTimer() {
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer);
+      this.progressTimer = null;
+    }
+  }
+
+  // Watch for status changes to start/stop timer
+  ngOnChanges() {
+    this.stopProgressTimer();
+    this.startProgressTimer();
   }
 }

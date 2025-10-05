@@ -9,7 +9,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookingService } from '../../services/booking.service';
-import { Booking } from '../../models/booking.model';
+import { TeamService } from '../../services/team.service';
+import { Booking, BookingStatus } from '../../models/booking.model';
+import { Team } from '../../models/team.model';
+import { Personal } from '../../models/personal.model';
 import { BookingCardComponent } from '../booking-card/booking-card.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 import { PriceConfirmModalComponent } from '../price-confirm-modal/price-confirm-modal.component';
@@ -33,6 +36,7 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
 })
 export class BookingListComponent implements OnInit {
   private bookingService = inject(BookingService);
+  private teamService = inject(TeamService);
 
   activeTab = 'pending';
   loading = false;
@@ -45,9 +49,23 @@ export class BookingListComponent implements OnInit {
   startDate = signal<string>('');
   endDate = signal<string>('');
 
+  // Team filtering properties
+  teams = signal<Team[]>([]);
+  personnel = signal<Personal[]>([]);
+  clients = signal<any[]>([]);
+  selectedTeam = signal<string>('all');
+  selectedPersonnel = signal<string>('all');
+  selectedClient = signal<string>('all');
+
+  // Search properties for filters
+  teamSearchTerm = signal<string>('');
+  personnelSearchTerm = signal<string>('');
+  clientSearchTerm = signal<string>('');
+
   // Booking arrays as signals
   pendingBookings = signal<Booking[]>([]);
   confirmedBookings = signal<Booking[]>([]);
+  inProgressBookings = signal<Booking[]>([]);
   completedBookings = signal<Booking[]>([]);
   rejectedBookings = signal<Booking[]>([]);
   canceledBookings = signal<Booking[]>([]);
@@ -61,6 +79,9 @@ export class BookingListComponent implements OnInit {
 
   ngOnInit() {
     this.loadBookings();
+    this.loadTeams();
+    this.loadPersonnel();
+    this.loadClients();
   }
 
   loadBookings() {
@@ -72,6 +93,9 @@ export class BookingListComponent implements OnInit {
         );
         this.confirmedBookings.set(
           bookings.filter((b) => b.status === 'confirmed')
+        );
+        this.inProgressBookings.set(
+          bookings.filter((b) => b.status === 'in-progress')
         );
         this.completedBookings.set(
           bookings.filter((b) => b.status === 'completed')
@@ -113,22 +137,92 @@ export class BookingListComponent implements OnInit {
     });
   }
 
+  loadTeams() {
+    this.teamService.getAllTeams().subscribe({
+      next: (teams) => {
+        this.teams.set(teams);
+      },
+      error: (err) => {
+        console.error('Error loading teams:', err);
+      },
+    });
+  }
+
+  loadPersonnel() {
+    this.teamService.getAllPersonals().subscribe({
+      next: (personnel) => {
+        this.personnel.set(personnel);
+      },
+      error: (err) => {
+        console.error('Error loading personnel:', err);
+      },
+    });
+  }
+
+  loadClients() {
+    // Extract unique clients from bookings
+    this.bookingService.getAllBookings().subscribe({
+      next: (bookings) => {
+        const uniqueClients = bookings
+          .map(booking => booking.userId)
+          .filter((user, index, self) =>
+            index === self.findIndex(u => u._id === user._id)
+          );
+        this.clients.set(uniqueClients);
+      },
+      error: (err) => {
+        console.error('Error loading clients:', err);
+      },
+    });
+  }
+
   // Computed properties for filtered bookings
   filteredPendingBookings = computed(() =>
-    this.filterBookingsByDate(this.pendingBookings())
+    this.filterBookings(this.pendingBookings())
   );
   filteredConfirmedBookings = computed(() =>
-    this.filterBookingsByDate(this.confirmedBookings())
+    this.filterBookings(this.confirmedBookings())
+  );
+  filteredInProgressBookings = computed(() =>
+    this.filterBookings(this.inProgressBookings())
   );
   filteredCompletedBookings = computed(() =>
-    this.filterBookingsByDate(this.completedBookings())
+    this.filterBookings(this.completedBookings())
   );
   filteredRejectedBookings = computed(() =>
-    this.filterBookingsByDate(this.rejectedBookings())
+    this.filterBookings(this.rejectedBookings())
   );
   filteredCanceledBookings = computed(() =>
-    this.filterBookingsByDate(this.canceledBookings())
+    this.filterBookings(this.canceledBookings())
   );
+
+  // Computed properties for filtered dropdown options
+  filteredTeams = computed(() => {
+    const searchTerm = this.teamSearchTerm().toLowerCase();
+    if (!searchTerm) return this.teams();
+    return this.teams().filter(team =>
+      team.name.toLowerCase().includes(searchTerm)
+    );
+  });
+
+  filteredPersonnel = computed(() => {
+    const searchTerm = this.personnelSearchTerm().toLowerCase();
+    if (!searchTerm) return this.personnel();
+    return this.personnel().filter(person =>
+      person.name.toLowerCase().includes(searchTerm) ||
+      person.email.toLowerCase().includes(searchTerm)
+    );
+  });
+
+  filteredClients = computed(() => {
+    const searchTerm = this.clientSearchTerm().toLowerCase();
+    if (!searchTerm) return this.clients();
+    return this.clients().filter(client =>
+      client.name.toLowerCase().includes(searchTerm) ||
+      client.email.toLowerCase().includes(searchTerm) ||
+      (client.phoneNumber && client.phoneNumber.includes(searchTerm))
+    );
+  });
 
   get currentBookings() {
     switch (this.activeTab) {
@@ -136,6 +230,8 @@ export class BookingListComponent implements OnInit {
         return this.filteredPendingBookings();
       case 'confirmed':
         return this.filteredConfirmedBookings();
+      case 'in-progress':
+        return this.filteredInProgressBookings();
       case 'completed':
         return this.filteredCompletedBookings();
       case 'others':
@@ -154,6 +250,8 @@ export class BookingListComponent implements OnInit {
         return 'Réservations en attente';
       case 'confirmed':
         return 'Réservations confirmées';
+      case 'in-progress':
+        return 'Réservations en cours';
       case 'completed':
         return 'Historique des réservations';
       case 'others':
@@ -165,16 +263,18 @@ export class BookingListComponent implements OnInit {
 
   onStatusChange(event: { id: string; status: string }) {
     this.operationLoading[`status-${event.id}`] = true;
-    this.bookingService.updateBookingStatus(event.id, event.status).subscribe({
-      next: () => {
-        this.loadBookings();
-        this.operationLoading[`status-${event.id}`] = false;
-      },
-      error: (err) => {
-        console.error('Error updating booking:', err);
-        this.operationLoading[`status-${event.id}`] = false;
-      },
-    });
+    this.bookingService
+      .updateBookingStatus(event.id, event.status as BookingStatus)
+      .subscribe({
+        next: () => {
+          this.loadBookings();
+          this.operationLoading[`status-${event.id}`] = false;
+        },
+        error: (err) => {
+          console.error('Error updating booking:', err);
+          this.operationLoading[`status-${event.id}`] = false;
+        },
+      });
   }
 
   onRequestComplete(booking: Booking) {
@@ -195,6 +295,22 @@ export class BookingListComponent implements OnInit {
   onRequestReject(booking: Booking) {
     this.selectedBookingForRejection = booking;
     this.showRejectModal = true;
+  }
+
+  onRequestStartProgress(booking: Booking) {
+    this.operationLoading[`start-progress-${booking._id}`] = true;
+    this.bookingService
+      .updateBookingStatus(booking._id!, 'in-progress')
+      .subscribe({
+        next: () => {
+          this.loadBookings();
+          this.operationLoading[`start-progress-${booking._id}`] = false;
+        },
+        error: (err) => {
+          console.error('Error starting progress:', err);
+          this.operationLoading[`start-progress-${booking._id}`] = false;
+        },
+      });
   }
 
   onRequestReconfirm(booking: Booking) {
@@ -402,34 +518,76 @@ export class BookingListComponent implements OnInit {
     this.selectedPreset.set('custom');
   }
 
-  private filterBookingsByDate(bookings: Booking[]): Booking[] {
+  private filterBookings(bookings: Booking[]): Booking[] {
     // Return empty array if bookings haven't loaded yet
     if (!bookings || bookings.length === 0) {
       return [];
     }
 
-    if (
-      this.selectedPreset() === 'all' ||
-      (!this.startDate() && !this.endDate())
-    ) {
-      return bookings;
+    let filteredBookings = bookings;
+
+    // Apply date filtering
+    if (this.selectedPreset() !== 'all' && (this.startDate() || this.endDate())) {
+      const start = this.startDate() ? new Date(this.startDate()) : null;
+      const end = this.endDate() ? new Date(this.endDate()) : null;
+
+      filteredBookings = filteredBookings.filter((booking) => {
+        const bookingDate = new Date(booking.date);
+
+        if (start && bookingDate < start) return false;
+        if (end) {
+          const endOfDay = new Date(end);
+          endOfDay.setHours(23, 59, 59, 999);
+          if (bookingDate > endOfDay) return false;
+        }
+
+        return true;
+      });
     }
 
-    const start = this.startDate() ? new Date(this.startDate()) : null;
-    const end = this.endDate() ? new Date(this.endDate()) : null;
+    // Apply team filtering
+    if (this.selectedTeam() !== 'all') {
+      filteredBookings = filteredBookings.filter((booking) => {
+        if (!booking.teamId) return false;
+        const teamId = typeof booking.teamId === 'string' ? booking.teamId : booking.teamId._id;
+        return teamId === this.selectedTeam();
+      });
+    }
 
-    return bookings.filter((booking) => {
-      const bookingDate = new Date(booking.date);
+    // Apply personnel filtering
+    if (this.selectedPersonnel() !== 'all') {
+      filteredBookings = filteredBookings.filter((booking) => {
+        if (!booking.teamId || typeof booking.teamId === 'string') return false;
+        const team = booking.teamId as any;
+        return team.chiefId && team.chiefId._id === this.selectedPersonnel();
+      });
+    }
 
-      if (start && bookingDate < start) return false;
-      if (end) {
-        const endOfDay = new Date(end);
-        endOfDay.setHours(23, 59, 59, 999);
-        if (bookingDate > endOfDay) return false;
-      }
+    // Apply client filtering
+    if (this.selectedClient() !== 'all') {
+      filteredBookings = filteredBookings.filter((booking) => {
+        return booking.userId && booking.userId._id === this.selectedClient();
+      });
+    }
 
-      return true;
-    });
+    return filteredBookings;
+  }
+
+  // Event handlers for searchable selects
+  onSearchFocus(event: Event) {
+    const target = event.target as HTMLElement;
+    const parent = target.parentElement;
+    if (parent) {
+      parent.classList.add('focused');
+    }
+  }
+
+  onSearchBlur(event: Event) {
+    const target = event.target as HTMLElement;
+    const parent = target.parentElement;
+    if (parent) {
+      parent.classList.remove('focused');
+    }
   }
 
   onBookingUpdate(event: { bookingId: string; updateData: Partial<Booking> }) {
@@ -455,6 +613,9 @@ export class BookingListComponent implements OnInit {
     this.confirmedBookings.set(
       this.confirmedBookings().filter((b) => b._id !== updatedBooking._id)
     );
+    this.inProgressBookings.set(
+      this.inProgressBookings().filter((b) => b._id !== updatedBooking._id)
+    );
     this.completedBookings.set(
       this.completedBookings().filter((b) => b._id !== updatedBooking._id)
     );
@@ -473,6 +634,12 @@ export class BookingListComponent implements OnInit {
       case 'confirmed':
         this.confirmedBookings.set([
           ...this.confirmedBookings(),
+          updatedBooking,
+        ]);
+        break;
+      case 'in-progress':
+        this.inProgressBookings.set([
+          ...this.inProgressBookings(),
           updatedBooking,
         ]);
         break;
