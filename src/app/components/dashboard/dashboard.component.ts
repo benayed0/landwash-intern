@@ -48,7 +48,6 @@ export class DashboardComponent implements OnInit {
 
   viewType = signal<
     | 'bookings'
-    | 'create-booking'
     | 'orders'
     | 'subscriptions'
     | 'analytics'
@@ -90,7 +89,6 @@ export class DashboardComponent implements OnInit {
     view: string
   ): view is
     | 'bookings'
-    | 'create-booking'
     | 'orders'
     | 'subscriptions'
     | 'analytics'
@@ -101,7 +99,6 @@ export class DashboardComponent implements OnInit {
     | 'worker-dashboard' {
     return [
       'bookings',
-      'create-booking',
       'orders',
       'subscriptions',
       'analytics',
@@ -116,8 +113,6 @@ export class DashboardComponent implements OnInit {
     switch (this.viewType()) {
       case 'bookings':
         return 'Réservations';
-      case 'create-booking':
-        return 'Créer une réservation';
       case 'orders':
         return 'Commandes';
       case 'subscriptions':
@@ -149,14 +144,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  switchToCreateBooking() {
-    this.hapticFeedback();
-    if (this.authService.isWebView()) {
-      this.viewType.set('create-booking');
-    } else {
-      this.router.navigate(['/dashboard/create-booking']);
-    }
-  }
   switchToUsers() {
     console.log('Switching to Users view');
 

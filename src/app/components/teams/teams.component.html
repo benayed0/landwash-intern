@@ -61,7 +61,7 @@
             <div class="team-name">{{ team.name }}</div>
             <div class="team-header-actions">
               <div class="team-badge">
-                {{ team.members.length || 0 }} membres
+                {{ team.members?.length || 0 }} membres
               </div>
               <div class="team-actions">
                 <button
@@ -79,6 +79,16 @@
                   🗑️
                 </button>
               </div>
+            </div>
+          </div>
+
+          <!-- Chief Info -->
+          <div class="team-chief" *ngIf="team.chiefId">
+            <div class="chief-item">
+              <span class="chief-icon">👑</span>
+              <span class="chief-title">Chef d'équipe:</span>
+              <span class="chief-name">{{ getChiefInfo(team).name }}</span>
+              <span class="chief-email">({{ getChiefInfo(team).email }})</span>
             </div>
           </div>
 
@@ -101,7 +111,10 @@
             class="member-list"
             *ngIf="team.members && team.members.length > 0"
           >
-            <div class="member-item" *ngFor="let memberId of team.members">
+            <div
+              class="member-item"
+              *ngFor="let memberId of getIterableMembers(team.members)"
+            >
               <div
                 class="member-avatar"
                 *ngIf="getMemberDetails(memberId) as member"

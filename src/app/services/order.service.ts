@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order } from '../models/order.model';
+import { CreateOrderDto, Order } from '../models/order.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -13,6 +13,16 @@ export class OrderService {
 
   getAllOrders(): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.apiUrl}/personal`);
+  }
+
+  createOrder(
+    userId: string,
+    order: Partial<CreateOrderDto>
+  ): Observable<Order> {
+    return this.http.post<Order>(`${this.apiUrl}/from-internal`, {
+      userId,
+      order,
+    });
   }
 
   getOrderById(id: string): Observable<Order> {

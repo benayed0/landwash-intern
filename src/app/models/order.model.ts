@@ -24,6 +24,14 @@ export interface OrderProduct {
   price: number;
 }
 
+export interface CreateOrderDto {
+  coordinates: [number, number];
+  shippingAddress: string;
+  paymentMethod: 'cash' | 'card';
+  notes?: string;
+  products: { productId: string; quantity: number; price: number }[];
+  totalPrice: number;
+}
 export interface Order {
   _id?: string;
   userId: {

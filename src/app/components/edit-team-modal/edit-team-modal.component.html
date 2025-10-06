@@ -26,22 +26,35 @@
         <!-- Members Selection -->
         <div class="form-group">
           <label>Membres de l'équipe</label>
+          <p class="helper-text">
+            👥 Cliquez pour sélectionner les membres • 🔄 Activez le toggle "Chef" pour désigner le chef d'équipe
+          </p>
           <div class="members-list" *ngIf="availablePersonals.length > 0">
             <div
               class="member-item"
               *ngFor="let personal of availablePersonals"
               [class.selected]="isPersonalSelected(personal._id!)"
-              (click)="onPersonalToggle(personal._id!)"
+              [class.chief]="isChief(personal._id!)"
             >
-              <div class="member-checkbox">
+              <div class="member-checkbox" (click)="onPersonalToggle(personal._id!)">
                 <span *ngIf="isPersonalSelected(personal._id!)">✓</span>
               </div>
               <div class="member-avatar">
                 {{ personal.name.charAt(0).toUpperCase() }}
               </div>
-              <div class="member-info">
+              <div class="member-info" (click)="onPersonalToggle(personal._id!)">
                 <div class="member-name">{{ personal.name }}</div>
                 <div class="member-details">{{ personal.email }}</div>
+              </div>
+              <div class="chief-toggle-container">
+                <label class="chief-label">Chef</label>
+                <p-inputSwitch
+                  [ngModel]="isChief(personal._id!)"
+                  (ngModelChange)="onChiefToggle(personal._id!, $event)"
+                  [ngModelOptions]="{standalone: true}"
+                  [disabled]="!isPersonalSelected(personal._id!)"
+                  styleClass="chief-switch"
+                ></p-inputSwitch>
               </div>
             </div>
           </div>

@@ -18,6 +18,7 @@ import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinn
 import { PriceConfirmModalComponent } from '../price-confirm-modal/price-confirm-modal.component';
 import { TeamAssignModalComponent } from '../team-assign-modal/team-assign-modal.component';
 import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-confirm-modal.component';
+import { CreateBookingComponent } from '../create-booking/create-booking.component';
 
 @Component({
   selector: 'app-booking-list',
@@ -30,6 +31,7 @@ import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-conf
     PriceConfirmModalComponent,
     TeamAssignModalComponent,
     RejectConfirmModalComponent,
+    CreateBookingComponent,
   ],
   templateUrl: './booking-list.component.html',
   styleUrl: './booking-list.component.css',
@@ -76,12 +78,14 @@ export class BookingListComponent implements OnInit {
   selectedBookingForTeam: Booking | null = null;
   showRejectModal = false;
   selectedBookingForRejection: Booking | null = null;
+  showCreateBookingModal = false;
 
   ngOnInit() {
     this.loadBookings();
     this.loadTeams();
     this.loadPersonnel();
     this.loadClients();
+    this.setupPersonnelTeamSync();
   }
 
   loadBookings() {
@@ -263,7 +267,9 @@ export class BookingListComponent implements OnInit {
         return '';
     }
   }
-  openAddBookingModal() {}
+  openAddBookingModal() {
+    this.showCreateBookingModal = true;
+  }
   onStatusChange(event: { id: string; status: string }) {
     this.operationLoading[`status-${event.id}`] = true;
     this.bookingService
@@ -441,6 +447,15 @@ export class BookingListComponent implements OnInit {
     this.selectedBookingForRejection = null;
   }
 
+  closeCreateBookingModal() {
+    this.showCreateBookingModal = false;
+  }
+
+  onBookingCreated() {
+    this.loadBookings(); // Reload bookings to show the new one
+    this.closeCreateBookingModal();
+  }
+
   isOperationLoading(operation: string, id: string): boolean {
     return this.operationLoading[`${operation}-${id}`] || false;
   }
@@ -566,9 +581,19 @@ export class BookingListComponent implements OnInit {
     // Apply personnel filtering
     if (this.selectedPersonnel() !== 'all') {
       filteredBookings = filteredBookings.filter((booking) => {
+        console.log(
+          ((booking.teamId as Team)?.members as Personal[])?.map((m) => m._id),
+          this.selectedPersonnel()
+        );
+
         if (!booking.teamId || typeof booking.teamId === 'string') return false;
         const team = booking.teamId as any;
-        return team.chiefId && team.chiefId._id === this.selectedPersonnel();
+        return (
+          (team.chiefId && team.chiefId._id === this.selectedPersonnel()) ||
+          ((booking.teamId as Team).members as Personal[])
+            .map((m) => m._id)
+            .includes(this.selectedPersonnel())
+        );
       });
     }
 
@@ -665,5 +690,41 @@ export class BookingListComponent implements OnInit {
         this.canceledBookings.set([...this.canceledBookings(), updatedBooking]);
         break;
     }
+  }
+
+  private setupPersonnelTeamSync() {
+    // Watch for changes in personnel selection and auto-select the corresponding team
+    effect(() => {
+      const personnelId = this.selectedPersonnel();
+      if (personnelId !== 'all') {
+        const teamId = this.findTeamForPersonnel(personnelId);
+        if (teamId && teamId !== this.selectedTeam()) {
+          this.selectedTeam.set(teamId);
+        }
+      }
+    });
+  }
+
+  private findTeamForPersonnel(personnelId: string): string | null {
+    const teams = this.teams();
+
+    // Check if the personnel is a team chief
+    for (const team of teams) {
+      if (team.chiefId && (team.chiefId as Personal)._id === personnelId) {
+        return team._id || null;
+      }
+    }
+
+    // Check if the personnel is a team member
+    for (const team of teams) {
+      if (
+        team.members &&
+        (team.members as Personal[]).map((m) => m._id).includes(personnelId)
+      ) {
+        return team._id || null;
+      }
+    }
+
+    return null;
   }
 }

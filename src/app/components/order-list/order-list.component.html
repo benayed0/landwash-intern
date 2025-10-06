@@ -1,4 +1,9 @@
 <div class="order-list-container">
+  <div class="page-header">
+    <button class="add-user-btn" (click)="openNewOrderModal()">
+      ➕ Ajouter une commande
+    </button>
+  </div>
   <!-- Sub-tabs for Orders -->
   <div class="tabs">
     <button
@@ -141,4 +146,11 @@
       </app-order-card>
     </div>
   </div>
+
+  <!-- Create Order Modal -->
+  <app-create-order-modal
+    [isOpen]="isCreateOrderModalOpen()"
+    (close)="onCloseCreateOrderModal()"
+    (orderCreated)="onOrderCreated($event)"
+  ></app-create-order-modal>
 </div>

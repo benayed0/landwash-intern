@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { TeamService } from '../../services/team.service';
 import { PersonalService } from '../../services/personal.service';
 import { Team } from '../../models/team.model';
@@ -21,7 +22,7 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-edit-team-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InputSwitchModule],
   templateUrl: './edit-team-modal.component.html',
   styleUrl: './edit-team-modal.component.css',
 })
@@ -46,6 +47,7 @@ export class EditTeamModalComponent
   };
 
   selectedPersonals: Set<string> = new Set();
+  selectedChiefId: string | null = null;
   isSubmitting = false;
   nameError = '';
 
@@ -80,13 +82,26 @@ export class EditTeamModalComponent
     if (this.team) {
       this.editedTeam = {
         name: this.team.name,
-        members: [...(this.team.members || [])],
+        members: Array.isArray(this.team.members)
+          ? typeof this.team.members[0] === 'object'
+            ? (this.team.members as Personal[]).map((m) => m._id)
+            : [...(this.team.members as string[])]
+          : [],
         coordinates: this.team.coordinates
           ? [...this.team.coordinates]
           : undefined,
         radius: this.team.radius || 1,
       };
-      this.selectedPersonals = new Set(this.team.members || []);
+      this.selectedPersonals = new Set(
+        Array.isArray(this.team.members)
+          ? typeof this.team.members[0] === 'object'
+            ? (this.team.members as Personal[]).map((m) => m._id)
+            : [...(this.team.members as string[])]
+          : []
+      );
+
+      // Initialize chief selection
+      this.selectedChiefId = (this.team.chiefId as string) || null;
     }
   }
 
@@ -186,6 +201,10 @@ export class EditTeamModalComponent
   onPersonalToggle(personalId: string) {
     if (this.selectedPersonals.has(personalId)) {
       this.selectedPersonals.delete(personalId);
+      // If removing a member who is the chief, also remove them as chief
+      if (this.selectedChiefId === personalId) {
+        this.selectedChiefId = null;
+      }
     } else {
       this.selectedPersonals.add(personalId);
     }
@@ -196,12 +215,53 @@ export class EditTeamModalComponent
     return this.selectedPersonals.has(personalId);
   }
 
+  onChiefToggle(personalId: string, isChief: boolean) {
+    if (isChief) {
+      // Setting as chief
+      this.selectedChiefId = personalId;
+      // Automatically add chief to team members if not already selected
+      if (!this.selectedPersonals.has(personalId)) {
+        this.selectedPersonals.add(personalId);
+        this.editedTeam.members = Array.from(this.selectedPersonals);
+      }
+    } else {
+      // Removing as chief
+      if (this.selectedChiefId === personalId) {
+        this.selectedChiefId = null;
+      }
+    }
+  }
+
+  isChief(personalId: string): boolean {
+    return this.selectedChiefId === personalId;
+  }
+
   onSubmit() {
     if (!this.validateForm() || !this.team?._id) return;
 
     this.isSubmitting = true;
 
-    this.teamService.updateTeam(this.team._id, this.editedTeam).subscribe({
+    // Prepare team data with chiefId
+    let chiefId = undefined;
+    if (this.selectedChiefId) {
+      const chief = this.availablePersonals.find(
+        (p) => p._id === this.selectedChiefId
+      );
+      if (chief) {
+        chiefId = {
+          _id: chief._id,
+          name: chief.name,
+          email: chief.email,
+        };
+      }
+    }
+
+    const teamData: Partial<Team> = {
+      ...this.editedTeam,
+      chiefId,
+    };
+
+    this.teamService.updateTeam(this.team._id, teamData).subscribe({
       next: (team) => {
         this.toast.success('Équipe mise à jour avec succès!');
         this.teamUpdated.emit(team);

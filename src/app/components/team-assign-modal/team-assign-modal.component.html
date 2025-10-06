@@ -61,7 +61,7 @@
         >
           <option value="">-- Choisir une équipe --</option>
           <option *ngFor="let team of teams" [value]="team._id">
-            {{ team.name }} ({{ team.members.length || 0 }} membres)
+            {{ team.name }} ({{ team.members?.length || 0 }} membres)
           </option>
         </select>
 

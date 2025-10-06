@@ -58,8 +58,11 @@ export class BookingService {
   }
 
   // Create a new booking
-  createBooking(bookingData: Partial<Booking>): Observable<Booking> {
-    return this.http.post<Booking>(`${this.apiUrl}`, bookingData);
+  createBooking(bookingData: {
+    booking: Partial<Booking>;
+    userId: string;
+  }): Observable<Booking> {
+    return this.http.post<Booking>(`${this.apiUrl}/from-internal`, bookingData);
   }
 
   // Delete a booking

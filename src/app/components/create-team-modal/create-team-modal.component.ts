@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { TeamService } from '../../services/team.service';
 import { PersonalService } from '../../services/personal.service';
 import { Team } from '../../models/team.model';
@@ -21,7 +22,7 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-create-team-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InputSwitchModule],
   templateUrl: './create-team-modal.component.html',
   styleUrl: './create-team-modal.component.css',
 })
@@ -41,10 +42,11 @@ export class CreateTeamModalComponent
     name: '',
     members: [],
     coordinates: undefined,
-    radius: 1,
+    radius: 10000,
   };
 
   selectedPersonals: Set<string> = new Set();
+  selectedChiefId: string | null = null;
   isSubmitting = false;
   nameError = '';
 
@@ -128,7 +130,7 @@ export class CreateTeamModalComponent
 
     // Add radius circle (convert km to meters for Leaflet)
     this.radiusCircle = L.circle([lat, lng], {
-      radius: (this.newTeam.radius || 1) * 1000,
+      radius: this.newTeam.radius || 1,
       fillColor: '#c3ff00',
       color: '#c3ff00',
       weight: 2,
@@ -143,7 +145,7 @@ export class CreateTeamModalComponent
   onRadiusChange() {
     if (this.radiusCircle && this.newTeam.coordinates) {
       // Convert km to meters for Leaflet
-      this.radiusCircle.setRadius((this.newTeam.radius || 1) * 1000);
+      this.radiusCircle.setRadius(this.newTeam.radius || 1);
 
       // Adjust zoom level based on new radius for optimal view
       const newZoom = this.calculateZoomFromRadius(this.newTeam.radius || 1);
@@ -154,6 +156,10 @@ export class CreateTeamModalComponent
   onPersonalToggle(personalId: string) {
     if (this.selectedPersonals.has(personalId)) {
       this.selectedPersonals.delete(personalId);
+      // If removing a member who is the chief, also remove them as chief
+      if (this.selectedChiefId === personalId) {
+        this.selectedChiefId = null;
+      }
     } else {
       this.selectedPersonals.add(personalId);
     }
@@ -164,12 +170,53 @@ export class CreateTeamModalComponent
     return this.selectedPersonals.has(personalId);
   }
 
+  onChiefToggle(personalId: string, isChief: boolean) {
+    if (isChief) {
+      // Setting as chief
+      this.selectedChiefId = personalId;
+      // Automatically add chief to team members if not already selected
+      if (!this.selectedPersonals.has(personalId)) {
+        this.selectedPersonals.add(personalId);
+        this.newTeam.members = Array.from(this.selectedPersonals);
+      }
+    } else {
+      // Removing as chief
+      if (this.selectedChiefId === personalId) {
+        this.selectedChiefId = null;
+      }
+    }
+  }
+
+  isChief(personalId: string): boolean {
+    return this.selectedChiefId === personalId;
+  }
+
   onSubmit() {
     if (!this.validateForm()) return;
 
     this.isSubmitting = true;
 
-    this.teamService.createTeam(this.newTeam).subscribe({
+    // Prepare team data with chiefId
+    let chiefId = undefined;
+    if (this.selectedChiefId) {
+      const chief = this.availablePersonals.find(
+        (p) => p._id === this.selectedChiefId
+      );
+      if (chief) {
+        chiefId = {
+          _id: chief._id,
+          name: chief.name,
+          email: chief.email,
+        };
+      }
+    }
+
+    const teamData: Partial<Team> = {
+      ...this.newTeam,
+      chiefId,
+    };
+
+    this.teamService.createTeam(teamData).subscribe({
       next: (team) => {
         this.toast.success('Équipe créée avec succès!');
         this.teamCreated.emit(team);
@@ -196,6 +243,11 @@ export class CreateTeamModalComponent
       return false;
     }
 
+    if (!this.selectedChiefId) {
+      this.toast.error('Vous devez sélectionner un chef d\'équipe');
+      return false;
+    }
+
     return true;
   }
 
@@ -210,9 +262,10 @@ export class CreateTeamModalComponent
       name: '',
       members: [],
       coordinates: undefined,
-      radius: 1,
+      radius: 10000,
     };
     this.selectedPersonals.clear();
+    this.selectedChiefId = null;
     this.isSubmitting = false;
     this.nameError = '';
   }
@@ -237,12 +290,12 @@ export class CreateTeamModalComponent
     // Smaller radius = higher zoom (closer view)
     // Larger radius = lower zoom (wider view)
 
-    if (radiusKm <= 1) return 15;      // Very close for small areas
-    if (radiusKm <= 3) return 13;      // Close for neighborhoods
-    if (radiusKm <= 5) return 12;      // City district level
-    if (radiusKm <= 10) return 11;     // City level
-    if (radiusKm <= 20) return 10;     // Multiple cities
-    if (radiusKm <= 50) return 9;      // Regional level
-    return 8;                          // Wide regional view
+    if (radiusKm <= 1000) return 15; // Very close for small areas
+    if (radiusKm <= 3000) return 13; // Close for neighborhoods
+    if (radiusKm <= 5000) return 12; // City district level
+    if (radiusKm <= 10000) return 11; // City level
+    if (radiusKm <= 20000) return 10; // Multiple cities
+    if (radiusKm <= 50000) return 9; // Regional level
+    return 8; // Wide regional view
   }
 }

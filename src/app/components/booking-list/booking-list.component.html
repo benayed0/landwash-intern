@@ -252,3 +252,10 @@
   (close)="closeRejectModal()"
 >
 </app-reject-confirm-modal>
+
+<app-create-booking
+  [isOpen]="showCreateBookingModal"
+  (bookingCreated)="onBookingCreated()"
+  (close)="closeCreateBookingModal()"
+>
+</app-create-booking>

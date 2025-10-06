@@ -1,4 +1,14 @@
-import { Component, OnInit, inject, signal, ViewChild, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  ViewChild,
+  ChangeDetectorRef,
+  Input,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -10,6 +20,7 @@ import {
 import { Router } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
 import { TeamService } from '../../services/team.service';
+import { UserService } from '../../services/user.service';
 import { Booking, BookingType, BookingSlots } from '../../models/booking.model';
 import { Team } from '../../models/team.model';
 import { Personal } from '../../models/personal.model';
@@ -17,19 +28,30 @@ import { LocationPickerComponent } from '../location-picker/location-picker.comp
 import { SelectedLocation } from '../../services/location.service';
 import { CalendarModule } from 'primeng/calendar';
 import { Calendar } from 'primeng/calendar';
+import { User } from '../users/users.component';
 
 @Component({
   selector: 'app-create-booking',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LocationPickerComponent, CalendarModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    LocationPickerComponent,
+    CalendarModule,
+  ],
   templateUrl: './create-booking.component.html',
   styleUrls: ['./create-booking.component.css'],
 })
 export class CreateBookingComponent implements OnInit {
   @ViewChild('dateCalendar') dateCalendar!: Calendar;
+  @Input() isOpen = false;
+  @Output() bookingCreated = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
 
   private bookingService = inject(BookingService);
   private teamService = inject(TeamService);
+  private userService = inject(UserService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -37,7 +59,10 @@ export class CreateBookingComponent implements OnInit {
   bookingForm!: FormGroup;
   teams = signal<Team[]>([]);
   personnel = signal<Personal[]>([]);
+  users = signal<User[]>([]);
   loading = signal<boolean>(false);
+  submitted = false;
+  selectedDate: Date | null = null;
 
   // Location picker
   selectedLocation = signal<SelectedLocation | null>(null);
@@ -62,21 +87,20 @@ export class CreateBookingComponent implements OnInit {
     this.initializeForm();
     this.loadTeams();
     this.loadPersonnel();
+    this.loadUsers();
   }
 
   initializeForm() {
     this.bookingForm = this.fb.group({
       type: ['small', Validators.required],
-      price: [0, [Validators.required, Validators.min(0.01)]],
+      price: [160, [Validators.required, Validators.min(0.01)]],
       date: ['', Validators.required],
       withSub: [false],
       salonsSeats: [1, [Validators.min(1), Validators.max(20)]],
       address: ['', Validators.required],
       secondaryNumber: [''],
-      clientName: ['', Validators.required],
-      clientEmail: ['', [Validators.required, Validators.email]],
-      clientPhone: ['', Validators.required],
       teamId: [''],
+      userId: ['', Validators.required],
     });
 
     // Watch for type changes to show/hide salon seats
@@ -115,10 +139,13 @@ export class CreateBookingComponent implements OnInit {
           this.updateDisabledDates(slots);
           this.checkTeamAvailability(slots);
 
-          // Trigger date change for the current selected date to show available slots
-          const currentDate = this.bookingForm.get('date')?.value;
-          if (currentDate) {
-            this.onDateChange(currentDate);
+          // Find and select the nearest available time slot
+          const nearestAvailableDate = this.findNearestAvailableSlot(slots);
+          if (nearestAvailableDate) {
+            this.selectedDate = nearestAvailableDate;
+            this.bookingForm.get('date')?.setValue(nearestAvailableDate);
+            this.bookingForm.get('date')?.markAsTouched();
+            this.onDateChange(nearestAvailableDate);
           }
         },
         error: (err) => {
@@ -149,9 +176,15 @@ export class CreateBookingComponent implements OnInit {
   }
 
   onDateChange(selectedDate: Date | null) {
+    // Update both the ngModel and form control
+    this.selectedDate = selectedDate;
+    this.bookingForm.get('date')?.setValue(selectedDate);
+
     if (selectedDate && this.bookedSlots()) {
       const dateString = selectedDate.toISOString().split('T')[0];
-      const daySlot = this.bookedSlots()?.daySlots.find(slot => slot.date === dateString);
+      const daySlot = this.bookedSlots()?.daySlots.find(
+        (slot) => slot.date === dateString
+      );
 
       // Generate all possible time slots (every hour from working hours)
       const allTimeSlots = this.generateAllTimeSlots();
@@ -159,7 +192,9 @@ export class CreateBookingComponent implements OnInit {
       if (daySlot) {
         // Remove booked time slots from all available slots
         const bookedTimes = this.getBookedTimesForDay(daySlot.slots);
-        const availableSlots = allTimeSlots.filter(time => !bookedTimes.includes(time));
+        const availableSlots = allTimeSlots.filter(
+          (time) => !bookedTimes.includes(time)
+        );
         this.availableTimeSlots.set(availableSlots);
       } else {
         // No bookings for this date, all time slots are available
@@ -194,6 +229,55 @@ export class CreateBookingComponent implements OnInit {
 
     return bookedTimes;
   }
+
+  private findNearestAvailableSlot(slots: BookingSlots): Date | null {
+    const now = new Date();
+    const [startHour] = this.workingHours.start.split(':').map(Number);
+    const [endHour] = this.workingHours.end.split(':').map(Number);
+
+    // Start checking from tomorrow
+    let checkDate = new Date(now);
+    checkDate.setDate(checkDate.getDate() + 1);
+    checkDate.setHours(startHour, 0, 0, 0);
+
+    // Check up to 30 days in advance
+    for (let dayOffset = 0; dayOffset < 30; dayOffset++) {
+      const currentCheckDate = new Date(checkDate);
+      currentCheckDate.setDate(checkDate.getDate() + dayOffset);
+
+      const dateString = currentCheckDate.toISOString().split('T')[0];
+      const daySlot = slots.daySlots.find((slot) => slot.date === dateString);
+
+      // Generate all possible time slots for this day
+      const allTimeSlots = this.generateAllTimeSlots();
+
+      let availableSlots: string[];
+      if (daySlot) {
+        // Remove booked time slots from all available slots
+        const bookedTimes = this.getBookedTimesForDay(daySlot.slots);
+        availableSlots = allTimeSlots.filter(
+          (time) => !bookedTimes.includes(time)
+        );
+      } else {
+        // No bookings for this date, all time slots are available
+        availableSlots = allTimeSlots;
+      }
+
+      // If there are available slots, return the first one (earliest time)
+      if (availableSlots.length > 0) {
+        const firstAvailableTime = availableSlots[0];
+        const [hour, minute] = firstAvailableTime.split(':').map(Number);
+
+        const availableDate = new Date(currentCheckDate);
+        availableDate.setHours(hour, minute, 0, 0);
+
+        return availableDate;
+      }
+    }
+
+    // If no available slot found in 30 days, return null
+    return null;
+  }
   loadPersonnel() {
     this.teamService.getAllPersonals().subscribe({
       next: (personnel) => {
@@ -205,14 +289,25 @@ export class CreateBookingComponent implements OnInit {
     });
   }
 
+  loadUsers() {
+    this.userService.getAllUsers().subscribe({
+      next: (users) => {
+        this.users.set(users);
+      },
+      error: (err) => {
+        console.error('Error loading users:', err);
+      },
+    });
+  }
+
   onTypeChange(type: BookingType) {
     this.bookingForm.patchValue({ type });
 
     // Set default prices based on type
     const defaultPrices = {
-      small: 15,
-      big: 25,
-      salon: 10,
+      small: 160,
+      big: 220,
+      salon: 18,
     };
 
     if (this.bookingForm.get('price')?.value === 0) {
@@ -224,39 +319,37 @@ export class CreateBookingComponent implements OnInit {
     this.selectedLocation.set(location);
     this.bookingForm.patchValue({ address: location.address });
 
-    // Preselect today's date at 9 AM when location is chosen
-    const defaultDate = new Date();
-    defaultDate.setHours(9, 0, 0, 0);
-
-    // Use setTimeout to ensure the calendar updates visually
-    setTimeout(() => {
-      this.bookingForm.get('date')?.setValue(defaultDate);
-      this.bookingForm.get('date')?.markAsTouched();
-
-      // Directly update the calendar component
-      if (this.dateCalendar) {
-        this.dateCalendar.value = defaultDate;
-        this.dateCalendar.updateInputfield();
-      }
-
-      this.cdr.detectChanges();
-    }, 200);
-
     // Automatically fetch available slots for the selected location
+    // The nearest available date will be selected in the getSlots callback
     this.getSlots();
   }
 
   onSubmit() {
+    console.log('Submitting form with value:', this.bookingForm.value);
+
+    this.submitted = true;
+    console.log(this.bookingForm.valid, this.selectedLocation());
+
     if (this.bookingForm.valid && this.selectedLocation()) {
       this.loading.set(true);
 
       const formValue = this.bookingForm.value;
       const location = this.selectedLocation()!;
+      const selectedUser = this.users().find((u) => u._id === formValue.userId);
 
-      const bookingData: Partial<Booking> = {
+      if (!selectedUser) {
+        alert('Veuillez sélectionner un utilisateur');
+        this.loading.set(false);
+        return;
+      }
+
+      const booking: Partial<Booking> = {
         type: formValue.type,
-        price: formValue.price,
-        date: new Date(formValue.date),
+        price:
+          formValue.type === 'salon'
+            ? this.bookingForm.get('salonsSeats')?.value * 18 || 1
+            : formValue.price,
+        date: this.selectedDate || new Date(),
         status: 'pending',
         withSub: formValue.withSub,
         salonsSeats:
@@ -265,32 +358,36 @@ export class CreateBookingComponent implements OnInit {
         coordinates: [location.lng, location.lat],
         secondaryNumber: formValue.secondaryNumber || undefined,
         teamId: formValue.teamId || undefined,
-        userId: {
-          _id: 'temp-user-id', // This should be replaced with actual user creation
-          name: formValue.clientName,
-          email: formValue.clientEmail,
-          phoneNumber: formValue.clientPhone,
-          memberSince: new Date(),
-        },
       };
+      console.log(booking);
 
-      this.bookingService.createBooking(bookingData).subscribe({
-        next: (booking) => {
-          console.log('Booking created successfully:', booking);
-          this.loading.set(false);
-          // Navigate to booking list or show success message
-          this.router.navigate(['/dashboard/bookings']);
-        },
-        error: (err) => {
-          console.error('Error creating booking:', err);
-          this.loading.set(false);
-          // Show error message
-        },
-      });
+      this.bookingService
+        .createBooking({ booking, userId: selectedUser._id })
+        .subscribe({
+          next: (booking) => {
+            console.log('Booking created successfully:', booking);
+            this.loading.set(false);
+            this.bookingCreated.emit();
+            this.close.emit();
+          },
+          error: (err) => {
+            console.error('Error creating booking:', err);
+            this.loading.set(false);
+            // Show error message
+          },
+        });
     } else {
       // Mark all fields as touched to show validation errors
       Object.keys(this.bookingForm.controls).forEach((key) => {
         this.bookingForm.get(key)?.markAsTouched();
+      });
+
+      // Log errors for each form control
+      Object.keys(this.bookingForm.controls).forEach((key) => {
+        const control = this.bookingForm.get(key);
+        if (control && control.invalid) {
+          console.log(`Field "${key}" is invalid:`, control.errors);
+        }
       });
 
       if (!this.selectedLocation()) {
@@ -300,7 +397,7 @@ export class CreateBookingComponent implements OnInit {
   }
 
   onCancel() {
-    this.router.navigate(['/dashboard/bookings']);
+    this.close.emit();
   }
 
   // Helper methods for validation

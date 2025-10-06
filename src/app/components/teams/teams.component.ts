@@ -96,19 +96,23 @@ export class TeamsComponent implements OnInit {
     } else {
       const searchLower = this.searchTerm.toLowerCase();
 
-      this.filteredTeams = this.teams.filter(team =>
-        team.name.toLowerCase().includes(searchLower) ||
-        team.members.some(memberId => {
-          const member = this.getMemberDetails(memberId);
-          return member?.name.toLowerCase().includes(searchLower) ||
-                 member?.email.toLowerCase().includes(searchLower);
-        })
+      this.filteredTeams = this.teams.filter(
+        (team) =>
+          team.name.toLowerCase().includes(searchLower) ||
+          team.members?.some((memberId) => {
+            const member = this.getMemberDetails(memberId as string);
+            return (
+              member?.name.toLowerCase().includes(searchLower) ||
+              member?.email.toLowerCase().includes(searchLower)
+            );
+          })
       );
 
-      this.filteredPersonals = this.personals.filter(personal =>
-        personal.name.toLowerCase().includes(searchLower) ||
-        personal.email.toLowerCase().includes(searchLower) ||
-        personal.phone?.toLowerCase().includes(searchLower)
+      this.filteredPersonals = this.personals.filter(
+        (personal) =>
+          personal.name.toLowerCase().includes(searchLower) ||
+          personal.email.toLowerCase().includes(searchLower) ||
+          personal.phone?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -127,7 +131,10 @@ export class TeamsComponent implements OnInit {
     // Personals pagination
     const personalStart = (this.currentPersonalPage - 1) * this.itemsPerPage;
     const personalEnd = personalStart + this.itemsPerPage;
-    this.paginatedPersonals = this.filteredPersonals.slice(personalStart, personalEnd);
+    this.paginatedPersonals = this.filteredPersonals.slice(
+      personalStart,
+      personalEnd
+    );
   }
 
   // Pagination methods
@@ -166,8 +173,22 @@ export class TeamsComponent implements OnInit {
     this.updateFilteredLists();
   }
 
-  getMemberDetails(memberId: string): Personal | undefined {
-    return this.personals.find((p) => p._id === memberId);
+  getChiefInfo(team: Team): Personal {
+    return this.personals.find((p) => p._id === (team.chiefId as string))!;
+  }
+  getMemberDetails(memberId: string | Personal): Personal | undefined {
+    if (typeof memberId === 'string') {
+      return this.personals.find((p) => p._id === memberId);
+    } else {
+      return memberId; // If it's already a Personal object
+    }
+  }
+
+  // Helper method to get iterable members for the template
+  getIterableMembers(
+    members: string[] | Personal[] | undefined
+  ): (string | Personal)[] {
+    return members || [];
   }
   createdAccount(data: Personal) {
     this.personals.push(data);
@@ -186,7 +207,7 @@ export class TeamsComponent implements OnInit {
   }
 
   teamUpdated(updatedTeam: Team) {
-    const index = this.teams.findIndex(t => t._id === updatedTeam._id);
+    const index = this.teams.findIndex((t) => t._id === updatedTeam._id);
     if (index !== -1) {
       this.teams[index] = updatedTeam;
     }
@@ -206,16 +227,16 @@ export class TeamsComponent implements OnInit {
     this.isDeleting = true;
     this.teamService.deleteTeam(this.selectedTeam._id).subscribe({
       next: () => {
-        this.teams = this.teams.filter(t => t._id !== this.selectedTeam?._id);
+        this.teams = this.teams.filter((t) => t._id !== this.selectedTeam?._id);
         this.updateFilteredLists();
         this.toast.success('Équipe supprimée avec succès!');
         this.closeDeleteConfirm();
       },
       error: (err) => {
         console.error('Error deleting team:', err);
-        this.toast.error('Erreur lors de la suppression de l\'équipe');
+        this.toast.error("Erreur lors de la suppression de l'équipe");
         this.isDeleting = false;
-      }
+      },
     });
   }
 

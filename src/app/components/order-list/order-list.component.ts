@@ -5,6 +5,8 @@ import { OrderService } from '../../services/order.service';
 import { Order, OrderStatus } from '../../models/order.model';
 import { OrderCardComponent } from '../order-card/order-card.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
+import { CreateOrderModalComponent } from '../create-order-modal/create-order-modal.component';
+import { HotToastService } from '@ngneat/hot-toast';
 
 @Component({
   selector: 'app-order-list',
@@ -14,16 +16,21 @@ import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinn
     FormsModule,
     OrderCardComponent,
     LoadingSpinnerComponent,
+    CreateOrderModalComponent,
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.css'],
 })
 export class OrderListComponent implements OnInit {
   private orderService = inject(OrderService);
+  private toast = inject(HotToastService);
 
   activeTab = 'pending';
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
+
+  // Modal state
+  isCreateOrderModalOpen = signal(false);
 
   // Date filtering properties
   selectedPreset = signal<'all' | 'today' | '7days' | '30days' | 'custom'>(
@@ -135,7 +142,19 @@ export class OrderListComponent implements OnInit {
         return '';
     }
   }
+  openNewOrderModal() {
+    this.isCreateOrderModalOpen.set(true);
+  }
 
+  onCloseCreateOrderModal() {
+    this.isCreateOrderModalOpen.set(false);
+  }
+
+  onOrderCreated(order: Order) {
+    this.toast.success('Commande créée avec succès!');
+    this.loadOrders(); // Refresh the orders list
+    this.isCreateOrderModalOpen.set(false);
+  }
   onOrderStatusChange(event: {
     orderId: string;
     status: string;

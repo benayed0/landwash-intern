@@ -1,197 +1,201 @@
-<div class="create-booking-container">
-  <div class="header">
-    <p>Remplissez les informations ci-dessous pour créer une réservation</p>
-  </div>
-
-  <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" class="booking-form">
-    <!-- Service Type Selection -->
-    <div class="form-section">
-      <h2>Type de service</h2>
-      <div class="service-types">
-        <div
-          *ngFor="let type of bookingTypes"
-          class="service-card"
-          [class.selected]="bookingForm.get('type')?.value === type.value"
-          (click)="onTypeChange(type.value)"
-        >
-          <div class="service-icon">{{ type.icon }}</div>
-          <div class="service-label">{{ type.label }}</div>
-        </div>
-      </div>
-      <div class="error-message" *ngIf="isFieldInvalid('type')">
-        {{ getFieldError("type") }}
-      </div>
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="create-booking-container" (click)="$event.stopPropagation()">
+    <div class="header">
+      <h2>Créer une nouvelle réservation</h2>
+      <button class="close-btn" (click)="onCancel()">✕</button>
     </div>
 
-    <!-- Salon Seats (only for salon type) -->
-    <div
-      class="form-section"
-      *ngIf="bookingForm.get('type')?.value === 'salon'"
+    <form
+      [formGroup]="bookingForm"
+      (ngSubmit)="onSubmit()"
+      class="booking-form"
     >
-      <h2>Nombre de sièges</h2>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="salonsSeats">Sièges à nettoyer</label>
-          <input
-            type="number"
-            id="salonsSeats"
-            formControlName="salonsSeats"
-            class="form-input"
-            [class.invalid]="isFieldInvalid('salonsSeats')"
-            min="1"
-            max="20"
-          />
-          <div class="error-message" *ngIf="isFieldInvalid('salonsSeats')">
-            {{ getFieldError("salonsSeats") }}
+      <!-- Service Type Selection -->
+      <div class="form-section">
+        <h2>Type de service</h2>
+        <div class="service-types">
+          <div
+            *ngFor="let type of bookingTypes"
+            class="service-card"
+            [class.selected]="bookingForm.get('type')?.value === type.value"
+            (click)="onTypeChange(type.value)"
+          >
+            <div class="service-icon">{{ type.icon }}</div>
+            <div class="service-label">{{ type.label }}</div>
+          </div>
+        </div>
+        <div class="error-message" *ngIf="isFieldInvalid('type')">
+          {{ getFieldError("type") }}
+        </div>
+      </div>
+
+      <!-- Salon Seats (only for salon type) -->
+      <div
+        class="form-section"
+        *ngIf="bookingForm.get('type')?.value === 'salon'"
+      >
+        <h2>Nombre de sièges</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="salonsSeats">Sièges à nettoyer</label>
+            <input
+              type="number"
+              id="salonsSeats"
+              formControlName="salonsSeats"
+              class="form-input"
+              [class.invalid]="isFieldInvalid('salonsSeats')"
+              min="1"
+              max="20"
+            />
+            <div class="error-message" *ngIf="isFieldInvalid('salonsSeats')">
+              {{ getFieldError("salonsSeats") }}
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Pricing -->
-    <div class="form-section">
-      <h2>Tarification</h2>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="estimated-price">
-            <span class="price-label">Prix estimé:</span>
-            <span class="price-amount">{{ calculateEstimatedPrice() }} DT</span>
+      <!-- Pricing -->
+      <div class="form-section">
+        <h2>Tarification</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="estimated-price">
+              <span class="price-label">Prix estimé:</span>
+              <span class="price-amount"
+                >{{ calculateEstimatedPrice() }} DT</span
+              >
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                formControlName="withSub"
+                class="checkbox"
+              />
+              <span class="checkmark"></span>
+              Avec abonnement
+            </label>
           </div>
         </div>
+      </div>
+
+      <!-- Location -->
+      <div class="form-section">
+        <h2>Localisation</h2>
         <div class="form-group">
-          <label class="checkbox-label">
-            <input type="checkbox" formControlName="withSub" class="checkbox" />
-            <span class="checkmark"></span>
-            Avec abonnement
-          </label>
+          <app-location-picker
+            [initialLocation]="selectedLocation()"
+            placeholder="Rechercher une adresse en Tunisie..."
+            (locationSelected)="onLocationSelected($event)"
+          ></app-location-picker>
+          <div class="error-message" *ngIf="isFieldInvalid('address')">
+            {{ getFieldError("address") }}
+          </div>
+
+          <!-- Team Distance Warning -->
+          <div class="distance-warning" *ngIf="locationTooFar()">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+              <h4>Localisation trop éloignée</h4>
+              <p>
+                Cette localisation est trop éloignée de nos équipes disponibles.
+                L'équipe la plus proche se trouve à
+                <strong
+                  >{{
+                    nearestTeamDistance() / 1000 | number : "1.1-1"
+                  }}
+                  km</strong
+                >.
+              </p>
+              <p>
+                Veuillez choisir une localisation plus proche de nos zones de
+                service.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Location -->
-    <div class="form-section">
-      <h2>Localisation</h2>
-      <div class="form-group">
-        <app-location-picker
-          [initialLocation]="selectedLocation()"
-          placeholder="Rechercher une adresse en Tunisie..."
-          (locationSelected)="onLocationSelected($event)"
-        ></app-location-picker>
-        <div class="error-message" *ngIf="isFieldInvalid('address')">
-          {{ getFieldError("address") }}
-        </div>
+      <!-- Date and Time -->
+      <div class="form-section">
+        <h2>Date et heure</h2>
+        <div class="form-group">
+          <label for="date">Date et heure du service</label>
+          <p-calendar
+            #dateCalendar
+            [(ngModel)]="selectedDate"
+            [ngModelOptions]="{ standalone: true }"
+            [showTime]="true"
+            [showSeconds]="false"
+            hourFormat="24"
+            dateFormat="dd/mm/yy"
+            placeholder="Sélectionner la date et l'heure"
+            [class.invalid]="isFieldInvalid('date')"
+            styleClass="form-input date-input"
+            [minDate]="today"
+            [showIcon]="false"
+            [touchUI]="false"
+            [disabled]="locationTooFar()"
+            (onSelect)="onDateChange($event)"
+            (onClearClick)="onDateChange(null)"
+          ></p-calendar>
+          <div class="error-message" *ngIf="isFieldInvalid('date')">
+            {{ getFieldError("date") }}
+          </div>
 
-        <!-- Team Distance Warning -->
-        <div class="distance-warning" *ngIf="locationTooFar()">
-          <div class="warning-icon">⚠️</div>
-          <div class="warning-content">
-            <h4>Localisation trop éloignée</h4>
+          <!-- Available Time Slots Display -->
+          <div class="available-slots" *ngIf="availableTimeSlots().length > 0">
+            <h4>Créneaux disponibles pour cette date :</h4>
+            <div class="time-slots">
+              <span *ngFor="let slot of availableTimeSlots()" class="time-slot">
+                {{ slot }}
+              </span>
+            </div>
+          </div>
+
+          <!-- No slots available message -->
+          <div
+            class="no-slots"
+            *ngIf="
+              selectedLocation() &&
+              bookedSlots() &&
+              availableTimeSlots().length === 0
+            "
+          >
             <p>
-              Cette localisation est trop éloignée de nos équipes disponibles.
-              L'équipe la plus proche se trouve à <strong>{{ (nearestTeamDistance() / 1000) | number:'1.1-1' }} km</strong>.
+              Aucun créneau disponible pour cette date. Tous les créneaux sont
+              réservés.
             </p>
-            <p>Veuillez choisir une localisation plus proche de nos zones de service.</p>
+          </div>
+
+          <!-- Loading or no location selected -->
+          <div class="slots-info" *ngIf="!selectedLocation()">
+            <p>
+              Veuillez d'abord sélectionner une localisation pour voir les
+              créneaux disponibles.
+            </p>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Date and Time -->
-    <div class="form-section">
-      <h2>Date et heure</h2>
-      <div class="form-group">
-        <label for="date">Date et heure du service</label>
-        <p-calendar
-          #dateCalendar
-          formControlName="date"
-          [showTime]="true"
-          [showSeconds]="false"
-          hourFormat="24"
-          dateFormat="dd/mm/yy"
-          placeholder="Sélectionner la date et l'heure"
-          [class.invalid]="isFieldInvalid('date')"
-          styleClass="form-input date-input"
-          [minDate]="today"
-          [showIcon]="false"
-          [touchUI]="false"
-          [disabled]="locationTooFar()"
-          (onSelect)="onDateChange($event)"
-          (onClearClick)="onDateChange(null)"
-        ></p-calendar>
-        <div class="error-message" *ngIf="isFieldInvalid('date')">
-          {{ getFieldError("date") }}
-        </div>
-
-        <!-- Available Time Slots Display -->
-        <div class="available-slots" *ngIf="availableTimeSlots().length > 0">
-          <h4>Créneaux disponibles pour cette date :</h4>
-          <div class="time-slots">
-            <span
-              *ngFor="let slot of availableTimeSlots()"
-              class="time-slot"
-            >
-              {{ slot }}
-            </span>
-          </div>
-        </div>
-
-        <!-- No slots available message -->
-        <div class="no-slots" *ngIf="selectedLocation() && bookedSlots() && availableTimeSlots().length === 0">
-          <p>Aucun créneau disponible pour cette date. Tous les créneaux sont réservés.</p>
-        </div>
-
-        <!-- Loading or no location selected -->
-        <div class="slots-info" *ngIf="!selectedLocation()">
-          <p>Veuillez d'abord sélectionner une localisation pour voir les créneaux disponibles.</p>
-        </div>
-      </div>
-    </div>
-    <!-- Client Information -->
-    <div class="form-section">
-      <h2>Informations client</h2>
-      <div class="form-row">
+      <!-- User Selection -->
+      <div class="form-section">
+        <h2>Sélection du client</h2>
         <div class="form-group">
-          <label for="clientName">Nom complet</label>
-          <input
-            type="text"
-            id="clientName"
-            formControlName="clientName"
+          <label for="userId">Choisir un utilisateur *</label>
+          <select
+            id="userId"
+            formControlName="userId"
             class="form-input"
-            [class.invalid]="isFieldInvalid('clientName')"
-            placeholder="Nom et prénom du client"
-          />
-          <div class="error-message" *ngIf="isFieldInvalid('clientName')">
-            {{ getFieldError("clientName") }}
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="clientEmail">Email</label>
-          <input
-            type="email"
-            id="clientEmail"
-            formControlName="clientEmail"
-            class="form-input"
-            [class.invalid]="isFieldInvalid('clientEmail')"
-            placeholder="email@exemple.com"
-          />
-          <div class="error-message" *ngIf="isFieldInvalid('clientEmail')">
-            {{ getFieldError("clientEmail") }}
-          </div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="clientPhone">Téléphone</label>
-          <input
-            type="tel"
-            id="clientPhone"
-            formControlName="clientPhone"
-            class="form-input"
-            [class.invalid]="isFieldInvalid('clientPhone')"
-            placeholder="+216 XX XXX XXX"
-          />
-          <div class="error-message" *ngIf="isFieldInvalid('clientPhone')">
-            {{ getFieldError("clientPhone") }}
+            [class.invalid]="isFieldInvalid('userId')"
+          >
+            <option value="">Sélectionner un utilisateur</option>
+            <option *ngFor="let user of users()" [value]="user._id">
+              {{ user.name }} - {{ user.phoneNumber }}
+            </option>
+          </select>
+          <div class="error-message" *ngIf="isFieldInvalid('userId')">
+            {{ getFieldError("userId") }}
           </div>
         </div>
         <div class="form-group">
@@ -205,36 +209,36 @@
           />
         </div>
       </div>
-    </div>
 
-    <!-- Team Assignment (Optional) -->
-    <div class="form-section">
-      <h2>Assignation d'équipe (optionnel)</h2>
-      <div class="form-group">
-        <label for="teamId">Équipe</label>
-        <select id="teamId" formControlName="teamId" class="form-input">
-          <option value="">Assigner plus tard</option>
-          <option *ngFor="let team of teams()" [value]="team._id">
-            {{ team.name }}
-          </option>
-        </select>
+      <!-- Team Assignment (Optional) -->
+      <div class="form-section">
+        <h2>Assignation d'équipe (optionnel)</h2>
+        <div class="form-group">
+          <label for="teamId">Équipe</label>
+          <select id="teamId" formControlName="teamId" class="form-input">
+            <option value="">Assigner plus tard</option>
+            <option *ngFor="let team of teams()" [value]="team._id">
+              {{ team.name }}
+            </option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <!-- Action Buttons -->
-    <div class="form-actions">
-      <button
-        type="button"
-        class="btn-cancel"
-        (click)="onCancel()"
-        [disabled]="loading()"
-      >
-        Annuler
-      </button>
-      <button type="submit" class="btn-submit" [disabled]="loading()">
-        <span *ngIf="!loading()">Créer la réservation</span>
-        <span *ngIf="loading()">Création en cours...</span>
-      </button>
-    </div>
-  </form>
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="onCancel()"
+          [disabled]="loading()"
+        >
+          Annuler
+        </button>
+        <button type="submit" class="btn-submit" [disabled]="loading()">
+          <span *ngIf="!loading()">Créer la réservation</span>
+          <span *ngIf="loading()">Création en cours...</span>
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
