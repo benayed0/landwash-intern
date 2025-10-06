@@ -40,3 +40,13 @@ export interface Booking {
   teamId?: string | TeamInfo;
   secondaryNumber?: string;
 }
+export interface BookingSlots {
+  daySlots: { date: string; slots: [string, string][] }[]; // These are BOOKED slots
+  availableTeams: {
+    count: number;
+    nearestTeam: {
+      _id: string;
+      distance: number;
+    };
+  };
+}

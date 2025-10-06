@@ -164,9 +164,10 @@ export class BookingListComponent implements OnInit {
     this.bookingService.getAllBookings().subscribe({
       next: (bookings) => {
         const uniqueClients = bookings
-          .map(booking => booking.userId)
-          .filter((user, index, self) =>
-            index === self.findIndex(u => u._id === user._id)
+          .map((booking) => booking.userId)
+          .filter(
+            (user, index, self) =>
+              index === self.findIndex((u) => u._id === user._id)
           );
         this.clients.set(uniqueClients);
       },
@@ -200,7 +201,7 @@ export class BookingListComponent implements OnInit {
   filteredTeams = computed(() => {
     const searchTerm = this.teamSearchTerm().toLowerCase();
     if (!searchTerm) return this.teams();
-    return this.teams().filter(team =>
+    return this.teams().filter((team) =>
       team.name.toLowerCase().includes(searchTerm)
     );
   });
@@ -208,19 +209,21 @@ export class BookingListComponent implements OnInit {
   filteredPersonnel = computed(() => {
     const searchTerm = this.personnelSearchTerm().toLowerCase();
     if (!searchTerm) return this.personnel();
-    return this.personnel().filter(person =>
-      person.name.toLowerCase().includes(searchTerm) ||
-      person.email.toLowerCase().includes(searchTerm)
+    return this.personnel().filter(
+      (person) =>
+        person.name.toLowerCase().includes(searchTerm) ||
+        person.email.toLowerCase().includes(searchTerm)
     );
   });
 
   filteredClients = computed(() => {
     const searchTerm = this.clientSearchTerm().toLowerCase();
     if (!searchTerm) return this.clients();
-    return this.clients().filter(client =>
-      client.name.toLowerCase().includes(searchTerm) ||
-      client.email.toLowerCase().includes(searchTerm) ||
-      (client.phoneNumber && client.phoneNumber.includes(searchTerm))
+    return this.clients().filter(
+      (client) =>
+        client.name.toLowerCase().includes(searchTerm) ||
+        client.email.toLowerCase().includes(searchTerm) ||
+        (client.phoneNumber && client.phoneNumber.includes(searchTerm))
     );
   });
 
@@ -260,7 +263,7 @@ export class BookingListComponent implements OnInit {
         return '';
     }
   }
-
+  openAddBookingModal() {}
   onStatusChange(event: { id: string; status: string }) {
     this.operationLoading[`status-${event.id}`] = true;
     this.bookingService
@@ -527,7 +530,10 @@ export class BookingListComponent implements OnInit {
     let filteredBookings = bookings;
 
     // Apply date filtering
-    if (this.selectedPreset() !== 'all' && (this.startDate() || this.endDate())) {
+    if (
+      this.selectedPreset() !== 'all' &&
+      (this.startDate() || this.endDate())
+    ) {
       const start = this.startDate() ? new Date(this.startDate()) : null;
       const end = this.endDate() ? new Date(this.endDate()) : null;
 
@@ -549,7 +555,10 @@ export class BookingListComponent implements OnInit {
     if (this.selectedTeam() !== 'all') {
       filteredBookings = filteredBookings.filter((booking) => {
         if (!booking.teamId) return false;
-        const teamId = typeof booking.teamId === 'string' ? booking.teamId : booking.teamId._id;
+        const teamId =
+          typeof booking.teamId === 'string'
+            ? booking.teamId
+            : booking.teamId._id;
         return teamId === this.selectedTeam();
       });
     }

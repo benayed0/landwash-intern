@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -10,22 +10,29 @@ import {
 import { Router } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
 import { TeamService } from '../../services/team.service';
-import { Booking, BookingType } from '../../models/booking.model';
+import { Booking, BookingType, BookingSlots } from '../../models/booking.model';
 import { Team } from '../../models/team.model';
 import { Personal } from '../../models/personal.model';
+import { LocationPickerComponent } from '../location-picker/location-picker.component';
+import { SelectedLocation } from '../../services/location.service';
+import { CalendarModule } from 'primeng/calendar';
+import { Calendar } from 'primeng/calendar';
 
 @Component({
   selector: 'app-create-booking',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LocationPickerComponent, CalendarModule],
   templateUrl: './create-booking.component.html',
   styleUrls: ['./create-booking.component.css'],
 })
 export class CreateBookingComponent implements OnInit {
+  @ViewChild('dateCalendar') dateCalendar!: Calendar;
+
   private bookingService = inject(BookingService);
   private teamService = inject(TeamService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
 
   bookingForm!: FormGroup;
   teams = signal<Team[]>([]);
@@ -33,9 +40,16 @@ export class CreateBookingComponent implements OnInit {
   loading = signal<boolean>(false);
 
   // Location picker
-  showLocationPicker = signal<boolean>(false);
-  selectedLocation = signal<{ lat: number; lng: number } | null>(null);
-  locationAddress = signal<string>('');
+  selectedLocation = signal<SelectedLocation | null>(null);
+
+  // Date picker
+  today = new Date();
+  bookedSlots = signal<BookingSlots | null>(null);
+  disabledDates = signal<Date[]>([]);
+  availableTimeSlots = signal<string[]>([]);
+  workingHours = { start: '08:00', end: '18:00' }; // Define working hours
+  locationTooFar = signal<boolean>(false);
+  nearestTeamDistance = signal<number>(0);
 
   // Form options
   bookingTypes: { value: BookingType; label: string; icon: string }[] = [
@@ -91,7 +105,95 @@ export class CreateBookingComponent implements OnInit {
       },
     });
   }
+  getSlots() {
+    const location = this.selectedLocation();
+    if (location) {
+      this.bookingService.getSlots(location.lat, location.lng).subscribe({
+        next: (slots) => {
+          console.log('Booked slots:', slots);
+          this.bookedSlots.set(slots);
+          this.updateDisabledDates(slots);
+          this.checkTeamAvailability(slots);
 
+          // Trigger date change for the current selected date to show available slots
+          const currentDate = this.bookingForm.get('date')?.value;
+          if (currentDate) {
+            this.onDateChange(currentDate);
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching slots:', err);
+        },
+      });
+    }
+  }
+
+  private checkTeamAvailability(slots: BookingSlots) {
+    const { availableTeams } = slots;
+
+    if (availableTeams.count === 0) {
+      // Location is too far from any team
+      this.locationTooFar.set(true);
+      this.nearestTeamDistance.set(availableTeams.nearestTeam.distance);
+    } else {
+      // Teams are available for this location
+      this.locationTooFar.set(false);
+      this.nearestTeamDistance.set(0);
+    }
+  }
+
+  private updateDisabledDates(slots: BookingSlots) {
+    // Since API returns booked slots, we don't need to disable any dates
+    // Users can select any future date, we'll show available time slots instead
+    this.disabledDates.set([]);
+  }
+
+  onDateChange(selectedDate: Date | null) {
+    if (selectedDate && this.bookedSlots()) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      const daySlot = this.bookedSlots()?.daySlots.find(slot => slot.date === dateString);
+
+      // Generate all possible time slots (every hour from working hours)
+      const allTimeSlots = this.generateAllTimeSlots();
+
+      if (daySlot) {
+        // Remove booked time slots from all available slots
+        const bookedTimes = this.getBookedTimesForDay(daySlot.slots);
+        const availableSlots = allTimeSlots.filter(time => !bookedTimes.includes(time));
+        this.availableTimeSlots.set(availableSlots);
+      } else {
+        // No bookings for this date, all time slots are available
+        this.availableTimeSlots.set(allTimeSlots);
+      }
+    }
+  }
+
+  private generateAllTimeSlots(): string[] {
+    const slots: string[] = [];
+    const [startHour] = this.workingHours.start.split(':').map(Number);
+    const [endHour] = this.workingHours.end.split(':').map(Number);
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      slots.push(`${hour.toString().padStart(2, '0')}:00`);
+    }
+    return slots;
+  }
+
+  private getBookedTimesForDay(bookedSlots: [string, string][]): string[] {
+    const bookedTimes: string[] = [];
+
+    bookedSlots.forEach(([start, end]) => {
+      const startHour = parseInt(start.split(':')[0]);
+      const endHour = parseInt(end.split(':')[0]);
+
+      // Mark all hours between start and end as booked
+      for (let hour = startHour; hour < endHour; hour++) {
+        bookedTimes.push(`${hour.toString().padStart(2, '0')}:00`);
+      }
+    });
+
+    return bookedTimes;
+  }
   loadPersonnel() {
     this.teamService.getAllPersonals().subscribe({
       next: (personnel) => {
@@ -118,15 +220,30 @@ export class CreateBookingComponent implements OnInit {
     }
   }
 
-  openLocationPicker() {
-    this.showLocationPicker.set(true);
-  }
-
-  onLocationSelected(location: { lat: number; lng: number }, address: string) {
+  onLocationSelected(location: SelectedLocation) {
     this.selectedLocation.set(location);
-    this.locationAddress.set(address);
-    this.bookingForm.patchValue({ address });
-    this.showLocationPicker.set(false);
+    this.bookingForm.patchValue({ address: location.address });
+
+    // Preselect today's date at 9 AM when location is chosen
+    const defaultDate = new Date();
+    defaultDate.setHours(9, 0, 0, 0);
+
+    // Use setTimeout to ensure the calendar updates visually
+    setTimeout(() => {
+      this.bookingForm.get('date')?.setValue(defaultDate);
+      this.bookingForm.get('date')?.markAsTouched();
+
+      // Directly update the calendar component
+      if (this.dateCalendar) {
+        this.dateCalendar.value = defaultDate;
+        this.dateCalendar.updateInputfield();
+      }
+
+      this.cdr.detectChanges();
+    }, 200);
+
+    // Automatically fetch available slots for the selected location
+    this.getSlots();
   }
 
   onSubmit() {

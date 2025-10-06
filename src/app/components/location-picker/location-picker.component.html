@@ -1,0 +1,56 @@
+<div class="location-picker">
+  <div class="search-container">
+    <div class="search-input-wrapper">
+      <input
+        type="text"
+        class="search-input"
+        [placeholder]="placeholder"
+        [value]="searchQuery()"
+        (input)="onSearchInput($event)"
+        (focus)="onSearchFocus()"
+        (blur)="onSearchBlur()"
+      />
+      <div class="search-icon" *ngIf="!isLoading()">🔍</div>
+      <div class="loading-spinner" *ngIf="isLoading()">⏳</div>
+    </div>
+
+    <div class="search-suggestions" *ngIf="showSuggestions()">
+      <div
+        class="suggestion-item"
+        *ngFor="let result of searchResults()"
+        (click)="onSuggestionClick(result)"
+      >
+        <div class="suggestion-icon">📍</div>
+        <div class="suggestion-text">
+          <div class="suggestion-name">{{ result.display_name }}</div>
+          <div class="suggestion-type">{{ result.type }}</div>
+        </div>
+      </div>
+      <div class="no-results" *ngIf="searchResults().length === 0 && !isLoading()">
+        Aucun résultat trouvé
+      </div>
+    </div>
+  </div>
+
+  <div class="map-container">
+    <div #mapContainer class="map"></div>
+    <div class="map-instructions" *ngIf="!currentSelection()">
+      Cliquez sur la carte pour sélectionner une localisation ou recherchez une adresse ci-dessus
+    </div>
+  </div>
+
+  <!-- Selected Location Display -->
+  <div class="location-validation" *ngIf="currentSelection()">
+    <div class="selected-location">
+      <div class="location-header">
+        <span class="location-icon">📍</span>
+        <span class="location-title">Localisation sélectionnée</span>
+      </div>
+      <div class="location-address">{{ currentSelection()?.address }}</div>
+      <div class="location-coordinates">
+        Lat: {{ currentSelection()?.lat | number:'1.4-4' }},
+        Lng: {{ currentSelection()?.lng | number:'1.4-4' }}
+      </div>
+    </div>
+  </div>
+</div>

@@ -343,12 +343,12 @@ select:focus {
 }
 
 /* Performance optimizations for smooth animations */
-* {
+/* * {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   -webkit-perspective: 1000px;
   perspective: 1000px;
-}
+} */
 
 /* Optimize touch interactions */
 button,
@@ -401,11 +401,11 @@ button,
 }
 
 /* Improved scroll performance */
-.mobile-container,
+/* .mobile-container,
 .mobile-modal-content {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-}
+} */
 
 /* 60fps optimized animations */
 @media (prefers-reduced-motion: no-preference) {

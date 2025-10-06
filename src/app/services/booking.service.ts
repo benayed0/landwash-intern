@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Booking, BookingStatus } from '../models/booking.model';
+import { Booking, BookingSlots, BookingStatus } from '../models/booking.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -19,6 +19,11 @@ export class BookingService {
     return this.http.get<Booking>(`${this.apiUrl}/${id}`);
   }
 
+  getSlots(lat: number, lng: number) {
+    return this.http.get<BookingSlots>(`${this.apiUrl}/slots`, {
+      params: { lat: lat.toString(), lng: lng.toString() },
+    });
+  }
   getPendingBookings(): Observable<Booking[]> {
     return this.http.get<Booking[]>(`${this.apiUrl}?status=pending`);
   }

@@ -68,56 +68,84 @@
       </div>
     </div>
 
+    <!-- Location -->
+    <div class="form-section">
+      <h2>Localisation</h2>
+      <div class="form-group">
+        <app-location-picker
+          [initialLocation]="selectedLocation()"
+          placeholder="Rechercher une adresse en Tunisie..."
+          (locationSelected)="onLocationSelected($event)"
+        ></app-location-picker>
+        <div class="error-message" *ngIf="isFieldInvalid('address')">
+          {{ getFieldError("address") }}
+        </div>
+
+        <!-- Team Distance Warning -->
+        <div class="distance-warning" *ngIf="locationTooFar()">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-content">
+            <h4>Localisation trop éloignée</h4>
+            <p>
+              Cette localisation est trop éloignée de nos équipes disponibles.
+              L'équipe la plus proche se trouve à <strong>{{ (nearestTeamDistance() / 1000) | number:'1.1-1' }} km</strong>.
+            </p>
+            <p>Veuillez choisir une localisation plus proche de nos zones de service.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Date and Time -->
     <div class="form-section">
       <h2>Date et heure</h2>
       <div class="form-group">
         <label for="date">Date et heure du service</label>
-        <input
-          type="datetime-local"
-          id="date"
+        <p-calendar
+          #dateCalendar
           formControlName="date"
-          class="form-input date-input"
+          [showTime]="true"
+          [showSeconds]="false"
+          hourFormat="24"
+          dateFormat="dd/mm/yy"
+          placeholder="Sélectionner la date et l'heure"
           [class.invalid]="isFieldInvalid('date')"
-        />
+          styleClass="form-input date-input"
+          [minDate]="today"
+          [showIcon]="false"
+          [touchUI]="false"
+          [disabled]="locationTooFar()"
+          (onSelect)="onDateChange($event)"
+          (onClearClick)="onDateChange(null)"
+        ></p-calendar>
         <div class="error-message" *ngIf="isFieldInvalid('date')">
           {{ getFieldError("date") }}
         </div>
-      </div>
-    </div>
 
-    <!-- Location -->
-    <div class="form-section">
-      <h2>Localisation</h2>
-      <div class="form-group">
-        <label for="address">Adresse</label>
-        <div class="address-input-group">
-          <textarea
-            id="address"
-            formControlName="address"
-            class="form-input textarea"
-            [class.invalid]="isFieldInvalid('address')"
-            placeholder="Entrez l'adresse ou cliquez sur 'Choisir sur la carte'"
-            rows="3"
-          ></textarea>
-          <button
-            type="button"
-            class="location-btn"
-            (click)="openLocationPicker()"
-          >
-            📍 Choisir sur la carte
-          </button>
+        <!-- Available Time Slots Display -->
+        <div class="available-slots" *ngIf="availableTimeSlots().length > 0">
+          <h4>Créneaux disponibles pour cette date :</h4>
+          <div class="time-slots">
+            <span
+              *ngFor="let slot of availableTimeSlots()"
+              class="time-slot"
+            >
+              {{ slot }}
+            </span>
+          </div>
         </div>
-        <div class="error-message" *ngIf="isFieldInvalid('address')">
-          {{ getFieldError("address") }}
+
+        <!-- No slots available message -->
+        <div class="no-slots" *ngIf="selectedLocation() && bookedSlots() && availableTimeSlots().length === 0">
+          <p>Aucun créneau disponible pour cette date. Tous les créneaux sont réservés.</p>
         </div>
-        <div class="location-status" *ngIf="selectedLocation()">
-          <span class="location-icon">✓</span>
-          <span>Localisation sélectionnée</span>
+
+        <!-- Loading or no location selected -->
+        <div class="slots-info" *ngIf="!selectedLocation()">
+          <p>Veuillez d'abord sélectionner une localisation pour voir les créneaux disponibles.</p>
         </div>
       </div>
     </div>
-
     <!-- Client Information -->
     <div class="form-section">
       <h2>Informations client</h2>
@@ -209,32 +237,4 @@
       </button>
     </div>
   </form>
-</div>
-
-<!-- Location Picker Modal (placeholder for now) -->
-<div
-  class="modal"
-  *ngIf="showLocationPicker()"
-  (click)="showLocationPicker.set(false)"
->
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Sélectionner la localisation</h3>
-      <button class="close-btn" (click)="showLocationPicker.set(false)">
-        ✕
-      </button>
-    </div>
-    <div class="modal-body">
-      <p>Fonctionnalité de carte à implémenter</p>
-      <p>Pour l'instant, veuillez saisir l'adresse manuellement.</p>
-      <button
-        class="btn-primary"
-        (click)="
-          onLocationSelected({ lat: 36.8065, lng: 10.1815 }, 'Tunis, Tunisie')
-        "
-      >
-        Utiliser Tunis comme exemple
-      </button>
-    </div>
-  </div>
 </div>

@@ -1,86 +1,9 @@
 <div class="booking-list-container">
-  <!-- Date Range Picker -->
-  <!-- <div class="date-filter-container">
-    <div class="date-filter-header">
-      <h3>Filtrer par date</h3>
-      <div class="preset-buttons">
-        <button
-          class="preset-btn"
-          [class.active]="selectedPreset() === 'all'"
-          (click)="setDatePreset('all')"
-        >
-          Tout
-        </button>
-        <button
-          class="preset-btn"
-          [class.active]="selectedPreset() === 'today'"
-          (click)="setDatePreset('today')"
-        >
-          Aujourd'hui
-        </button>
-        <button
-          class="preset-btn"
-          [class.active]="selectedPreset() === '7days'"
-          (click)="setDatePreset('7days')"
-        >
-          7 jours
-        </button>
-        <button
-          class="preset-btn"
-          [class.active]="selectedPreset() === '30days'"
-          (click)="setDatePreset('30days')"
-        >
-          30 jours
-        </button>
-        <button
-          class="preset-btn"
-          [class.active]="selectedPreset() === 'custom'"
-          (click)="setDatePreset('custom')"
-        >
-          Personnalisé
-        </button>
-      </div>
-    </div>
-
-    <div class="date-inputs" *ngIf="selectedPreset() === 'custom'">
-      <div class="date-input-group">
-        <label>Date de début</label>
-        <input
-          type="date"
-          [value]="startDate()"
-          (input)="onStartDateChange($event)"
-          class="date-input"
-        />
-      </div>
-      <div class="date-input-group">
-        <label>Date de fin</label>
-        <input
-          type="date"
-          [value]="endDate()"
-          (input)="onEndDateChange($event)"
-          class="date-input"
-        />
-      </div>
-      <button
-        class="apply-btn"
-        (click)="applyDateFilter()"
-        [disabled]="!isDateRangeValid()"
-      >
-        Appliquer
-      </button>
-    </div>
-
-    <div
-      class="current-range"
-      *ngIf="selectedPreset() !== 'custom' && selectedPreset() !== 'all'"
-    >
-      <span class="range-text">
-        Du {{ formatDisplayDate(startDate()) }} au
-        {{ formatDisplayDate(endDate()) }}
-      </span>
-    </div>
-  </div> -->
-
+  <div class="page-header">
+    <button class="add-user-btn" (click)="openAddBookingModal()">
+      ➕ Ajouter une réservation
+    </button>
+  </div>
   <!-- Sub-tabs for Bookings -->
   <div class="tabs">
     <button
@@ -224,7 +147,10 @@
           <div class="searchable-select">
             <select [(ngModel)]="selectedPersonnel" class="filter-select">
               <option value="all">Tout le personnel</option>
-              <option *ngFor="let person of filteredPersonnel()" [value]="person._id">
+              <option
+                *ngFor="let person of filteredPersonnel()"
+                [value]="person._id"
+              >
                 {{ person.name }} ({{ person.email }})
               </option>
             </select>
@@ -245,7 +171,10 @@
           <div class="searchable-select">
             <select [(ngModel)]="selectedClient" class="filter-select">
               <option value="all">Tous les clients</option>
-              <option *ngFor="let client of filteredClients()" [value]="client._id">
+              <option
+                *ngFor="let client of filteredClients()"
+                [value]="client._id"
+              >
                 {{ client.name }} ({{ client.email }})
               </option>
             </select>
