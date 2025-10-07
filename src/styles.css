@@ -1,4 +1,5 @@
 /* Global Styles for Landwash Mobile App - Dark Mode */
+@import "primeicons/primeicons.css";
 
 * {
   margin: 0;
@@ -22,7 +23,12 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
 }
-
+::ng-deep .p-calendar {
+  width: 100% !important;
+}
+::ng-deep p-calendar {
+  max-width: 100% !important;
+}
 body {
   margin: 0;
   padding: 0;
@@ -454,6 +460,112 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Global PrimeNG MultiSelect Styling */
+.p-multiselect {
+  .p-multiselect-label {
+    background: rgba(42, 42, 42, 0.8) !important;
+    color: #e5e5e5 !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+    min-height: 48px !important;
+    font-size: 16px !important;
+  }
+
+  .p-multiselect-trigger {
+    background: transparent !important;
+    border: none !important;
+    color: #c3ff00 !important;
+    width: 40px !important;
+  }
+
+  .p-multiselect-panel {
+    background: rgba(42, 42, 42, 0.95) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+    margin-top: 4px !important;
+    max-height: 300px !important;
+    backdrop-filter: blur(20px) !important;
+  }
+
+  .p-multiselect-header {
+    display: none !important;
+  }
+
+  .p-multiselect-items {
+    padding: 8px 0 !important;
+  }
+
+  .p-multiselect-item {
+    color: #e5e5e5 !important;
+    padding: 14px 20px !important;
+    margin: 2px 8px !important;
+    border-radius: 8px !important;
+    font-size: 15px !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .p-multiselect-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-left-color: #c3ff00 !important;
+    transform: translateX(2px) !important;
+  }
+
+  .p-multiselect-item.p-highlight {
+    background: rgba(195, 255, 0, 0.15) !important;
+    color: #c3ff00 !important;
+    border-left-color: #c3ff00 !important;
+  }
+
+  .p-multiselect-item.p-highlight:hover {
+    background: rgba(195, 255, 0, 0.25) !important;
+  }
+
+  .p-checkbox {
+    .p-checkbox-box {
+      border: 2px solid rgba(255, 255, 255, 0.2) !important;
+      background: rgba(26, 26, 26, 0.8) !important;
+      border-radius: 6px !important;
+      width: 20px !important;
+      height: 20px !important;
+    }
+
+    .p-checkbox-box.p-highlight {
+      background: #c3ff00 !important;
+      border-color: #c3ff00 !important;
+    }
+
+    .p-checkbox-icon {
+      color: #0a0a0a !important;
+      font-size: 12px !important;
+    }
+  }
+
+  .p-multiselect-close {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 18px !important;
+    padding: 8px !important;
+    margin: 8px !important;
+    border-radius: 6px !important;
+    transition: all 0.2s !important;
+  }
+
+  .p-multiselect-close:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #e5e5e5 !important;
+  }
+}
+
+.p-multiselect:not(.p-disabled).p-focus {
+  border-color: #c3ff00 !important;
+  box-shadow: 0 0 0 4px rgba(195, 255, 0, 0.1) !important;
 }
 /* styles.css */
 .modal-overlay {

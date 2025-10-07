@@ -1,0 +1,264 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal-content create-discount-modal" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>Créer un Code de Réduction</h2>
+      <button class="close-btn" (click)="onCancel()" type="button">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <form [formGroup]="discountForm" (ngSubmit)="onSubmit()">
+        <!-- Discount Code Section -->
+        <div class="form-section">
+          <h3>Code de Réduction</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="code">Code *</label>
+              <div class="code-input-group">
+                <input
+                  id="code"
+                  type="text"
+                  pInputText
+                  formControlName="code"
+                  placeholder="Ex: SAVE20"
+                  [class.error]="isFieldInvalid('code')"
+                  style="text-transform: uppercase"
+                />
+                <button
+                  type="button"
+                  class="generate-btn"
+                  (click)="generateRandomCode()"
+                  title="Générer un code aléatoire"
+                >
+                  <i class="pi pi-refresh"></i>
+                </button>
+              </div>
+              <small class="error-text" *ngIf="isFieldInvalid('code')">
+                {{ getFieldError("code") }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discount Value Section -->
+        <div class="form-section">
+          <h3>Valeur de la Réduction</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="type">Type *</label>
+              <p-dropdown
+                id="type"
+                [options]="discountTypeOptions"
+                formControlName="type"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Type de réduction"
+                [class.error]="isFieldInvalid('type')"
+              ></p-dropdown>
+            </div>
+            <div class="form-group">
+              <label for="value">
+                Valeur *
+                <span class="value-hint">
+                  ({{
+                    discountForm.get("type")?.value === "percentage"
+                      ? "en %"
+                      : "en DT"
+                  }})
+                </span>
+              </label>
+              <p-inputNumber
+                id="value"
+                formControlName="value"
+                [suffix]="
+                  discountForm.get('type')?.value === 'percentage' ? '%' : ' DT'
+                "
+                [min]="0.01"
+                [max]="
+                  discountForm.get('type')?.value === 'percentage'
+                    ? 100
+                    : undefined
+                "
+                placeholder="Valeur de la réduction"
+                [class.error]="isFieldInvalid('value')"
+              ></p-inputNumber>
+              <small class="error-text" *ngIf="isFieldInvalid('value')">
+                {{ getFieldError("value") }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usage Limits Section -->
+        <div class="form-section">
+          <h3>Limites d'Utilisation</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="maxUses">Nombre maximum d'utilisations *</label>
+              <p-inputNumber
+                id="maxUses"
+                formControlName="maxUses"
+                [min]="1"
+                placeholder="Ex: 100"
+                [class.error]="isFieldInvalid('maxUses')"
+              ></p-inputNumber>
+              <small class="error-text" *ngIf="isFieldInvalid('maxUses')">
+                {{ getFieldError("maxUses") }}
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="expiresAt">Date d'expiration</label>
+              <div class="expiry-controls">
+                <p-calendar
+                  id="expiresAt"
+                  formControlName="expiresAt"
+                  [showIcon]="true"
+                  placeholder="Aucune expiration"
+                  dateFormat="dd/mm/yy"
+                  [minDate]="minDate"
+                ></p-calendar>
+                <div class="quick-expiry">
+                  <button
+                    type="button"
+                    class="quick-btn"
+                    (click)="setQuickExpiry(7)"
+                  >
+                    7j
+                  </button>
+                  <button
+                    type="button"
+                    class="quick-btn"
+                    (click)="setQuickExpiry(30)"
+                  >
+                    30j
+                  </button>
+                  <button
+                    type="button"
+                    class="quick-btn"
+                    (click)="setQuickExpiry(90)"
+                  >
+                    90j
+                  </button>
+                  <button
+                    type="button"
+                    class="clear-btn"
+                    (click)="clearExpiry()"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              <small class="help-text"
+                >Laissez vide pour aucune expiration</small
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Applicability Section -->
+        <div class="form-section">
+          <h3>Produits Applicables</h3>
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="applicableProducts">Produits concernés</label>
+              <p-multiSelect
+                id="applicableProducts"
+                [options]="products()"
+                formControlName="applicableProducts"
+                optionLabel="name"
+                optionValue="_id"
+                placeholder="Tous les produits (laisser vide)"
+                [filter]="true"
+                [loading]="isLoadingProducts()"
+              ></p-multiSelect>
+              <small class="help-text">
+                Si aucun produit n'est sélectionné, le code s'appliquera à tous
+                les produits
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Types Section -->
+        <div class="form-section">
+          <h3>Types de Services</h3>
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="services">Services concernés</label>
+              <p-multiSelect
+                id="services"
+                [options]="serviceTypeOptions"
+                formControlName="services"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Tous les services (laisser vide)"
+                [filter]="false"
+                [showToggleAll]="false"
+              ></p-multiSelect>
+              <small class="help-text">
+                Si aucun service n'est sélectionné, le code s'appliquera à tous
+                les types de services
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Options Section -->
+        <div class="form-section">
+          <h3>Options</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="switch-control">
+                <label for="firstOrderOnly">Première commande uniquement</label>
+                <p-inputSwitch
+                  id="firstOrderOnly"
+                  formControlName="firstOrderOnly"
+                ></p-inputSwitch>
+              </div>
+              <small class="help-text">
+                Restreindre ce code aux nouveaux clients
+              </small>
+            </div>
+            <div class="form-group">
+              <div class="switch-control">
+                <label for="active">Code actif</label>
+                <p-inputSwitch
+                  id="active"
+                  formControlName="active"
+                ></p-inputSwitch>
+              </div>
+              <small class="help-text">
+                Le code peut être utilisé immédiatement
+              </small>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="cancel-btn"
+        (click)="onCancel()"
+        [disabled]="isSubmitting()"
+      >
+        Annuler
+      </button>
+      <button
+        type="submit"
+        class="submit-btn"
+        (click)="onSubmit()"
+        [disabled]="isSubmitting() || discountForm.invalid"
+      >
+        <i class="pi pi-spin pi-spinner" *ngIf="isSubmitting()"></i>
+        <i class="pi pi-check" *ngIf="!isSubmitting()"></i>
+        {{ isSubmitting() ? "Création..." : "Créer le Code" }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -93,6 +93,16 @@
           >Clients</span
         >
       </button>
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'discounts'"
+        (click)="switchToDiscounts()"
+      >
+        <span class="nav-icon">🏷️</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Réductions</span
+        >
+      </button>
       }@else{
       <button
         class="nav-item"
@@ -183,13 +193,17 @@
     <div class="view-container" [class.active]="viewType() === 'personals'">
       <app-teams *ngIf="viewType() === 'personals'"></app-teams>
     </div>
-    <!-- Personals View -->
+    <!-- Profile View -->
     <div class="view-container" [class.active]="viewType() === 'profile'">
       <app-profile *ngIf="viewType() === 'profile'"></app-profile>
     </div>
     <!-- Clients View -->
     <div class="view-container" [class.active]="viewType() === 'users'">
       <app-users *ngIf="viewType() === 'users'"></app-users>
+    </div>
+    <!-- Discount View -->
+    <div class="view-container" [class.active]="viewType() === 'discounts'">
+      <app-discount-list *ngIf="viewType() === 'discounts'"></app-discount-list>
     </div>
   </div>
 </div>

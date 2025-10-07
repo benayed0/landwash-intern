@@ -18,7 +18,7 @@ import { TeamsComponent } from '../teams/teams.component';
 import { UsersComponent } from '../users/users.component';
 import { ProfileComponent } from '../profile/profile.component';
 import { WorkerDashboardComponent } from '../worker-dashboard/worker-dashboard.component';
-import { CreateBookingComponent } from '../create-booking/create-booking.component';
+import { DiscountListComponent } from '../discount-list/discount-list.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,7 +35,7 @@ import { CreateBookingComponent } from '../create-booking/create-booking.compone
     UsersComponent,
     ProfileComponent,
     WorkerDashboardComponent,
-    CreateBookingComponent,
+    DiscountListComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -54,6 +54,7 @@ export class DashboardComponent implements OnInit {
     | 'products'
     | 'personals'
     | 'users'
+    | 'discounts'
     | 'profile'
     | 'worker-dashboard'
   >('bookings');
@@ -95,6 +96,7 @@ export class DashboardComponent implements OnInit {
     | 'products'
     | 'personals'
     | 'users'
+    | 'discounts'
     | 'profile'
     | 'worker-dashboard' {
     return [
@@ -105,6 +107,7 @@ export class DashboardComponent implements OnInit {
       'products',
       'personals',
       'users',
+      'discounts',
       'profile',
       'worker-dashboard',
     ].includes(view);
@@ -125,6 +128,8 @@ export class DashboardComponent implements OnInit {
         return 'Personnels';
       case 'users':
         return 'Utilisateurs';
+      case 'discounts':
+        return 'Réductions';
       case 'profile':
         return 'Profil';
       case 'worker-dashboard':
@@ -154,6 +159,18 @@ export class DashboardComponent implements OnInit {
     } else {
       // In browser mode, navigate to route
       this.router.navigate(['/dashboard/users']);
+    }
+  }
+  switchToDiscounts() {
+    console.log('Switching to Users view');
+
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      // In WebView mode, just update the signal (Flutter handles navigation)
+      this.viewType.set('discounts');
+    } else {
+      // In browser mode, navigate to route
+      this.router.navigate(['/dashboard/discounts']);
     }
   }
   switchToWorkerDashboard() {

@@ -49,6 +49,11 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'dashboard/discounts',
+    component: DashboardComponent,
+    canActivate: [adminGuard],
+  },
+  {
     path: 'dashboard/orders',
     component: DashboardComponent,
     canActivate: [adminGuard],

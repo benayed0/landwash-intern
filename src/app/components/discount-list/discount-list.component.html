@@ -1,0 +1,85 @@
+<div class="discount-list-container">
+  <!-- Header with Add Button -->
+  <div class="page-header">
+    <h1>Gestion des Codes de Réduction</h1>
+    <button class="add-discount-btn" (click)="showCreateDiscountModal()">
+      ➕ Créer un Code de Réduction
+    </button>
+  </div>
+
+  <!-- Tabs for different discount states -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'active'"
+      (click)="setActiveTab('active')"
+    >
+      Actifs ({{ activeDiscounts().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'inactive'"
+      (click)="setActiveTab('inactive')"
+    >
+      Inactifs ({{ inactiveDiscounts().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'expired'"
+      (click)="setActiveTab('expired')"
+    >
+      Expirés ({{ expiredDiscounts().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'exhausted'"
+      (click)="setActiveTab('exhausted')"
+    >
+      Épuisés ({{ usageLimitReachedDiscounts().length }})
+    </button>
+  </div>
+
+  <!-- Content Section -->
+  <div class="content">
+    <h2 class="section-title">{{ sectionTitle() }}</h2>
+
+    <!-- Loading Spinner -->
+    <app-loading-spinner
+      *ngIf="loading()"
+      [size]="'medium'"
+      [message]="'Chargement des codes de réduction...'"
+      [color]="'primary'"
+    ></app-loading-spinner>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && currentDiscounts().length === 0" class="empty-state">
+      <div class="empty-icon">🎫</div>
+      <p>Aucun code de réduction dans cette catégorie</p>
+      <button
+        *ngIf="activeTab() === 'active'"
+        class="create-first-btn"
+        (click)="showCreateDiscountModal()"
+      >
+        Créer le premier code de réduction
+      </button>
+    </div>
+
+    <!-- Discount Cards Grid -->
+    <div *ngIf="!loading() && currentDiscounts().length > 0" class="discounts-grid">
+      <app-discount-card
+        *ngFor="let discount of currentDiscounts()"
+        [discount]="discount"
+        (update)="onDiscountUpdate($event)"
+        (delete)="onDiscountDelete($event)"
+      ></app-discount-card>
+    </div>
+  </div>
+
+  <!-- Create Discount Modal -->
+  <app-create-discount
+    *ngIf="showCreateModal()"
+    [isOpen]="showCreateModal()"
+    (close)="hideCreateDiscountModal()"
+    (discountCreated)="onDiscountCreated()"
+  ></app-create-discount>
+</div>

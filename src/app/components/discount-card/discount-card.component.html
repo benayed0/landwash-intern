@@ -1,0 +1,225 @@
+<div class="discount-card" [class.editing]="isEditing()">
+  <!-- Card Header -->
+  <div class="card-header">
+    <div class="discount-code">
+      <span class="code-label">Code:</span>
+      <span class="code-value" *ngIf="!isEditing()">{{ discount.code }}</span>
+      <input
+        *ngIf="isEditing()"
+        type="text"
+        [(ngModel)]="editForm().code"
+        class="code-input"
+        placeholder="Code de réduction"
+      />
+    </div>
+    <div class="card-actions">
+      <p-tag
+        [value]="statusText()"
+        [severity]="statusColor()"
+        class="status-tag"
+      ></p-tag>
+      <div class="action-buttons" *ngIf="!isEditing()">
+        <button
+          type="button"
+          class="edit-btn"
+          (click)="startEdit()"
+          title="Modifier"
+        >
+          <i class="pi pi-pencil"></i>
+        </button>
+        <button
+          type="button"
+          class="delete-btn"
+          (click)="confirmDelete()"
+          title="Supprimer"
+        >
+          <i class="pi pi-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Content -->
+  <div class="card-content">
+    <div class="discount-info">
+      <!-- Type and Value -->
+      <div class="info-row">
+        <div class="info-item">
+          <span class="label">Type:</span>
+          <span *ngIf="!isEditing()" class="value">
+            {{ discount.type === 'percentage' ? 'Pourcentage' : 'Montant Fixe' }}
+          </span>
+          <p-dropdown
+            *ngIf="isEditing()"
+            [options]="discountTypeOptions"
+            [(ngModel)]="editForm().type"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Type de réduction"
+            class="type-dropdown"
+          ></p-dropdown>
+        </div>
+        <div class="info-item">
+          <span class="label">Valeur:</span>
+          <span *ngIf="!isEditing()" class="value highlight">
+            {{ formatValue(discount.type, discount.value) }}
+          </span>
+          <p-inputNumber
+            *ngIf="isEditing()"
+            [(ngModel)]="editForm().value"
+            [suffix]="editForm().type === 'percentage' ? '%' : ' DT'"
+            [min]="0"
+            [max]="editForm().type === 'percentage' ? 100 : undefined"
+            placeholder="Valeur"
+            class="value-input"
+          ></p-inputNumber>
+        </div>
+      </div>
+
+      <!-- Usage Statistics -->
+      <div class="info-row">
+        <div class="info-item">
+          <span class="label">Utilisations:</span>
+          <span class="value">{{ discount.usedCount }} / {{ discount.maxUses }}</span>
+        </div>
+        <div class="info-item" *ngIf="!isEditing()">
+          <span class="label">Progression:</span>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="usagePercentage()"
+                [class.full]="usagePercentage() >= 100"
+              ></div>
+            </div>
+            <span class="progress-text">{{ usagePercentage() }}%</span>
+          </div>
+        </div>
+        <div class="info-item" *ngIf="isEditing()">
+          <span class="label">Max. utilisations:</span>
+          <p-inputNumber
+            [(ngModel)]="editForm().maxUses"
+            [min]="discount.usedCount"
+            placeholder="Maximum d'utilisations"
+            class="max-uses-input"
+          ></p-inputNumber>
+        </div>
+      </div>
+
+      <!-- Expiration Date -->
+      <div class="info-row">
+        <div class="info-item">
+          <span class="label">Expire le:</span>
+          <span *ngIf="!isEditing()" class="value" [class.expired]="isExpired()">
+            {{ formatDate(discount.expiresAt) }}
+          </span>
+          <p-calendar
+            *ngIf="isEditing()"
+            [(ngModel)]="editForm().expiresAt"
+            [showIcon]="true"
+            placeholder="Date d'expiration (optionnel)"
+            dateFormat="dd/mm/yy"
+            class="expiry-calendar"
+          ></p-calendar>
+        </div>
+      </div>
+
+      <!-- Applicable Products -->
+      <div class="info-row">
+        <div class="info-item full-width">
+          <span class="label">Produits applicables:</span>
+          <span *ngIf="!isEditing()" class="value">
+            {{ getProductNames(discount.applicableProducts || []) }}
+          </span>
+          <p-multiSelect
+            *ngIf="isEditing()"
+            [options]="products()"
+            [(ngModel)]="editForm().applicableProducts"
+            optionLabel="name"
+            optionValue="_id"
+            placeholder="Sélectionner les produits (vide = tous)"
+            [filter]="false"
+            [showToggleAll]="false"
+            [ngModelOptions]="{standalone: true}"
+            class="products-dropdown"
+          ></p-multiSelect>
+        </div>
+      </div>
+
+      <!-- Applicable Services -->
+      <div class="info-row">
+        <div class="info-item full-width">
+          <span class="label">Services applicables:</span>
+          <span *ngIf="!isEditing()" class="value">
+            {{ getServiceNames(discount.services || []) }}
+          </span>
+          <p-multiSelect
+            *ngIf="isEditing()"
+            [options]="serviceTypeOptions"
+            [(ngModel)]="editForm().services"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Sélectionner les services (vide = tous)"
+            [filter]="false"
+            [showToggleAll]="false"
+            [ngModelOptions]="{standalone: true}"
+            class="services-dropdown"
+          ></p-multiSelect>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="info-row">
+        <div class="info-item">
+          <span class="label">Première commande uniquement:</span>
+          <span *ngIf="!isEditing()" class="value">
+            {{ discount.firstOrderOnly ? 'Oui' : 'Non' }}
+          </span>
+          <p-inputSwitch
+            *ngIf="isEditing()"
+            [(ngModel)]="editForm().firstOrderOnly"
+            class="first-order-switch"
+          ></p-inputSwitch>
+        </div>
+        <div class="info-item">
+          <span class="label">Statut:</span>
+          <span *ngIf="!isEditing()" class="value">
+            {{ discount.active ? 'Actif' : 'Inactif' }}
+          </span>
+          <p-inputSwitch
+            *ngIf="isEditing()"
+            [(ngModel)]="editForm().active"
+            class="active-switch"
+          ></p-inputSwitch>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Actions -->
+  <div class="edit-actions" *ngIf="isEditing()">
+    <button type="button" class="cancel-btn" (click)="cancelEdit()">
+      <i class="pi pi-times"></i>
+      Annuler
+    </button>
+    <button type="button" class="save-btn" (click)="saveChanges()">
+      <i class="pi pi-check"></i>
+      Sauvegarder
+    </button>
+  </div>
+
+  <!-- Quick Toggle (when not editing) -->
+  <div class="quick-actions" *ngIf="!isEditing()">
+    <button
+      type="button"
+      class="toggle-btn"
+      [class.active]="discount.active"
+      (click)="toggleActive()"
+    >
+      <i class="pi" [class.pi-eye]="discount.active" [class.pi-eye-slash]="!discount.active"></i>
+      {{ discount.active ? 'Désactiver' : 'Activer' }}
+    </button>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
