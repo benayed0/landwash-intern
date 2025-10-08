@@ -46,7 +46,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #c3ff00;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   letter-spacing: 1px;
   display: block;
 }
@@ -60,7 +60,7 @@
   color: var(--text-color, #fff);
   font-size: 1.25rem;
   font-weight: 600;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .code-input:focus {
@@ -388,6 +388,109 @@
         background: var(--surface-ground, #1e1e1e);
         color: var(--text-color, #fff);
         border-color: var(--surface-border, #333);
+      }
+    }
+
+    .p-multiselect-item {
+      color: var(--text-color, #fff);
+      padding: 8px 12px;
+    }
+
+    .p-multiselect-item:hover {
+      background: var(--surface-hover, #444);
+    }
+    ::ng-deep .p-dialog {
+      background: var(--surface-section, #2a2a2a) !important;
+      border: 2px solid var(--surface-border, #333) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+    }
+    /* Confirmation Dialog Styling */
+    ::ng-deep .p-confirmdialog {
+      .p-dialog-header {
+        background: var(--surface-section, #2a2a2a);
+        border-bottom: 1px solid var(--surface-border, #333);
+        color: var(--text-color, #fff);
+        padding: 20px;
+      }
+
+      .p-dialog-title {
+        color: var(--text-color, #fff);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .p-dialog-content {
+        background: var(--surface-section, #2a2a2a);
+        color: var(--text-color, #fff);
+        padding: 20px;
+        border: none;
+      }
+
+      .p-confirm-dialog-message {
+        color: var(--text-color, #fff);
+        font-size: 14px;
+        line-height: 1.5;
+        margin-left: 12px;
+      }
+
+      .p-confirm-dialog-icon {
+        color: #ff6b6b;
+        font-size: 24px;
+      }
+
+      .p-dialog-footer {
+        background: var(--surface-section, #2a2a2a);
+        border-top: 1px solid var(--surface-border, #333);
+        padding: 16px 20px;
+        gap: 12px;
+      }
+
+      .p-button {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+      }
+
+      .p-button.p-button-text {
+        background: transparent;
+        border: 1px solid var(--surface-border, #555);
+        color: var(--text-color, #fff);
+      }
+
+      .p-button.p-button-text:hover {
+        background: var(--surface-hover, #444);
+        border-color: var(--surface-border, #666);
+      }
+
+      .p-button.p-button-danger {
+        background: #ff4757;
+        border-color: #ff4757;
+        color: white;
+      }
+
+      .p-button.p-button-danger:hover {
+        background: #ff3838;
+        border-color: #ff3838;
+      }
+
+      .p-dialog-header-close {
+        background: transparent;
+        border: 1px solid var(--surface-border, #555);
+        color: var(--text-color, #fff);
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+
+      .p-dialog-header-close:hover {
+        background: var(--surface-hover, #444);
+        border-color: #ff4757;
+        color: #ff4757;
       }
     }
   }

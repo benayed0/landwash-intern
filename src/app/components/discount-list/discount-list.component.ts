@@ -116,46 +116,44 @@ export class DiscountListComponent implements OnInit {
       firstOrderOnly: event.updateData.firstOrderOnly,
       services: event.updateData.services,
       applicableProducts: Array.isArray(event.updateData.applicableProducts)
-        ? event.updateData.applicableProducts.map(p => typeof p === 'string' ? p : p._id)
+        ? event.updateData.applicableProducts.map((p) =>
+            typeof p === 'string' ? p : p._id
+          )
         : event.updateData.applicableProducts,
     };
 
-    this.discountService
-      .updateDiscount(event.discountId, updateDto)
-      .subscribe({
-        next: (updatedDiscount) => {
-          // Simply reload the entire list to ensure UI updates
-          this.loadDiscounts();
-          this.toast.success('Code de réduction mis à jour');
-        },
-        error: (error) => {
-          console.error('Error updating discount:', error);
-          this.toast.error('Erreur lors de la mise à jour');
-          this.loading.set(false);
-        },
-      });
+    this.discountService.updateDiscount(event.discountId, updateDto).subscribe({
+      next: (updatedDiscount) => {
+        // Simply reload the entire list to ensure UI updates
+        this.loadDiscounts();
+        this.toast.success('Code de réduction mis à jour');
+      },
+      error: (error) => {
+        console.error('Error updating discount:', error);
+        this.toast.error('Erreur lors de la mise à jour');
+        this.loading.set(false);
+      },
+    });
   }
 
   onDiscountDelete(discountId: string) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce code de réduction ?')) {
-      this.loading.set(true);
-      this.discountService.deleteDiscount(discountId).subscribe({
-        next: () => {
-          const currentDiscounts = this.discounts();
-          const updated = currentDiscounts.filter(
-            (discount) => discount._id !== discountId
-          );
-          this.discounts.set(updated);
-          this.toast.success('Code de réduction supprimé');
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error deleting discount:', error);
-          this.toast.error('Erreur lors de la suppression');
-          this.loading.set(false);
-        },
-      });
-    }
+    this.loading.set(true);
+    this.discountService.deleteDiscount(discountId).subscribe({
+      next: () => {
+        const currentDiscounts = this.discounts();
+        const updated = currentDiscounts.filter(
+          (discount) => discount._id !== discountId
+        );
+        this.discounts.set(updated);
+        this.toast.success('Code de réduction supprimé');
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Error deleting discount:', error);
+        this.toast.error('Erreur lors de la suppression');
+        this.loading.set(false);
+      },
+    });
   }
 
   showCreateDiscountModal() {

@@ -1,4 +1,14 @@
-import { Component, Input, Output, EventEmitter, signal, computed, inject, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  signal,
+  computed,
+  inject,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -9,10 +19,13 @@ import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
+import { CustomConfirmDialogComponent } from '../custom-confirm-dialog/custom-confirm-dialog.component';
 
-import { Discount, DiscountType, ServiceType } from '../../models/discount.model';
+import {
+  Discount,
+  DiscountType,
+  ServiceType,
+} from '../../models/discount.model';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
 import { HotToastService } from '@ngneat/hot-toast';
@@ -31,9 +44,8 @@ import { HotToastService } from '@ngneat/hot-toast';
     DropdownModule,
     TagModule,
     MultiSelectModule,
-    ConfirmDialogModule,
+    CustomConfirmDialogComponent,
   ],
-  providers: [ConfirmationService],
   templateUrl: './discount-card.component.html',
   styleUrls: ['./discount-card.component.css'],
 })
@@ -47,12 +59,14 @@ export class DiscountCardComponent implements OnChanges {
 
   private productService = inject(ProductService);
   private toast = inject(HotToastService);
-  private confirmationService = inject(ConfirmationService);
 
   isEditing = signal<boolean>(false);
   editForm = signal<Partial<Discount>>({});
   products = signal<Product[]>([]);
   isLoadingProducts = signal<boolean>(false);
+
+  // Custom dialog state
+  showDeleteDialog = signal<boolean>(false);
 
   // Type options
   discountTypeOptions = [
@@ -62,9 +76,10 @@ export class DiscountCardComponent implements OnChanges {
 
   // Service type options
   serviceTypeOptions = [
-    { label: 'Petit Service', value: ServiceType.Small },
-    { label: 'Grand Service', value: ServiceType.Big },
-    { label: 'Service Salon', value: ServiceType.Salon },
+    { label: 'Citadine', value: ServiceType.Small },
+    { label: 'SUV', value: ServiceType.Big },
+    { label: 'Salon', value: ServiceType.Salon },
+    { label: 'Produits', value: 'products' },
   ];
 
   // Computed properties
@@ -127,12 +142,16 @@ export class DiscountCardComponent implements OnChanges {
       code: this.discount.code,
       type: this.discount.type,
       value: this.discount.value,
-      expiresAt: this.discount.expiresAt ? new Date(this.discount.expiresAt) : undefined,
+      expiresAt: this.discount.expiresAt
+        ? new Date(this.discount.expiresAt)
+        : undefined,
       maxUses: this.discount.maxUses,
       active: this.discount.active,
       firstOrderOnly: this.discount.firstOrderOnly,
       applicableProducts: Array.isArray(this.discount.applicableProducts)
-        ? this.discount.applicableProducts.map(p => typeof p === 'string' ? p : p._id)
+        ? this.discount.applicableProducts.map((p) =>
+            typeof p === 'string' ? p : p._id
+          )
         : [],
       services: this.discount.services || [],
     });
@@ -157,7 +176,9 @@ export class DiscountCardComponent implements OnChanges {
     }
 
     if (!formData.maxUses || formData.maxUses <= 0) {
-      this.toast.error('Le nombre maximum d\'utilisations doit être supérieur à 0');
+      this.toast.error(
+        "Le nombre maximum d'utilisations doit être supérieur à 0"
+      );
       return;
     }
 
@@ -184,14 +205,16 @@ export class DiscountCardComponent implements OnChanges {
   }
 
   confirmDelete() {
-    this.confirmationService.confirm({
-      message: `Êtes-vous sûr de vouloir supprimer le code "${this.discount.code}" ?`,
-      header: 'Confirmer la suppression',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.delete.emit(this.discount._id!);
-      },
-    });
+    this.showDeleteDialog.set(true);
+  }
+
+  onDeleteConfirm() {
+    this.delete.emit(this.discount._id!);
+    this.showDeleteDialog.set(false);
+  }
+
+  onDeleteReject() {
+    this.showDeleteDialog.set(false);
   }
 
   toggleActive() {
@@ -218,22 +241,27 @@ export class DiscountCardComponent implements OnChanges {
   getProductNames(productIds: (string | Product)[]): string {
     if (!productIds || productIds.length === 0) return 'Tous les produits';
 
-    const names = productIds.map(p => {
+    const names = productIds.map((p) => {
       if (typeof p === 'string') {
-        const product = this.products().find(prod => prod._id === p);
+        const product = this.products().find((prod) => prod._id === p);
         return product?.name || 'Produit inconnu';
       }
       return p.name;
     });
 
-    return names.slice(0, 2).join(', ') + (names.length > 2 ? ` et ${names.length - 2} autres` : '');
+    return (
+      names.slice(0, 2).join(', ') +
+      (names.length > 2 ? ` et ${names.length - 2} autres` : '')
+    );
   }
 
   getServiceNames(services: ServiceType[]): string {
     if (!services || services.length === 0) return 'Tous les services';
 
-    const serviceLabels = services.map(service => {
-      const option = this.serviceTypeOptions.find(opt => opt.value === service);
+    const serviceLabels = services.map((service) => {
+      const option = this.serviceTypeOptions.find(
+        (opt) => opt.value === service
+      );
       return option?.label || service;
     });
 

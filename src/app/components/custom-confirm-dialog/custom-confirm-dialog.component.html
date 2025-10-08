@@ -1,0 +1,41 @@
+<div class="dialog-overlay" *ngIf="visible" (click)="onBackdropClick($event)">
+  <div class="dialog-container">
+    <!-- Header -->
+    <div class="dialog-header">
+      <div class="header-content">
+        <i class="dialog-icon pi" [class]="icon"></i>
+        <h3 class="dialog-title">{{ title }}</h3>
+      </div>
+      <button class="close-button" (click)="close()" type="button">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="dialog-content">
+      <p class="dialog-message">{{ message }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="dialog-footer">
+      <button
+        class="dialog-button reject-button"
+        (click)="onReject()"
+        type="button"
+      >
+        <i class="pi pi-times"></i>
+        {{ rejectLabel }}
+      </button>
+      <button
+        class="dialog-button accept-button"
+        [class.danger]="acceptButtonClass === 'danger'"
+        [class.primary]="acceptButtonClass === 'primary'"
+        (click)="onAccept()"
+        type="button"
+      >
+        <i class="pi pi-check"></i>
+        {{ acceptLabel }}
+      </button>
+    </div>
+  </div>
+</div>

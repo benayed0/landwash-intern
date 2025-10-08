@@ -72,9 +72,10 @@ export class CreateDiscountComponent implements OnInit {
 
   // Service type options
   serviceTypeOptions = [
-    { label: 'Petit Service', value: ServiceType.Small },
-    { label: 'Grand Service', value: ServiceType.Big },
-    { label: 'Service Salon', value: ServiceType.Salon },
+    { label: 'Citadine', value: ServiceType.Small },
+    { label: 'SUV', value: ServiceType.Big },
+    { label: 'Salon', value: ServiceType.Salon },
+    { label: 'Produits', value: 'products' },
   ];
 
   ngOnInit() {

@@ -1,0 +1,261 @@
+/* Custom Confirmation Dialog */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+  padding: 20px;
+}
+
+.dialog-container {
+  background: #1a1a1a;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(195, 255, 0, 0.1);
+  max-width: 420px;
+  width: 100%;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+  border: 2px solid #333;
+}
+
+/* Header */
+.dialog-header {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #333;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.dialog-icon {
+  font-size: 28px;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 107, 107, 0.2);
+}
+
+.dialog-title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.close-button {
+  background: transparent;
+  border: 2px solid #444;
+  color: #ccc;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  transform: scale(1.05);
+}
+
+/* Content */
+.dialog-content {
+  padding: 24px;
+  background: #1a1a1a;
+}
+
+.dialog-message {
+  color: #e5e5e5;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  text-align: left;
+}
+
+/* Footer */
+.dialog-footer {
+  background: #1a1a1a;
+  padding: 20px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  border-top: 1px solid #333;
+}
+
+.dialog-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  min-width: 100px;
+  justify-content: center;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.dialog-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.dialog-button:hover::before {
+  left: 100%;
+}
+
+.reject-button {
+  background: transparent;
+  border-color: #444;
+  color: #ccc;
+}
+
+.reject-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #666;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.accept-button.danger {
+  background: linear-gradient(135deg, #ff4757, #ff3838);
+  border-color: #ff4757;
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+}
+
+.accept-button.danger:hover {
+  background: linear-gradient(135deg, #ff3838, #ff2929);
+  border-color: #ff3838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+}
+
+.accept-button.primary {
+  background: linear-gradient(135deg, #c3ff00, #a8d400);
+  border-color: #c3ff00;
+  color: #0a0a0a;
+  box-shadow: 0 4px 16px rgba(195, 255, 0, 0.3);
+}
+
+.accept-button.primary:hover {
+  background: linear-gradient(135deg, #b3e600, #9bc400);
+  border-color: #b3e600;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(195, 255, 0, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .dialog-overlay {
+    padding: 16px;
+  }
+
+  .dialog-container {
+    border-radius: 16px;
+    max-width: 100%;
+  }
+
+  .dialog-header {
+    padding: 20px;
+  }
+
+  .header-content {
+    gap: 12px;
+  }
+
+  .dialog-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    border-radius: 12px;
+  }
+
+  .dialog-title {
+    font-size: 18px;
+  }
+
+  .dialog-content {
+    padding: 20px;
+  }
+
+  .dialog-message {
+    font-size: 15px;
+  }
+
+  .dialog-footer {
+    padding: 16px 20px 20px;
+    flex-direction: column-reverse;
+  }
+
+  .dialog-button {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .dialog-container {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(195, 255, 0, 0.15);
+  }
+}

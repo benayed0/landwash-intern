@@ -47,7 +47,9 @@
         <div class="info-item">
           <span class="label">Type:</span>
           <span *ngIf="!isEditing()" class="value">
-            {{ discount.type === 'percentage' ? 'Pourcentage' : 'Montant Fixe' }}
+            {{
+              discount.type === "percentage" ? "Pourcentage" : "Montant Fixe"
+            }}
           </span>
           <p-dropdown
             *ngIf="isEditing()"
@@ -80,7 +82,9 @@
       <div class="info-row">
         <div class="info-item">
           <span class="label">Utilisations:</span>
-          <span class="value">{{ discount.usedCount }} / {{ discount.maxUses }}</span>
+          <span class="value"
+            >{{ discount.usedCount }} / {{ discount.maxUses }}</span
+          >
         </div>
         <div class="info-item" *ngIf="!isEditing()">
           <span class="label">Progression:</span>
@@ -110,7 +114,11 @@
       <div class="info-row">
         <div class="info-item">
           <span class="label">Expire le:</span>
-          <span *ngIf="!isEditing()" class="value" [class.expired]="isExpired()">
+          <span
+            *ngIf="!isEditing()"
+            class="value"
+            [class.expired]="isExpired()"
+          >
             {{ formatDate(discount.expiresAt) }}
           </span>
           <p-calendar
@@ -140,7 +148,7 @@
             placeholder="Sélectionner les produits (vide = tous)"
             [filter]="false"
             [showToggleAll]="false"
-            [ngModelOptions]="{standalone: true}"
+            [ngModelOptions]="{ standalone: true }"
             class="products-dropdown"
           ></p-multiSelect>
         </div>
@@ -162,7 +170,7 @@
             placeholder="Sélectionner les services (vide = tous)"
             [filter]="false"
             [showToggleAll]="false"
-            [ngModelOptions]="{standalone: true}"
+            [ngModelOptions]="{ standalone: true }"
             class="services-dropdown"
           ></p-multiSelect>
         </div>
@@ -173,7 +181,7 @@
         <div class="info-item">
           <span class="label">Première commande uniquement:</span>
           <span *ngIf="!isEditing()" class="value">
-            {{ discount.firstOrderOnly ? 'Oui' : 'Non' }}
+            {{ discount.firstOrderOnly ? "Oui" : "Non" }}
           </span>
           <p-inputSwitch
             *ngIf="isEditing()"
@@ -184,7 +192,7 @@
         <div class="info-item">
           <span class="label">Statut:</span>
           <span *ngIf="!isEditing()" class="value">
-            {{ discount.active ? 'Actif' : 'Inactif' }}
+            {{ discount.active ? "Actif" : "Inactif" }}
           </span>
           <p-inputSwitch
             *ngIf="isEditing()"
@@ -216,10 +224,29 @@
       [class.active]="discount.active"
       (click)="toggleActive()"
     >
-      <i class="pi" [class.pi-eye]="discount.active" [class.pi-eye-slash]="!discount.active"></i>
-      {{ discount.active ? 'Désactiver' : 'Activer' }}
+      <i
+        class="pi"
+        [class.pi-eye]="discount.active"
+        [class.pi-eye-slash]="!discount.active"
+      ></i>
+      {{ discount.active ? "Désactiver" : "Activer" }}
     </button>
   </div>
 </div>
 
-<p-confirmDialog></p-confirmDialog>
+<app-custom-confirm-dialog
+  [visible]="showDeleteDialog()"
+  [title]="'Confirmer la suppression'"
+  [message]="
+    'Êtes-vous sûr de vouloir supprimer le code ' +
+    (discount?.code || 'inconnu') +
+    ' ?'
+  "
+  [acceptLabel]="'Supprimer'"
+  [rejectLabel]="'Annuler'"
+  [acceptButtonClass]="'danger'"
+  [icon]="'pi-exclamation-triangle'"
+  (accept)="onDeleteConfirm()"
+  (reject)="onDeleteReject()"
+  (visibleChange)="showDeleteDialog.set($event)"
+></app-custom-confirm-dialog>
