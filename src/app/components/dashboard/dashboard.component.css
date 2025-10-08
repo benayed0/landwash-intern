@@ -1,5 +1,4 @@
 .app-container {
-  min-height: 100vh;
   background: linear-gradient(180deg, #0a0a0a 0%, #121212 100%);
   color: #e5e5e5;
   display: flex;
@@ -264,8 +263,6 @@
 .content-container.with-navbar {
   margin-top: 60px;
   padding: 0;
-  min-height: calc(100vh - 60px);
-  min-height: calc(100dvh - 60px);
   height: auto;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -274,7 +271,7 @@
 
 .content-container.webview-mode {
   margin-top: 0;
-  height: 100vh;
+  height: auto;
 }
 
 /* Utility classes */
@@ -372,7 +369,7 @@
 .mobile-container {
   flex: 1;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .view-container {

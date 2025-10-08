@@ -24,12 +24,53 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   error = '';
+  showPassword = false;
+  loginMode: 'email' | 'phone' = 'email';
 
   constructor() {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [''],
+      phone: [''],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
+    this.setLoginMode('email');
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  switchLoginMode(mode: 'email' | 'phone') {
+    if (this.loginMode === mode) {
+      return;
+    }
+    this.setLoginMode(mode);
+    this.error = '';
+  }
+
+  private setLoginMode(mode: 'email' | 'phone') {
+    this.loginMode = mode;
+    const emailControl = this.loginForm.get('email');
+    const phoneControl = this.loginForm.get('phone');
+
+    if (mode === 'email') {
+      emailControl?.setValidators([Validators.required, Validators.email]);
+      phoneControl?.clearValidators();
+      phoneControl?.setValue('', { emitEvent: false });
+      phoneControl?.setErrors(null);
+    } else {
+      phoneControl?.setValidators([Validators.required, this.phoneValidator]);
+      emailControl?.clearValidators();
+      emailControl?.setValue('', { emitEvent: false });
+      emailControl?.setErrors(null);
+    }
+
+    emailControl?.markAsPristine();
+    emailControl?.markAsUntouched();
+    emailControl?.updateValueAndValidity();
+    phoneControl?.markAsPristine();
+    phoneControl?.markAsUntouched();
+    phoneControl?.updateValueAndValidity();
   }
 
   onSubmit() {
@@ -45,9 +86,17 @@ export class LoginComponent {
 
     this.loading = true;
     this.error = '';
-    const { email, password } = this.loginForm.value;
+    const { email, phone, password } = this.loginForm.value;
 
-    this.authService.login(email, password).subscribe({
+    let loginField = '';
+    if (this.loginMode === 'email') {
+      loginField = email;
+    } else {
+      const phoneDigits = (phone || '').replace(/\D/g, '');
+      loginField = `+216${phoneDigits}`;
+    }
+
+    this.authService.login(loginField, this.loginMode, password).subscribe({
       next: (response) => {
         // Wait for user data to be loaded, then navigate
         setTimeout(() => {
@@ -79,6 +128,16 @@ export class LoginComponent {
     return '';
   }
 
+  get phoneError() {
+    const control = this.loginForm.get('phone');
+    if (control?.touched && control?.errors) {
+      if (control.errors['required']) return 'Numéro de téléphone requis';
+      if (control.errors['invalidPhone'])
+        return 'Numéro invalide (8 chiffres requis)';
+    }
+    return '';
+  }
+
   get passwordError() {
     const control = this.loginForm.get('password');
     if (control?.touched && control?.errors) {
@@ -86,5 +145,37 @@ export class LoginComponent {
       if (control.errors['minlength']) return 'Minimum 6 caractères';
     }
     return '';
+  }
+
+  formatPhoneNumber(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value || '';
+    let digitsOnly = value.replace(/\D/g, '');
+
+    if (digitsOnly.length > 8) {
+      digitsOnly = digitsOnly.substring(0, 8);
+    }
+
+    let formatted = '';
+    if (digitsOnly.length > 0) {
+      formatted = digitsOnly.substring(0, 2);
+      if (digitsOnly.length > 2) {
+        formatted += ' ' + digitsOnly.substring(2, 5);
+      }
+      if (digitsOnly.length > 5) {
+        formatted += ' ' + digitsOnly.substring(5, 8);
+      }
+    }
+
+    this.loginForm.get('phone')?.setValue(formatted, { emitEvent: false });
+    input.value = formatted;
+  }
+
+  private phoneValidator(control: any) {
+    const value = (control.value || '').replace(/\D/g, '');
+    if (!value) {
+      return { invalidPhone: true };
+    }
+    return value.length === 8 ? null : { invalidPhone: true };
   }
 }

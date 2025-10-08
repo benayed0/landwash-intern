@@ -9,12 +9,35 @@
       <h2>Landwash</h2>
     </div>
 
+    <div class="login-mode-toggle">
+      <div class="toggle-buttons">
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="loginMode === 'email'"
+          (click)="switchLoginMode('email')"
+        >
+          <span class="toggle-icon">📧</span>
+          Email
+        </button>
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="loginMode === 'phone'"
+          (click)="switchLoginMode('phone')"
+        >
+          <span class="toggle-icon">📱</span>
+          Téléphone
+        </button>
+      </div>
+    </div>
+
     <div class="login-error" *ngIf="error">
       {{ error }}
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
+      <div class="form-group" *ngIf="loginMode === 'email'">
         <label for="email">Email</label>
         <input
           id="email"
@@ -22,29 +45,64 @@
           formControlName="email"
           [class.error]="emailError"
           placeholder="votre@email.com"
+          autocomplete="email"
         />
         <div class="error-message" *ngIf="emailError">
           {{ emailError }}
         </div>
       </div>
 
+      <div class="form-group" *ngIf="loginMode === 'phone'">
+        <label for="phone">Numéro de téléphone</label>
+        <div class="phone-input-wrapper" [class.error]="phoneError">
+          <span class="country-code">+216</span>
+          <input
+            id="phone"
+            type="tel"
+            inputmode="tel"
+            formControlName="phone"
+            placeholder="XX XXX XXX"
+            maxlength="10"
+            (input)="formatPhoneNumber($event)"
+            autocomplete="tel"
+          />
+        </div>
+        <div class="helper-text">Format : 8 chiffres (ex. 12 345 678)</div>
+        <div class="error-message" *ngIf="phoneError">
+          {{ phoneError }}
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="password">Mot de passe</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          [class.error]="passwordError"
-          placeholder="••••••••"
-        />
+        <div class="password-wrapper" [class.error]="passwordError">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            [class.error]="passwordError"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="
+              showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
+            "
+          >
+            <span class="eye-icon">{{ showPassword ? '🙈' : '👁️' }}</span>
+          </button>
+        </div>
         <div class="error-message" *ngIf="passwordError">
           {{ passwordError }}
         </div>
       </div>
 
-      <button type="submit" [disabled]="loading">
+      <button type="submit" [disabled]="loading" class="submit-btn">
         <span *ngIf="!loading">Se connecter</span>
-        <span *ngIf="loading" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span *ngIf="loading" class="loading-content">
           <div style="width: 16px; height: 16px; border: 2px solid #0a0a0a; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
           Connexion...
         </span>

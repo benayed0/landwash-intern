@@ -9,12 +9,10 @@
 
 html,
 body {
-  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   background: #0a0a0a;
   color: #e5e5e5;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Mobile app specific styles */
@@ -34,7 +32,6 @@ body {
   padding: 0;
   position: relative;
   width: 100%;
-  min-height: 100vh;
   /* Mobile app container */
   background: linear-gradient(180deg, #0a0a0a 0%, #121212 100%);
 }
@@ -70,12 +67,6 @@ button {
   background: #888;
 }
 
-/* Mobile viewport fix */
-@supports (-webkit-touch-callout: none) {
-  .app-container {
-    min-height: -webkit-fill-available;
-  }
-}
 
 /* PWA safe areas */
 .safe-area-top {
@@ -348,13 +339,6 @@ select:focus {
   padding-left: 4px;
 }
 
-/* Performance optimizations for smooth animations */
-/* * {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-perspective: 1000px;
-  perspective: 1000px;
-} */
 
 /* Optimize touch interactions */
 button,
@@ -407,11 +391,11 @@ button,
 }
 
 /* Improved scroll performance */
-/* .mobile-container,
+.mobile-container,
 .mobile-modal-content {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-} */
+}
 
 /* 60fps optimized animations */
 @media (prefers-reduced-motion: no-preference) {
@@ -453,10 +437,6 @@ button,
   }
 }
 
-html,
-body {
-  height: 100%;
-}
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;

@@ -1,5 +1,4 @@
 .token-auth-container {
-  min-height: 100vh;
   background: linear-gradient(180deg, #0a0a0a 0%, #121212 100%);
   display: flex;
   align-items: center;

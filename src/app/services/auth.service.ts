@@ -58,10 +58,15 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<LoginResponse> {
+  login(
+    loginField: string,
+    loginMode: 'phone' | 'email',
+    password: string
+  ): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.apiUrl}/personals/login`, {
-        email,
+        loginField,
+        loginMode,
         password,
       })
       .pipe(
