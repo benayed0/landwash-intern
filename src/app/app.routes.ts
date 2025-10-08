@@ -90,7 +90,6 @@ export const routes: Routes = [
   {
     path: 'dashboard/profile',
     component: DashboardComponent,
-    canActivate: [adminGuard],
   },
   {
     path: '**',
