@@ -9,16 +9,16 @@ import {
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { PushNotificationService } from '../../services/push-notification.service';
-import { BookingListComponent } from '../booking-list/booking-list.component';
-import { OrderListComponent } from '../order-list/order-list.component';
-import { SubscriptionListComponent } from '../subscription-list/subscription-list.component';
+import { BookingListComponent } from '../bookings/booking-list/booking-list.component';
+import { OrderListComponent } from '../orders/order-list/order-list.component';
+import { SubscriptionListComponent } from '../subscriptions/subscription-list/subscription-list.component';
 import { AnalyticsComponent } from '../analytics/analytics.component';
 import { ProductsComponent } from '../products/products.component';
-import { TeamsComponent } from '../teams/teams.component';
+import { TeamsComponent } from '../personals/teams/teams.component';
 import { UsersComponent } from '../users/users.component';
 import { ProfileComponent } from '../profile/profile.component';
 import { WorkerDashboardComponent } from '../worker-dashboard/worker-dashboard.component';
-import { DiscountListComponent } from '../discount-list/discount-list.component';
+import { DiscountListComponent } from '../discounts/discount-list/discount-list.component';
 
 @Component({
   selector: 'app-dashboard',

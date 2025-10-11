@@ -1,0 +1,242 @@
+<div class="modal-inner">
+  <div class="header">
+      <h2>Créer une nouvelle réservation</h2>
+      <button class="close-btn" (click)="onCancel()">×</button>
+    </div>
+
+    <form
+      [formGroup]="bookingForm"
+      (ngSubmit)="onSubmit()"
+      class="booking-form"
+    >
+      <!-- Service Type Selection -->
+      <div class="form-section">
+        <h2>Type de service</h2>
+        <div class="service-types">
+          <div
+            *ngFor="let type of bookingTypes"
+            class="service-card"
+            [class.selected]="bookingForm.get('type')?.value === type.value"
+            (click)="onTypeChange(type.value)"
+          >
+            <div class="service-icon">{{ type.icon }}</div>
+            <div class="service-label">{{ type.label }}</div>
+          </div>
+        </div>
+        <div class="error-message" *ngIf="isFieldInvalid('type')">
+          {{ getFieldError("type") }}
+        </div>
+      </div>
+
+      <!-- Salon Seats (only for salon type) -->
+      <div
+        class="form-section"
+        *ngIf="bookingForm.get('type')?.value === 'salon'"
+      >
+        <h2>Nombre de sièges</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="salonsSeats">Sièges à nettoyer</label>
+            <input
+              type="number"
+              id="salonsSeats"
+              formControlName="salonsSeats"
+              class="form-input"
+              [class.invalid]="isFieldInvalid('salonsSeats')"
+              min="1"
+              max="20"
+            />
+            <div class="error-message" *ngIf="isFieldInvalid('salonsSeats')">
+              {{ getFieldError("salonsSeats") }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="form-section">
+        <h2>Tarification</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="estimated-price">
+              <span class="price-label">Prix estimé:</span>
+              <span class="price-amount"
+                >{{ calculateEstimatedPrice() }} DT</span
+              >
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                formControlName="withSub"
+                class="checkbox"
+              />
+              <span class="checkmark"></span>
+              Avec abonnement
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="form-section">
+        <h2>Localisation</h2>
+        <div class="form-group">
+          <app-location-picker
+            [initialLocation]="selectedLocation()"
+            placeholder="Rechercher une adresse en Tunisie..."
+            (locationSelected)="onLocationSelected($event)"
+          ></app-location-picker>
+          <div class="error-message" *ngIf="isFieldInvalid('address')">
+            {{ getFieldError("address") }}
+          </div>
+
+          <!-- Team Distance Warning -->
+          <div class="distance-warning" *ngIf="locationTooFar()">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+              <h4>Localisation trop éloignée</h4>
+              <p>
+                Cette localisation est trop éloignée de nos équipes disponibles.
+                L'équipe la plus proche se trouve à
+                <strong
+                  >{{
+                    nearestTeamDistance() / 1000 | number : "1.1-1"
+                  }}
+                  km</strong
+                >.
+              </p>
+              <p>
+                Veuillez choisir une localisation plus proche de nos zones de
+                service.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date and Time -->
+      <div class="form-section">
+        <h2>Date et heure</h2>
+        <div class="form-group">
+          <label for="date">Sélectionner une date</label>
+          <input
+            type="date"
+            id="date"
+            [(ngModel)]="selectedDateString"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-input date-input"
+            [class.invalid]="isFieldInvalid('date')"
+            [min]="minDateString"
+            [disabled]="!selectedLocation() || locationTooFar()"
+            (change)="onDateInputChange($event)"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('date')">
+            {{ getFieldError("date") }}
+          </div>
+
+          <!-- Available Time Slots Display -->
+          <div class="available-slots" *ngIf="selectedDateString && availableTimeSlots().length > 0">
+            <h4>Sélectionner un créneau horaire :</h4>
+            <div class="time-slots">
+              <button
+                type="button"
+                *ngFor="let slot of availableTimeSlots()"
+                class="time-slot"
+                [class.selected]="selectedTimeSlot === slot"
+                (click)="onTimeSlotClick(slot)"
+              >
+                {{ slot }}
+              </button>
+            </div>
+          </div>
+
+          <!-- No slots available message -->
+          <div
+            class="no-slots"
+            *ngIf="
+              selectedDateString &&
+              selectedLocation() &&
+              bookedSlots() &&
+              availableTimeSlots().length === 0
+            "
+          >
+            <p>
+              Aucun créneau disponible pour cette date. Tous les créneaux sont
+              réservés.
+            </p>
+          </div>
+
+          <!-- Loading or no location selected -->
+          <div class="slots-info" *ngIf="!selectedLocation()">
+            <p>
+              Veuillez d'abord sélectionner une localisation pour voir les
+              créneaux disponibles.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- User Selection -->
+      <div class="form-section">
+        <h2>Sélection du client</h2>
+        <div class="form-group">
+          <label for="userId">Choisir un utilisateur *</label>
+          <select
+            id="userId"
+            formControlName="userId"
+            class="form-input"
+            [class.invalid]="isFieldInvalid('userId')"
+          >
+            <option value="">Sélectionner un utilisateur</option>
+            <option *ngFor="let user of users()" [value]="user._id">
+              {{ user.name }} - {{ user.phoneNumber }}
+            </option>
+          </select>
+          <div class="error-message" *ngIf="isFieldInvalid('userId')">
+            {{ getFieldError("userId") }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="secondaryNumber">Téléphone secondaire (optionnel)</label>
+          <input
+            type="tel"
+            id="secondaryNumber"
+            formControlName="secondaryNumber"
+            class="form-input"
+            placeholder="+216 XX XXX XXX"
+          />
+        </div>
+      </div>
+
+      <!-- Team Assignment (Optional) -->
+      <div class="form-section">
+        <h2>Assignation d'équipe (optionnel)</h2>
+        <div class="form-group">
+          <label for="teamId">Équipe</label>
+          <select id="teamId" formControlName="teamId" class="form-input">
+            <option value="">Assigner plus tard</option>
+            <option *ngFor="let team of teams()" [value]="team._id">
+              {{ team.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="onCancel()"
+          [disabled]="loading()"
+        >
+          Annuler
+        </button>
+        <button type="submit" class="btn-submit" [disabled]="loading()">
+          <span *ngIf="!loading()">Créer la réservation</span>
+          <span *ngIf="loading()">Création en cours...</span>
+        </button>
+      </div>
+  </form>
+</div>

@@ -1,0 +1,137 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>🏢 Créer une nouvelle équipe</h3>
+      <button class="close-btn" (click)="onCancel()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="onSubmit()" #teamForm="ngForm">
+        <!-- Name Field -->
+        <div class="form-group">
+          <label for="teamName">Nom de l'équipe *</label>
+          <input
+            type="text"
+            id="teamName"
+            [(ngModel)]="newTeam.name"
+            name="teamName"
+            class="form-input"
+            [class.error]="nameError"
+            placeholder="Ex: Équipe Nord"
+            required
+            [disabled]="isSubmitting"
+          />
+          <span class="error-message" *ngIf="nameError">{{ nameError }}</span>
+        </div>
+
+        <!-- Members Selection -->
+        <div class="form-group">
+          <label>Membres de l'équipe</label>
+          <p class="helper-text">
+            👥 Cliquez pour sélectionner les membres • 🔄 Activez le toggle
+            "Chef" pour désigner le chef d'équipe
+          </p>
+          <div class="members-list" *ngIf="availablePersonals.length > 0">
+            <div
+              class="member-item"
+              *ngFor="let personal of availablePersonals"
+              [class.selected]="isPersonalSelected(personal._id!)"
+              [class.chief]="isChief(personal._id!)"
+            >
+              <div
+                class="member-checkbox"
+                (click)="onPersonalToggle(personal._id!)"
+              >
+                <span *ngIf="isPersonalSelected(personal._id!)">✓</span>
+              </div>
+              <div class="member-avatar">
+                {{ personal.name.charAt(0).toUpperCase() }}
+              </div>
+              <div
+                class="member-info"
+                (click)="onPersonalToggle(personal._id!)"
+              >
+                <div class="member-name">{{ personal.name }}</div>
+                <div class="member-details">{{ personal.email }}</div>
+              </div>
+              <div class="chief-toggle-container">
+                <label class="chief-label">Chef</label>
+                <p-inputSwitch
+                  [ngModel]="isChief(personal._id!)"
+                  (ngModelChange)="onChiefToggle(personal._id!, $event)"
+                  [ngModelOptions]="{ standalone: true }"
+                  [disabled]="!isPersonalSelected(personal._id!)"
+                  styleClass="chief-switch"
+                ></p-inputSwitch>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="availablePersonals.length === 0">
+            <p>Aucun personnel disponible</p>
+          </div>
+        </div>
+
+        <!-- Location Selection -->
+        <div class="form-group">
+          <label>Localisation de l'équipe</label>
+          <div class="location-info" *ngIf="newTeam.coordinates">
+            <p>📍 Latitude: {{ newTeam.coordinates[1].toFixed(6) }}</p>
+            <p>📍 Longitude: {{ newTeam.coordinates[0].toFixed(6) }}</p>
+          </div>
+          <div class="map-container">
+            <div id="map" class="map" (click)="onModalOpen()"></div>
+            <p class="map-hint">
+              👆 Cliquez sur la carte pour définir la localisation de l'équipe
+            </p>
+          </div>
+        </div>
+
+        <!-- Radius Selection -->
+        <div class="form-group">
+          <label for="radius">Rayon d'action (kilomètres)</label>
+          <div class="radius-container">
+            <input
+              type="range"
+              id="radius"
+              [(ngModel)]="newTeam.radius"
+              name="radius"
+              class="radius-slider"
+              min="1000"
+              max="100000"
+              step="1000"
+              (input)="onRadiusChange()"
+              [disabled]="isSubmitting"
+            />
+            <div class="radius-value">
+              {{ newTeam.radius! / 1000 | number : "1.0-0" }}km
+            </div>
+          </div>
+          <div class="radius-labels">
+            <span>1km</span>
+            <span>100km</span>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="onCancel()"
+        [disabled]="isSubmitting"
+      >
+        Annuler
+      </button>
+      <button
+        type="button"
+        class="btn-confirm"
+        (click)="onSubmit()"
+        [disabled]="isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">✓ Créer l'équipe</span>
+        <span *ngIf="isSubmitting">⏳ Création...</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { AddUserModalComponent } from '../add-user-modal/add-user-modal.component';
+import { AddUserModalComponent } from './add-user-modal/add-user-modal.component';
 
 interface Subscription {
   id: string;

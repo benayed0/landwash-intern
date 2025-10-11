@@ -1,0 +1,200 @@
+/* Modal inner content (used inside modal-container) */
+.modal-inner {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.modal-title {
+  color: #c3ff00;
+  font-size: 20px;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.booking-info {
+  background: #0a0a0a;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #2a2a2a;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #e5e5e5;
+  font-size: 14px;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  color: #888;
+}
+
+.info-value {
+  color: #fff;
+  text-align: right;
+  flex: 1;
+  margin-left: 10px;
+}
+
+.current-team {
+  color: #c3ff00 !important;
+  background: rgba(195, 255, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(195, 255, 0, 0.3);
+  text-align: center !important;
+}
+
+.salon-seats {
+  font-size: 13px;
+  color: #c3ff00;
+  margin-left: 5px;
+}
+
+.team-selection {
+  margin-top: 20px;
+}
+
+.select-label {
+  display: block;
+  color: #e5e5e5;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.team-select {
+  width: 100%;
+  padding: 12px;
+  background: #0a0a0a;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.team-select:hover:not(:disabled) {
+  border-color: #c3ff00;
+}
+
+.team-select:focus {
+  outline: none;
+  border-color: #c3ff00;
+  box-shadow: 0 0 0 2px rgba(195, 255, 0, 0.1);
+}
+
+.team-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.team-select option {
+  background: #0a0a0a;
+  color: #fff;
+}
+
+.loading {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.no-teams-message {
+  text-align: center;
+  color: #ff9800;
+  padding: 20px;
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-cancel {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.btn-cancel:hover {
+  background: #3a3a3a;
+}
+
+.btn-confirm {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,103 @@
+<div class="order-list-container">
+  <div class="page-header">
+    <h1>Commandes</h1>
+    <button class="add-order-btn" (click)="openNewOrderModal()">
+      <span class="btn-icon">+</span>
+      <span class="btn-text">Nouvelle commande</span>
+    </button>
+  </div>
+  <!-- Sub-tabs for Orders -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'pending'"
+      (click)="activeTab = 'pending'"
+    >
+      En attente ({{ filteredPendingOrders().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'confirmed'"
+      (click)="activeTab = 'confirmed'"
+    >
+      Confirmées ({{ filteredConfirmedOrders().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'shipped'"
+      (click)="activeTab = 'shipped'"
+    >
+      Expédiées ({{ filteredShippedOrders().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'delivered'"
+      (click)="activeTab = 'delivered'"
+    >
+      Livrées ({{ filteredDeliveredOrders().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'completed'"
+      (click)="activeTab = 'completed'"
+    >
+      Terminées ({{ filteredCompletedOrders().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'cancelled'"
+      (click)="activeTab = 'cancelled'"
+    >
+      Annulées ({{ filteredCancelledOrders().length }})
+    </button>
+  </div>
+
+  <!-- Sort Controls -->
+  <div class="sort-section">
+    <div class="sort-selector">
+      <label for="sort-select">Trier par:</label>
+      <select id="sort-select" [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+        <option value="date-desc">Date (récent d'abord)</option>
+        <option value="date-asc">Date (ancien d'abord)</option>
+        <option value="total-desc">Montant (élevé d'abord)</option>
+        <option value="total-asc">Montant (bas d'abord)</option>
+        <option value="client-name">Client (A-Z)</option>
+        <option value="status">Statut</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="content">
+    <h2 class="section-title">{{ sectionTitle }}</h2>
+
+    <app-loading-spinner
+      *ngIf="loading"
+      [size]="'medium'"
+      [message]="'Chargement des commandes...'"
+      [color]="'primary'"
+    >
+    </app-loading-spinner>
+
+    <div *ngIf="!loading && currentOrders.length === 0" class="empty-state">
+      <div class="empty-icon">📦</div>
+      <p>Aucune commande dans cette catégorie</p>
+    </div>
+
+    <div *ngIf="!loading && currentOrders.length > 0">
+      <app-order-card
+        *ngFor="let order of currentOrders"
+        [order]="order"
+        [userRole]="'admin'"
+        (statusChange)="onOrderStatusChange($event)"
+      >
+      </app-order-card>
+    </div>
+  </div>
+
+  <!-- Create Order Modal -->
+  <app-create-order-modal
+    [isOpen]="isCreateOrderModalOpen()"
+    (close)="onCloseCreateOrderModal()"
+    (orderCreated)="onOrderCreated($event)"
+  ></app-create-order-modal>
+</div>

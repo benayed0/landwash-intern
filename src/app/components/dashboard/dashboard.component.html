@@ -150,10 +150,6 @@
     [class.webview-mode]="authService.isWebView()"
     [class.with-navbar]="!authService.isWebView()"
   >
-    <div class="page-header">
-      <h1>{{ getPageTitle() }}</h1>
-    </div>
-
     <!-- Bookings View -->
     <div class="view-container" [class.active]="viewType() === 'bookings'">
       <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>

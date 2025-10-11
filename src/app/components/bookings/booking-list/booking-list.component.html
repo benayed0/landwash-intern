@@ -1,0 +1,97 @@
+<div class="booking-list-container">
+  <div class="page-header">
+    <h1>Réservations</h1>
+    <button class="add-order-btn" (click)="openAddBookingModal()">
+      <span class="btn-icon">+</span>
+      <span class="btn-text">Nouvelle réservation</span>
+    </button>
+  </div>
+  <!-- Sub-tabs for Bookings -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'pending'"
+      (click)="activeTab = 'pending'"
+    >
+      En attente ({{ filteredPendingBookings().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'confirmed'"
+      (click)="activeTab = 'confirmed'"
+    >
+      Confirmées ({{ filteredConfirmedBookings().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'in-progress'"
+      (click)="activeTab = 'in-progress'"
+    >
+      En cours ({{ filteredInProgressBookings().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'completed'"
+      (click)="activeTab = 'completed'"
+    >
+      Historique ({{ filteredCompletedBookings().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'others'"
+      (click)="activeTab = 'others'"
+    >
+      Autres ({{
+        filteredRejectedBookings().length + filteredCanceledBookings().length
+      }})
+    </button>
+  </div>
+  <!-- Sort Section -->
+  <div class="sort-section">
+    <div class="sort-selector">
+      <label for="sort-select">Trier par:</label>
+      <select id="sort-select" [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+        <option value="date-desc">Date (récent d'abord)</option>
+        <option value="date-asc">Date (ancien d'abord)</option>
+        <option value="price-desc">Prix (élevé d'abord)</option>
+        <option value="price-asc">Prix (bas d'abord)</option>
+        <option value="client-name">Client (A-Z)</option>
+        <option value="status">Statut</option>
+      </select>
+    </div>
+  </div>
+  <div class="content">
+    <h2 class="section-title">{{ sectionTitle }}</h2>
+
+    <app-loading-spinner
+      *ngIf="loading"
+      [size]="'medium'"
+      [message]="'Chargement des réservations...'"
+      [color]="'primary'"
+    >
+    </app-loading-spinner>
+
+    <div *ngIf="!loading && currentBookings.length === 0" class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>Aucune réservation dans cette catégorie</p>
+    </div>
+
+    <div *ngIf="!loading && currentBookings.length > 0">
+      <app-booking-card
+        *ngFor="let booking of currentBookings"
+        [booking]="booking"
+        [userRole]="'admin'"
+        [showMapsButton]="false"
+        (statusChange)="onStatusChange($event)"
+        (requestComplete)="onRequestComplete($event)"
+        (requestConfirm)="onRequestConfirm($event)"
+        (requestReject)="onRequestReject($event)"
+        (requestReconfirm)="onRequestReconfirm($event)"
+        (requestReassignTeam)="onRequestReassignTeam($event)"
+        (requestStartProgress)="onRequestStartProgress($event)"
+        (bookingUpdate)="onBookingUpdate($event)"
+      >
+      </app-booking-card>
+    </div>
+  </div>
+</div>

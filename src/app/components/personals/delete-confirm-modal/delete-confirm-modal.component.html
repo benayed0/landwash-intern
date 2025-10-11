@@ -1,0 +1,38 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>🗑️ Supprimer l'équipe</h3>
+      <button class="close-btn" (click)="onCancel()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="warning-icon">⚠️</div>
+      <p class="warning-text">
+        Êtes-vous sûr de vouloir supprimer l'équipe <strong>"{{ teamName }}"</strong> ?
+      </p>
+      <p class="warning-subtext">
+        Cette action est irréversible. Tous les membres seront retirés de l'équipe.
+      </p>
+    </div>
+
+    <div class="modal-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="onCancel()"
+        [disabled]="isDeleting"
+      >
+        Annuler
+      </button>
+      <button
+        type="button"
+        class="btn-delete"
+        (click)="onConfirm()"
+        [disabled]="isDeleting"
+      >
+        <span *ngIf="!isDeleting">🗑️ Supprimer</span>
+        <span *ngIf="isDeleting">⏳ Suppression...</span>
+      </button>
+    </div>
+  </div>
+</div>

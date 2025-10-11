@@ -676,3 +676,32 @@ body {
     font-size: 14px !important;
   }
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Material Dialog Custom Styling */
+.custom-dialog-container .mat-mdc-dialog-container {
+  background: #1a1a1a;
+  color: #e5e5e5;
+  border-radius: 12px;
+  padding: 0;
+}
+
+.custom-dialog-container .mat-mdc-dialog-surface {
+  background: transparent;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Dialog backdrop */
+.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+/* Remove default Material padding */
+.custom-dialog-container .mat-mdc-dialog-content {
+  padding: 0;
+  margin: 0;
+  max-height: none;
+}

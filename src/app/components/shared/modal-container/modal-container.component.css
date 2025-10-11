@@ -1,0 +1,164 @@
+/*
+ * Bulletproof Modal Container
+ * Uses fixed positioning with 100vh/100vw to ensure it's always centered
+ * regardless of parent scroll position or layout
+ */
+
+.modal-overlay {
+  /* Fixed positioning anchored to viewport, not parent */
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  /* Use viewport units for full coverage */
+  width: 100vw;
+
+  /* Ensure it's above all content */
+  z-index: 9999;
+
+  /* Semi-transparent backdrop */
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+
+  /* Center the modal content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Smooth entrance animation */
+  animation: fadeIn 0.2s ease-out;
+
+  /* Prevent scrolling on body when modal is open */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Add padding for mobile devices */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Smooth scale animation */
+  animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Prevent content from being cut off */
+  box-sizing: border-box;
+}
+
+/* Size variants */
+.size-small {
+  width: 100%;
+  max-width: 400px;
+}
+
+.size-medium {
+  width: 100%;
+  max-width: 600px;
+}
+
+.size-large {
+  width: 100%;
+  max-width: 900px;
+}
+
+.size-auto {
+  width: auto;
+  min-width: 300px;
+  max-width: calc(100vw - 40px);
+}
+
+/* Close button */
+.modal-close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  z-index: 10;
+  padding: 0;
+}
+
+.modal-close-button:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
+.modal-close-button:active {
+  transform: scale(0.95);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 20px);
+    border-radius: 8px;
+  }
+
+  .size-auto,
+  .size-small,
+  .size-medium,
+  .size-large {
+    max-width: calc(100vw - 20px);
+  }
+}
+
+/* Custom scrollbar for modal content */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
 import { AuthService } from '../../services/auth.service';
 import { Booking } from '../../models/booking.model';
-import { BookingCardComponent } from '../booking-card/booking-card.component';
+import { BookingCardComponent } from '../bookings/booking-card/booking-card.component';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';

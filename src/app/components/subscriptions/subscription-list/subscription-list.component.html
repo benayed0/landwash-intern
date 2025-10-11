@@ -1,0 +1,78 @@
+<div class="page-header">
+  <h1>Abonnements</h1>
+  <button class="add-order-btn" (click)="showCreateModal()">
+    <span class="btn-icon">+</span>
+    <span class="btn-text">Créer un abonnement</span>
+  </button>
+</div>
+<div class="subscription-list-container">
+  <!-- Sub-tabs for Subscriptions -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'pending'"
+      (click)="activeTab.set('pending')"
+    >
+      En attente ({{ pendingSubscriptions().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'active'"
+      (click)="activeTab.set('active')"
+    >
+      Actives ({{ activeSubscriptions().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'inactive'"
+      (click)="activeTab.set('inactive')"
+    >
+      Inactives ({{ inactiveSubscriptions().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'canceled'"
+      (click)="activeTab.set('canceled')"
+    >
+      Annulées ({{ canceledSubscriptions().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'expired'"
+      (click)="activeTab.set('expired')"
+    >
+      Expirées ({{ expiredSubscriptions().length }})
+    </button>
+  </div>
+
+  <div class="content">
+    <h2 class="section-title">{{ sectionTitle() }}</h2>
+
+    <app-loading-spinner
+      *ngIf="loading()"
+      [size]="'medium'"
+      [message]="'Chargement des abonnements...'"
+      [color]="'primary'"
+    >
+    </app-loading-spinner>
+
+    <div
+      *ngIf="!loading() && currentSubscriptions().length === 0"
+      class="empty-state"
+    >
+      <div class="empty-icon">📋</div>
+      <p>Aucun abonnement dans cette catégorie</p>
+    </div>
+
+    <div *ngIf="!loading() && currentSubscriptions().length > 0">
+      <app-subscription-card
+        *ngFor="let subscription of currentSubscriptions()"
+        [subscription]="subscription"
+        [userRole]="'admin'"
+        (statusChange)="onSubscriptionStatusChange($event)"
+        (subscriptionUpdate)="onSubscriptionUpdate($event)"
+      >
+      </app-subscription-card>
+    </div>
+  </div>
+</div>

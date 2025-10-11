@@ -5,7 +5,7 @@ import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
-import { ProductModalComponent } from '../product-modal/product-modal.component';
+import { ProductModalComponent } from './product-modal/product-modal.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 
 @Component({
@@ -48,7 +48,7 @@ export class ProductsComponent implements OnInit {
       error: (err) => {
         console.error('Error loading products:', err);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -79,7 +79,7 @@ export class ProductsComponent implements OnInit {
           console.error('Error deleting product:', err);
           this.deleteLoading = false;
           alert('Erreur lors de la suppression du produit');
-        }
+        },
       });
     }
   }
@@ -109,7 +109,7 @@ export class ProductsComponent implements OnInit {
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-TN', {
       style: 'currency',
-      currency: 'TND'
+      currency: 'TND',
     }).format(price);
   }
 

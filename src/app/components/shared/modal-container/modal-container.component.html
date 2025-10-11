@@ -1,0 +1,19 @@
+@if (show) {
+<div class="modal-overlay" (click)="onOverlayClick()">
+  <div
+    class="modal-content"
+    [class.size-small]="size === 'small'"
+    [class.size-medium]="size === 'medium'"
+    [class.size-large]="size === 'large'"
+    [class.size-auto]="size === 'auto'"
+    (click)="onContentClick($event)"
+  >
+    @if (showCloseButton) {
+    <button class="modal-close-button" (click)="onClose()" aria-label="Close modal">
+      ✖️
+    </button>
+    }
+    <ng-content></ng-content>
+  </div>
+</div>
+}
