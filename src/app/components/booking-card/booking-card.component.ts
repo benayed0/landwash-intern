@@ -50,6 +50,10 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     secondaryNumber: '',
   };
 
+  // Delay modal properties
+  showDelayModal = false;
+  delayMinutes: number = 0;
+
   getVehicleTypeLabel(type: string): string {
     const labels: any = {
       small: 'Citadines / Petites Voitures',
@@ -291,5 +295,33 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges() {
     this.stopProgressTimer();
     this.startProgressTimer();
+  }
+
+  // Delay modal methods
+  openDelayModal() {
+    // Pre-fill with existing delay value if available
+    this.delayMinutes = this.booking.delayedOf || 0;
+    this.showDelayModal = true;
+  }
+
+  closeDelayModal() {
+    this.showDelayModal = false;
+    this.delayMinutes = 0;
+  }
+
+  confirmDelay() {
+    if (!this.delayMinutes || this.delayMinutes <= 0) {
+      return;
+    }
+
+    // Emit the update to parent component
+    this.bookingUpdate.emit({
+      bookingId: this.booking._id!,
+      updateData: {
+        delayedOf: this.delayMinutes,
+      },
+    });
+
+    this.closeDelayModal();
   }
 }

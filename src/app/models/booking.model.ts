@@ -25,6 +25,7 @@ export interface Booking {
   price: number;
   date: Date;
   startDate?: Date;
+  delayedOf?: number; // in minutes
   status: BookingStatus;
   withSub: boolean;
   salonsSeats?: number;

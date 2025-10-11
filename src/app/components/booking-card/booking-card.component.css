@@ -597,3 +597,263 @@
     font-size: 14px;
   }
 }
+
+/* Delay Info Display */
+.delay-info {
+  background: rgba(255, 152, 0, 0.15);
+  border: 1px solid rgba(255, 152, 0, 0.4);
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: delayPulse 2s infinite;
+}
+
+@keyframes delayPulse {
+  0%, 100% {
+    background: rgba(255, 152, 0, 0.15);
+  }
+  50% {
+    background: rgba(255, 152, 0, 0.25);
+  }
+}
+
+.delay-icon {
+  font-size: 20px;
+}
+
+.delay-text {
+  color: #ff9800;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Delay Button */
+.delay-btn {
+  background: #ff9800;
+  color: white;
+}
+
+.delay-btn:hover {
+  background: #f57c00;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Content */
+.modal-content {
+  background: #1a1a1a;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 450px;
+  border: 1px solid #3a3a3a;
+  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #e5e5e5;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.3s;
+  padding: 5px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+}
+
+.modal-close:hover {
+  color: #fff;
+  background: #f44336;
+  transform: rotate(90deg);
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 25px;
+}
+
+.modal-description {
+  color: #ccc;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.delay-input-group {
+  margin-bottom: 20px;
+}
+
+.delay-input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e5e5;
+  margin-bottom: 8px;
+}
+
+.delay-input {
+  width: 100%;
+  padding: 12px 15px;
+  background: #0a0a0a;
+  color: #e5e5e5;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.delay-input:focus {
+  outline: none;
+  border-color: #ff9800;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+
+.delay-input::placeholder {
+  color: #666;
+}
+
+.delay-preview {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px 15px;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.delay-preview strong {
+  color: #ff9800;
+  font-weight: 700;
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 20px 25px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancel-modal-btn {
+  background: #444;
+  color: #fff;
+}
+
+.cancel-modal-btn:hover {
+  background: #555;
+  transform: translateY(-1px);
+}
+
+.confirm-modal-btn {
+  background: #ff9800;
+  color: white;
+}
+
+.confirm-modal-btn:hover:not(:disabled) {
+  background: #f57c00;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.confirm-modal-btn:disabled {
+  background: #666;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Responsive Modal */
+@media (max-width: 480px) {
+  .modal-content {
+    width: 95%;
+    margin: 15px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 15px 20px;
+  }
+
+  .modal-header h3 {
+    font-size: 18px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-btn {
+    width: 100%;
+  }
+}

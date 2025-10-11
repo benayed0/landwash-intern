@@ -208,7 +208,18 @@
     </button>
   </div>
   } @if (booking.status === 'confirmed') {
+  <!-- Delay Information Display -->
+  @if (booking.delayedOf && booking.delayedOf > 0) {
+  <div class="delay-info">
+    <span class="delay-icon">⏰</span>
+    <span class="delay-text">Retard: {{ booking.delayedOf }} minutes</span>
+  </div>
+  }
+
   <div class="booking-actions">
+    <button class="action-btn delay-btn" (click)="openDelayModal()">
+      ⏰ {{ booking.delayedOf ? 'Modifier le retard' : 'Signaler un retard' }}
+    </button>
     <button class="action-btn start-progress-btn" (click)="startProgress()">
       ▶️ Commencer
     </button>
@@ -253,3 +264,49 @@
   </div>
   } }
 </div>
+
+<!-- Delay Modal -->
+@if (showDelayModal) {
+<div class="modal-overlay" (click)="closeDelayModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Signaler un retard</h3>
+      <button class="modal-close" (click)="closeDelayModal()">✖️</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-description">
+        Indiquez le nombre de minutes de retard prévu pour cette réservation :
+      </p>
+      <div class="delay-input-group">
+        <label for="delayMinutes">Minutes de retard :</label>
+        <input
+          id="delayMinutes"
+          type="number"
+          [(ngModel)]="delayMinutes"
+          min="0"
+          max="180"
+          class="delay-input"
+          placeholder="Ex: 15"
+        />
+      </div>
+      @if (delayMinutes && delayMinutes > 0) {
+      <div class="delay-preview">
+        Le client sera notifié d'un retard de <strong>{{ delayMinutes }}</strong> minutes.
+      </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel-modal-btn" (click)="closeDelayModal()">
+        Annuler
+      </button>
+      <button
+        class="modal-btn confirm-modal-btn"
+        (click)="confirmDelay()"
+        [disabled]="!delayMinutes || delayMinutes <= 0"
+      >
+        Confirmer le retard
+      </button>
+    </div>
+  </div>
+</div>
+}
