@@ -1,12 +1,11 @@
-<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
-  <div class="modal-content create-discount-modal" (click)="$event.stopPropagation()">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <h2>Créer un Code de Réduction</h2>
-      <button class="close-btn" (click)="onCancel()" type="button">
-        <i class="pi pi-times"></i>
-      </button>
-    </div>
+<div class="modal-content create-discount-modal">
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2>Créer un Code de Réduction</h2>
+    <button class="close-btn" (click)="onCancel()" type="button">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
 
     <!-- Modal Body -->
     <div class="modal-body">
@@ -112,14 +111,15 @@
             <div class="form-group">
               <label for="expiresAt">Date d'expiration</label>
               <div class="expiry-controls">
-                <p-calendar
+                <input
                   id="expiresAt"
-                  formControlName="expiresAt"
-                  [showIcon]="true"
+                  type="date"
+                  class="date-input"
+                  [value]="formatDateForInput(discountForm.get('expiresAt')?.value)"
+                  (change)="onDateChange($event)"
+                  [min]="formatDateForInput(minDate)"
                   placeholder="Aucune expiration"
-                  dateFormat="dd/mm/yy"
-                  [minDate]="minDate"
-                ></p-calendar>
+                />
                 <div class="quick-expiry">
                   <button
                     type="button"
@@ -260,5 +260,4 @@
         {{ isSubmitting() ? "Création..." : "Créer le Code" }}
       </button>
     </div>
-  </div>
 </div>

@@ -85,7 +85,14 @@ export class CreateBookingComponent implements OnInit {
     { value: 'big', label: 'SUV / Grandes Voitures', icon: '🚙' },
     { value: 'salon', label: 'Salon', icon: '🛌' },
   ];
-
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const element = document.getElementsByClassName('header')[0];
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 500);
+  }
   ngOnInit() {
     this.initializeForm();
     this.loadTeams();

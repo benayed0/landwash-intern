@@ -1,8 +1,5 @@
 import {
   Component,
-  EventEmitter,
-  Input,
-  Output,
   OnInit,
   inject,
   signal,
@@ -14,11 +11,11 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MultiSelectModule } from 'primeng/multiselect';
 
@@ -42,7 +39,6 @@ import { HotToastService } from '@ngneat/hot-toast';
     InputTextModule,
     InputNumberModule,
     DropdownModule,
-    CalendarModule,
     InputSwitchModule,
     MultiSelectModule,
   ],
@@ -50,14 +46,12 @@ import { HotToastService } from '@ngneat/hot-toast';
   styleUrls: ['./create-discount.component.css'],
 })
 export class CreateDiscountComponent implements OnInit {
-  @Input() isOpen = false;
-  @Output() close = new EventEmitter<void>();
-  @Output() discountCreated = new EventEmitter<void>();
   minDate = new Date();
   private discountService = inject(DiscountService);
   private productService = inject(ProductService);
   private toast = inject(HotToastService);
   private fb = inject(FormBuilder);
+  private dialogRef = inject(MatDialogRef<CreateDiscountComponent>);
 
   discountForm!: FormGroup;
   isSubmitting = signal<boolean>(false);
@@ -164,8 +158,7 @@ export class CreateDiscountComponent implements OnInit {
     this.discountService.createDiscount(discountData).subscribe({
       next: () => {
         this.toast.success('Code de réduction créé avec succès!');
-        this.discountCreated.emit();
-        this.resetForm();
+        this.dialogRef.close(true); // Close with success result
         this.isSubmitting.set(false);
       },
       error: (error) => {
@@ -185,8 +178,7 @@ export class CreateDiscountComponent implements OnInit {
   }
 
   onCancel() {
-    this.resetForm();
-    this.close.emit();
+    this.dialogRef.close(false); // Close without success
   }
 
   private resetForm() {
@@ -250,5 +242,24 @@ export class CreateDiscountComponent implements OnInit {
 
   clearExpiry() {
     this.discountForm.patchValue({ expiresAt: null });
+  }
+
+  formatDateForInput(date: Date | string | null | undefined): string {
+    if (!date) return '';
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    // Format as YYYY-MM-DD for HTML5 date input
+    return dateObj.toISOString().split('T')[0];
+  }
+
+  onDateChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const dateValue = input.value;
+    if (dateValue) {
+      // Convert from YYYY-MM-DD to Date object
+      this.discountForm.patchValue({ expiresAt: new Date(dateValue) });
+    } else {
+      // Clear the date
+      this.discountForm.patchValue({ expiresAt: null });
+    }
   }
 }

@@ -35,15 +35,8 @@ export class AuthService {
   private userApiCall$: Observable<Personal | null> | null = null;
 
   constructor() {
-    console.log('🔑 AuthService: Constructor called');
-    console.log(
-      '🔑 AuthService: Token in localStorage:',
-      localStorage.getItem(this.tokenKey)
-    );
-
     // Load user data if token exists
     if (this.isLoggedIn()) {
-      console.log('🔑 AuthService: Token found, loading user data...');
       // Don't logout on error during initial load
       this.loadUserData().subscribe({
         error: (err) => {
@@ -92,30 +85,25 @@ export class AuthService {
     const token = this.getToken();
 
     if (!token) {
-      console.log('🔑 loadUserData: No token available');
       return of(null);
     }
 
     // If we have cached data and not forcing refresh, return it
     const currentUser = this.getCurrentUser();
     if (currentUser && !forceRefresh) {
-      console.log('🔑 loadUserData: Returning cached user data');
       return of(currentUser);
     }
 
     // If we already have an ongoing API call and not forcing refresh, return it
     if (this.userApiCall$ && !forceRefresh) {
-      console.log('🔑 loadUserData: Returning existing API call');
       return this.userApiCall$;
     }
 
     // Make a new API call and cache it
-    console.log('🔑 loadUserData: Making new API call to /personals/me');
     this.userApiCall$ = this.http
       .get<Personal>(`${this.apiUrl}/personals/me`)
       .pipe(
         tap((user) => {
-          console.log('🔑 loadUserData: User data received:', user);
           this.currentUserSubject.next(user);
         }),
         shareReplay(1), // Share the result among multiple subscribers

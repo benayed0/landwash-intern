@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { DiscountService } from '../../../services/discount.service';
 import { Discount, DiscountDto } from '../../../models/discount.model';
 import { DiscountCardComponent } from '../discount-card/discount-card.component';
@@ -14,7 +15,6 @@ import { HotToastService } from '@ngneat/hot-toast';
     CommonModule,
     LoadingSpinnerComponent,
     DiscountCardComponent,
-    CreateDiscountComponent,
   ],
   templateUrl: './discount-list.component.html',
   styleUrls: ['./discount-list.component.css'],
@@ -22,11 +22,11 @@ import { HotToastService } from '@ngneat/hot-toast';
 export class DiscountListComponent implements OnInit {
   private discountService = inject(DiscountService);
   private toast = inject(HotToastService);
+  private dialog = inject(MatDialog);
 
   discounts = signal<Discount[]>([]);
   loading = signal<boolean>(false);
   activeTab = signal<string>('active');
-  showCreateModal = signal<boolean>(false);
 
   // Computed properties for filtered discounts
   activeDiscounts = computed(() =>
@@ -157,17 +157,20 @@ export class DiscountListComponent implements OnInit {
   }
 
   showCreateDiscountModal() {
-    this.showCreateModal.set(true);
-  }
+    const dialogRef = this.dialog.open(CreateDiscountComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container',
+      disableClose: false
+    });
 
-  hideCreateDiscountModal() {
-    this.showCreateModal.set(false);
-  }
-
-  onDiscountCreated() {
-    this.hideCreateDiscountModal();
-    this.loadDiscounts(); // Refresh the list
-    this.toast.success('Code de réduction créé avec succès!');
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Dialog closed with success (discount created)
+        this.loadDiscounts(); // Refresh the list
+      }
+    });
   }
 
   setActiveTab(tab: string) {

@@ -1,27 +1,12 @@
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
 .modal-content {
   background: var(--surface-ground, #1e1e1e);
   border-radius: 12px;
   width: 100%;
   max-width: 800px;
-  max-height: 90vh;
+  max-height: 85vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   border: 1px solid var(--surface-border, #333);
 }
 
@@ -160,9 +145,76 @@ label {
   flex-wrap: wrap;
 }
 
-.expiry-controls .p-calendar {
+.expiry-controls .date-input {
   flex: 1;
   min-width: 200px;
+}
+
+/* Date Input Styling */
+.date-input {
+  padding: 10px 14px;
+  border: 1px solid var(--surface-border, #444);
+  border-radius: 8px;
+  background: var(--surface-ground, #1a1a1a);
+  color: var(--text-color, #fff);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  color-scheme: dark;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-height: 44px;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #c3ff00;
+  background: var(--surface-ground, #222);
+  box-shadow: 0 0 0 3px rgba(195, 255, 0, 0.15);
+}
+
+.date-input:hover {
+  border-color: #666;
+}
+
+/* Style the calendar icon with brand color #C3FF00 */
+.date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23C3FF00' d='M11 2V1h-1v1H6V1H5v1H1v14h14V2h-4zM2 3h3v1h1V3h4v1h1V3h3v2H2V3zm0 3h12v9H2V6z'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+  transition: all 0.2s;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(195, 255, 0, 0.15);
+  transform: scale(1.1);
+}
+
+/* Firefox date input icon */
+.date-input::-moz-calendar-picker-indicator {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23C3FF00' d='M11 2V1h-1v1H6V1H5v1H1v14h14V2h-4zM2 3h3v1h1V3h4v1h1V3h3v2H2V3zm0 3h12v9H2V6z'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.date-input::-moz-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(195, 255, 0, 0.15);
 }
 
 .quick-expiry {
@@ -295,10 +347,6 @@ label {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .modal-overlay {
-    padding: 10px;
-  }
-
   .modal-content {
     max-height: 95vh;
   }
@@ -321,7 +369,7 @@ label {
     gap: 12px;
   }
 
-  .expiry-controls .p-calendar {
+  .expiry-controls .date-input {
     min-width: unset;
   }
 

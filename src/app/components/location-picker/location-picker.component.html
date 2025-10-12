@@ -26,7 +26,10 @@
           <div class="suggestion-type">{{ result.type }}</div>
         </div>
       </div>
-      <div class="no-results" *ngIf="searchResults().length === 0 && !isLoading()">
+      <div
+        class="no-results"
+        *ngIf="searchResults().length === 0 && !isLoading()"
+      >
         Aucun résultat trouvé
       </div>
     </div>
@@ -35,7 +38,8 @@
   <div class="map-container">
     <div #mapContainer class="map"></div>
     <div class="map-instructions" *ngIf="!currentSelection()">
-      Cliquez sur la carte pour sélectionner une localisation ou recherchez une adresse ci-dessus
+      Cliquez sur la carte pour sélectionner une localisation ou recherchez une
+      adresse ci-dessus
     </div>
   </div>
 
@@ -48,8 +52,8 @@
       </div>
       <div class="location-address">{{ currentSelection()?.address }}</div>
       <div class="location-coordinates">
-        Lat: {{ currentSelection()?.lat | number:'1.4-4' }},
-        Lng: {{ currentSelection()?.lng | number:'1.4-4' }}
+        Lat: {{ currentSelection()?.lat | number : "1.4-4" }}, Lng:
+        {{ currentSelection()?.lng | number : "1.4-4" }}
       </div>
     </div>
   </div>

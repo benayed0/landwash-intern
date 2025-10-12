@@ -39,6 +39,21 @@ export class UsersComponent implements OnInit {
   loading = false;
   error = '';
   showAddUserModal = false;
+  activeFilter: 'all' | 'active' | 'bookings' | 'orders' = 'all';
+
+  // Sort and filter options
+  sortBy: 'name' | 'date' | 'bookings' | 'orders' = 'date';
+  sortOrder: 'asc' | 'desc' = 'desc';
+  showSortMenu = false;
+  showFilterPanel = false;
+
+  // Advanced filters
+  statusFilters = {
+    active: false,
+    pending: false,
+    cancelled: false,
+    noSubscription: false
+  };
 
   constructor(private userService: UserService) {}
 
@@ -113,24 +128,136 @@ export class UsersComponent implements OnInit {
   }
 
   filterUsers(): void {
-    if (!this.searchTerm.trim()) {
-      this.filteredUsers = [...this.users];
-      return;
+    let result = [...this.users];
+
+    // Apply filter by category (quick filters)
+    switch (this.activeFilter) {
+      case 'active':
+        result = result.filter((u) => u.subscription?.status === 'active');
+        break;
+      case 'bookings':
+        result = result.filter((u) => u.bookings && u.bookings.length > 0);
+        break;
+      case 'orders':
+        result = result.filter((u) => u.orders && u.orders.length > 0);
+        break;
+      case 'all':
+      default:
+        break;
     }
 
-    const searchLower = this.searchTerm.toLowerCase().trim();
-    this.filteredUsers = this.users.filter((user) => {
-      const phoneMatch = user.phoneNumber?.toLowerCase().includes(searchLower);
-      const emailMatch = user.email?.toLowerCase().includes(searchLower);
-      const nameMatch = user.name?.toLowerCase().includes(searchLower);
+    // Apply advanced status filters
+    const activeStatusFilters = Object.entries(this.statusFilters)
+      .filter(([_, value]) => value)
+      .map(([key, _]) => key);
 
-      return phoneMatch || emailMatch || nameMatch;
+    if (activeStatusFilters.length > 0) {
+      result = result.filter((user) => {
+        if (activeStatusFilters.includes('active') && user.subscription?.status === 'active') return true;
+        if (activeStatusFilters.includes('pending') && user.subscription?.status === 'pending') return true;
+        if (activeStatusFilters.includes('cancelled') && user.subscription?.status === 'cancelled') return true;
+        if (activeStatusFilters.includes('noSubscription') && !user.subscription) return true;
+        return false;
+      });
+    }
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      result = result.filter((user) => {
+        const phoneMatch = user.phoneNumber?.toLowerCase().includes(searchLower);
+        const emailMatch = user.email?.toLowerCase().includes(searchLower);
+        const nameMatch = user.name?.toLowerCase().includes(searchLower);
+        return phoneMatch || emailMatch || nameMatch;
+      });
+    }
+
+    // Apply sorting
+    result = this.sortUsers(result);
+
+    this.filteredUsers = result;
+  }
+
+  sortUsers(users: User[]): User[] {
+    return users.sort((a, b) => {
+      let compareValue = 0;
+
+      switch (this.sortBy) {
+        case 'name':
+          const nameA = (a.name || '').toLowerCase();
+          const nameB = (b.name || '').toLowerCase();
+          compareValue = nameA.localeCompare(nameB);
+          break;
+        case 'date':
+          compareValue = new Date(a.memberSince).getTime() - new Date(b.memberSince).getTime();
+          break;
+        case 'bookings':
+          compareValue = (a.bookings?.length || 0) - (b.bookings?.length || 0);
+          break;
+        case 'orders':
+          compareValue = (a.orders?.length || 0) - (b.orders?.length || 0);
+          break;
+      }
+
+      return this.sortOrder === 'asc' ? compareValue : -compareValue;
     });
   }
 
   clearSearch(): void {
     this.searchTerm = '';
-    this.filteredUsers = [...this.users];
+    this.filterUsers();
+  }
+
+  setFilter(filter: 'all' | 'active' | 'bookings' | 'orders'): void {
+    this.activeFilter = filter;
+    this.filterUsers();
+  }
+
+  setSortBy(sortBy: 'name' | 'date' | 'bookings' | 'orders'): void {
+    if (this.sortBy === sortBy) {
+      // Toggle sort order if clicking the same sort option
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = sortBy;
+      this.sortOrder = 'desc';
+    }
+    this.showSortMenu = false;
+    this.filterUsers();
+  }
+
+  toggleSortMenu(): void {
+    this.showSortMenu = !this.showSortMenu;
+    if (this.showSortMenu) {
+      this.showFilterPanel = false;
+    }
+  }
+
+  toggleFilterPanel(): void {
+    this.showFilterPanel = !this.showFilterPanel;
+    if (this.showFilterPanel) {
+      this.showSortMenu = false;
+    }
+  }
+
+  toggleStatusFilter(status: keyof typeof this.statusFilters): void {
+    this.statusFilters[status] = !this.statusFilters[status];
+    this.filterUsers();
+  }
+
+  clearAllFilters(): void {
+    this.statusFilters = {
+      active: false,
+      pending: false,
+      cancelled: false,
+      noSubscription: false
+    };
+    this.activeFilter = 'all';
+    this.searchTerm = '';
+    this.filterUsers();
+  }
+
+  getActiveFiltersCount(): number {
+    return Object.values(this.statusFilters).filter(v => v).length;
   }
 
   withBookings() {

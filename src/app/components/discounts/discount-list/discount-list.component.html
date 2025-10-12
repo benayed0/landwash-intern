@@ -73,12 +73,4 @@
       ></app-discount-card>
     </div>
   </div>
-
-  <!-- Create Discount Modal -->
-  <app-create-discount
-    *ngIf="showCreateModal()"
-    [isOpen]="showCreateModal()"
-    (close)="hideCreateDiscountModal()"
-    (discountCreated)="onDiscountCreated()"
-  ></app-create-discount>
 </div>

@@ -15,11 +15,11 @@ import { ButtonModule } from 'primeng/button';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { CustomConfirmDialogComponent } from '../custom-confirm-dialog/custom-confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 import {
   Discount,
@@ -40,11 +40,9 @@ import { HotToastService } from '@ngneat/hot-toast';
     InputSwitchModule,
     InputTextModule,
     InputNumberModule,
-    CalendarModule,
     DropdownModule,
     TagModule,
     MultiSelectModule,
-    CustomConfirmDialogComponent,
   ],
   templateUrl: './discount-card.component.html',
   styleUrls: ['./discount-card.component.css'],
@@ -59,14 +57,12 @@ export class DiscountCardComponent implements OnChanges {
 
   private productService = inject(ProductService);
   private toast = inject(HotToastService);
+  private dialog = inject(MatDialog);
 
   isEditing = signal<boolean>(false);
   editForm = signal<Partial<Discount>>({});
   products = signal<Product[]>([]);
   isLoadingProducts = signal<boolean>(false);
-
-  // Custom dialog state
-  showDeleteDialog = signal<boolean>(false);
 
   // Type options
   discountTypeOptions = [
@@ -205,16 +201,25 @@ export class DiscountCardComponent implements OnChanges {
   }
 
   confirmDelete() {
-    this.showDeleteDialog.set(true);
-  }
+    const dialogData: ConfirmDialogData = {
+      title: 'Confirmer la suppression',
+      message: `Êtes-vous sûr de vouloir supprimer le code ${this.discount?.code || 'inconnu'} ?`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      isDanger: true
+    };
 
-  onDeleteConfirm() {
-    this.delete.emit(this.discount._id!);
-    this.showDeleteDialog.set(false);
-  }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: dialogData,
+      panelClass: 'custom-dialog-container'
+    });
 
-  onDeleteReject() {
-    this.showDeleteDialog.set(false);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.delete.emit(this.discount._id!);
+      }
+    });
   }
 
   toggleActive() {
@@ -266,5 +271,30 @@ export class DiscountCardComponent implements OnChanges {
     });
 
     return serviceLabels.join(', ');
+  }
+
+  formatDateForInput(date: Date | string | undefined): string {
+    if (!date) return '';
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    // Format as YYYY-MM-DD for HTML5 date input
+    return dateObj.toISOString().split('T')[0];
+  }
+
+  onDateChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const dateValue = input.value;
+    if (dateValue) {
+      // Convert from YYYY-MM-DD to Date object
+      this.editForm.update((form) => ({
+        ...form,
+        expiresAt: new Date(dateValue),
+      }));
+    } else {
+      // Clear the date
+      this.editForm.update((form) => ({
+        ...form,
+        expiresAt: undefined,
+      }));
+    }
   }
 }

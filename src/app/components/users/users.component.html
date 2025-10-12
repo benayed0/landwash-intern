@@ -1,12 +1,4 @@
 <div class="users-container">
-  <div class="page-header">
-    <h1>Utilisateurs</h1>
-    <button class="add-user-btn" (click)="openAddUserModal()">
-      <span class="btn-icon">+</span>
-      <span class="btn-text">Ajouter un utilisateur</span>
-    </button>
-  </div>
-
   <div class="content">
     <div *ngIf="loading" class="loading-state">
       <div class="loading-spinner"></div>
@@ -19,13 +11,57 @@
     </div>
 
     <div *ngIf="!loading && !error">
+      <!-- Header with Title and Add Button -->
+      <div class="header-section">
+        <div class="header-content">
+          <h1 class="page-title">Utilisateurs</h1>
+          <button class="add-user-btn-fab" (click)="openAddUserModal()" title="Ajouter un utilisateur">
+            +
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Stats Chips -->
+      <div class="stats-chips">
+        <div class="stat-chip" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
+          <div class="chip-icon">👥</div>
+          <div class="chip-content">
+            <div class="chip-number">{{ users.length }}</div>
+            <div class="chip-label">Total</div>
+          </div>
+        </div>
+        <div class="stat-chip" [class.active]="activeFilter === 'active'" (click)="setFilter('active')">
+          <div class="chip-icon">✓</div>
+          <div class="chip-content">
+            <div class="chip-number">{{ activeUsers().length }}</div>
+            <div class="chip-label">Actifs</div>
+          </div>
+        </div>
+        <div class="stat-chip" [class.active]="activeFilter === 'bookings'" (click)="setFilter('bookings')">
+          <div class="chip-icon">📅</div>
+          <div class="chip-content">
+            <div class="chip-number">{{ withBookings().length }}</div>
+            <div class="chip-label">Réservations</div>
+          </div>
+        </div>
+        <div class="stat-chip" [class.active]="activeFilter === 'orders'" (click)="setFilter('orders')">
+          <div class="chip-icon">🛒</div>
+          <div class="chip-content">
+            <div class="chip-number">{{ withOrders().length }}</div>
+            <div class="chip-label">Commandes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Bar with Sort & Filter -->
       <div class="search-section">
-        <div class="search-bar">
-          <div class="search-input-container">
+        <div class="search-controls">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
             <input
               type="text"
               class="search-input"
-              placeholder="Rechercher par nom, téléphone ou email..."
+              placeholder="Rechercher..."
               [(ngModel)]="searchTerm"
               (input)="onSearchChange()"
             />
@@ -33,35 +69,144 @@
               *ngIf="searchTerm"
               class="clear-search-btn"
               (click)="clearSearch()"
-              title="Effacer la recherche"
             >
               ✕
             </button>
           </div>
-          <div class="search-results-info" *ngIf="searchTerm">
-            {{ filteredUsers.length }} résultat(s) trouvé(s)
+
+          <div class="action-buttons">
+            <!-- Sort Button -->
+            <button
+              class="control-btn"
+              [class.active]="showSortMenu"
+              (click)="toggleSortMenu()"
+              title="Trier"
+            >
+              <span class="btn-icon">⇅</span>
+            </button>
+
+            <!-- Filter Button -->
+            <button
+              class="control-btn"
+              [class.active]="showFilterPanel || getActiveFiltersCount() > 0"
+              (click)="toggleFilterPanel()"
+              title="Filtrer"
+            >
+              <span class="btn-icon">⚡</span>
+              <span class="badge" *ngIf="getActiveFiltersCount() > 0">{{ getActiveFiltersCount() }}</span>
+            </button>
           </div>
         </div>
-      </div>
 
-      <div class="stats-section">
-        <div class="stat-card">
-          <div class="stat-number">{{ filteredUsers.length }}</div>
-          <div class="stat-label">
-            {{ searchTerm ? "Résultats" : "Total Utilisateurs" }}
+        <!-- Sort Menu -->
+        <div class="sort-menu" *ngIf="showSortMenu">
+          <div class="menu-header">
+            <span>Trier par</span>
           </div>
+          <button
+            class="menu-item"
+            [class.active]="sortBy === 'date'"
+            (click)="setSortBy('date')"
+          >
+            <span>📅 Date d'inscription</span>
+            <span class="sort-indicator" *ngIf="sortBy === 'date'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </button>
+          <button
+            class="menu-item"
+            [class.active]="sortBy === 'name'"
+            (click)="setSortBy('name')"
+          >
+            <span>👤 Nom</span>
+            <span class="sort-indicator" *ngIf="sortBy === 'name'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </button>
+          <button
+            class="menu-item"
+            [class.active]="sortBy === 'bookings'"
+            (click)="setSortBy('bookings')"
+          >
+            <span>📅 Réservations</span>
+            <span class="sort-indicator" *ngIf="sortBy === 'bookings'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </button>
+          <button
+            class="menu-item"
+            [class.active]="sortBy === 'orders'"
+            (click)="setSortBy('orders')"
+          >
+            <span>🛒 Commandes</span>
+            <span class="sort-indicator" *ngIf="sortBy === 'orders'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </button>
         </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ activeUsers().length }}</div>
-          <div class="stat-label">Abonnés Actifs</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ withBookings().length }}</div>
-          <div class="stat-label">Avec Réservations</div>
+
+        <!-- Filter Panel -->
+        <div class="filter-panel" *ngIf="showFilterPanel">
+          <div class="menu-header">
+            <span>Statut d'abonnement</span>
+            <button
+              class="clear-filters-btn"
+              *ngIf="getActiveFiltersCount() > 0"
+              (click)="clearAllFilters()"
+            >
+              Réinitialiser
+            </button>
+          </div>
+          <label class="filter-checkbox">
+            <input
+              type="checkbox"
+              [(ngModel)]="statusFilters.active"
+              (change)="toggleStatusFilter('active')"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-label">
+              <span class="status-dot active"></span>
+              Abonnés actifs
+            </span>
+          </label>
+          <label class="filter-checkbox">
+            <input
+              type="checkbox"
+              [(ngModel)]="statusFilters.pending"
+              (change)="toggleStatusFilter('pending')"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-label">
+              <span class="status-dot pending"></span>
+              En attente
+            </span>
+          </label>
+          <label class="filter-checkbox">
+            <input
+              type="checkbox"
+              [(ngModel)]="statusFilters.cancelled"
+              (change)="toggleStatusFilter('cancelled')"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-label">
+              <span class="status-dot cancelled"></span>
+              Annulés
+            </span>
+          </label>
+          <label class="filter-checkbox">
+            <input
+              type="checkbox"
+              [(ngModel)]="statusFilters.noSubscription"
+              (change)="toggleStatusFilter('noSubscription')"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-label">
+              <span class="status-dot"></span>
+              Sans abonnement
+            </span>
+          </label>
         </div>
       </div>
-
-      <div class="section-title">Liste des Utilisateurs</div>
 
       <div
         *ngIf="filteredUsers.length === 0 && !searchTerm"
@@ -79,74 +224,55 @@
         </button>
       </div>
 
-      <div
-        class="user-card"
-        *ngFor="let user of filteredUsers; trackBy: trackByUserId"
-      >
-        <div class="user-header">
-          <div class="user-avatar">
-            {{ getInitials(user.name) }}
-          </div>
-          <div class="user-main-info">
-            <div class="user-name">
-              {{ user.name || "Utilisateur Anonyme" }}
-            </div>
-            <div class="user-contact">
-              <span class="phone">{{ user.phoneNumber }}</span>
-              <span class="email" *ngIf="user.email">{{ user.email }}</span>
-            </div>
-            <div class="user-member-since">
-              Membre depuis: {{ formatDate(user.memberSince) }}
-            </div>
-          </div>
-          <div class="user-badges">
-            <div
-              class="subscription-badge"
-              [style.background-color]="
-                getSubscriptionStatusColor(user.subscription?.status)
-              "
-            >
-              {{ getSubscriptionStatusText(user.subscription?.status) }}
-            </div>
-          </div>
-        </div>
-
+      <!-- User Cards -->
+      <div class="users-list">
         <div
-          class="user-details"
-          *ngIf="
-            user.subscription ||
-            user.bookings.length > 0 ||
-            user.orders.length > 0
-          "
+          class="user-card"
+          *ngFor="let user of filteredUsers; trackBy: trackByUserId"
         >
-          <div class="detail-section" *ngIf="user.subscription">
-            <div class="detail-title">Abonnement</div>
-            <div class="subscription-info">
-              <div class="subscription-plan">
-                Plan: {{ user.subscription.plan | titlecase }}
-              </div>
-              <div class="subscription-usage">
-                {{ user.subscription.used }}/{{
-                  user.subscription.allowedBookingsPerMonth
-                }}
-                réservations utilisées
-              </div>
-              <div class="subscription-renewal">
-                Renouvellement: {{ formatDate(user.subscription.renewalDate) }}
-              </div>
+          <div class="user-card-header">
+            <div class="user-avatar">
+              {{ getInitials(user.name) }}
             </div>
+            <div class="user-info">
+              <div class="user-name">{{ user.name || "Utilisateur" }}</div>
+              <div class="user-phone">{{ user.phoneNumber }}</div>
+            </div>
+            <div
+              class="status-dot"
+              [class.active]="user.subscription?.status === 'active'"
+              [class.pending]="user.subscription?.status === 'pending'"
+              [class.cancelled]="user.subscription?.status === 'cancelled'"
+            ></div>
           </div>
 
-          <div class="detail-section">
-            <div class="detail-title">Activité</div>
-            <div class="activity-stats">
-              <div class="activity-item">
-                <span class="activity-count">{{ withBookings().length }}</span>
-                <span class="activity-label">Réservations</span>
+          <div class="user-card-body">
+            <div class="user-meta">
+              <div class="meta-item" *ngIf="user.email">
+                <span class="meta-icon">✉️</span>
+                <span class="meta-text">{{ user.email }}</span>
               </div>
-              <div class="activity-item">
-                <span class="activity-count">{{ withOrders().length }}</span>
-                <span class="activity-label">Commandes</span>
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-text">Depuis {{ formatDate(user.memberSince) }}</span>
+              </div>
+            </div>
+
+            <div class="user-stats" *ngIf="user.subscription || user.bookings.length > 0 || user.orders.length > 0">
+              <div class="stat-item" *ngIf="user.subscription">
+                <div class="stat-label">Abonnement</div>
+                <div class="stat-value">{{ user.subscription.plan | titlecase }}</div>
+                <div class="stat-usage">
+                  {{ user.subscription.used }}/{{ user.subscription.allowedBookingsPerMonth }}
+                </div>
+              </div>
+              <div class="stat-item" *ngIf="user.bookings.length > 0">
+                <div class="stat-label">Réservations</div>
+                <div class="stat-value">{{ user.bookings.length }}</div>
+              </div>
+              <div class="stat-item" *ngIf="user.orders.length > 0">
+                <div class="stat-label">Commandes</div>
+                <div class="stat-value">{{ user.orders.length }}</div>
               </div>
             </div>
           </div>

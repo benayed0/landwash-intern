@@ -68,8 +68,21 @@
   box-shadow: 0 4px 12px rgba(195, 255, 0, 0.3);
 }
 
+.btn-danger {
+  background: #ff4757;
+  color: #fff;
+  border: 1px solid #ff4757;
+}
+
+.btn-danger:hover {
+  background: #ff3838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+}
+
 .btn-confirm:active,
-.btn-cancel:active {
+.btn-cancel:active,
+.btn-danger:active {
   transform: translateY(0);
 }
 

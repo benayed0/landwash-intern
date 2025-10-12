@@ -53,19 +53,28 @@
 
 .code-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 2px solid var(--surface-border, #333);
-  border-radius: 6px;
-  background: var(--surface-ground, #1e1e1e);
-  color: var(--text-color, #fff);
+  padding: 10px 14px;
+  border: 1px solid var(--surface-border, #444);
+  border-radius: 8px;
+  background: var(--surface-ground, #1a1a1a);
+  color: #c3ff00;
   font-size: 1.25rem;
   font-weight: 600;
   font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .code-input:focus {
   outline: none;
   border-color: #c3ff00;
+  background: var(--surface-ground, #222);
+  box-shadow: 0 0 0 3px rgba(195, 255, 0, 0.15);
+}
+
+.code-input:hover {
+  border-color: #666;
 }
 
 .card-actions {
@@ -133,7 +142,7 @@
   min-width: 120px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .info-item.full-width {
@@ -201,10 +210,75 @@
 .type-dropdown,
 .value-input,
 .max-uses-input,
-.expiry-calendar,
-.products-dropdown {
+.date-input,
+.products-dropdown,
+.services-dropdown {
   width: 100%;
-  max-width: 200px;
+}
+
+.date-input {
+  padding: 10px 14px;
+  border: 1px solid var(--surface-border, #444);
+  border-radius: 8px;
+  background: var(--surface-ground, #1a1a1a);
+  color: var(--text-color, #fff);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  color-scheme: dark;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #c3ff00;
+  background: var(--surface-ground, #222);
+  box-shadow: 0 0 0 3px rgba(195, 255, 0, 0.15);
+}
+
+.date-input:hover {
+  border-color: #666;
+}
+
+/* Style the calendar icon with brand color #C3FF00 */
+.date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23C3FF00' d='M11 2V1h-1v1H6V1H5v1H1v14h14V2h-4zM2 3h3v1h1V3h4v1h1V3h3v2H2V3zm0 3h12v9H2V6z'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+  transition: all 0.2s;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(195, 255, 0, 0.15);
+  transform: scale(1.1);
+}
+
+/* Firefox date input icon */
+.date-input::-moz-calendar-picker-indicator {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23C3FF00' d='M11 2V1h-1v1H6V1H5v1H1v14h14V2h-4zM2 3h3v1h1V3h4v1h1V3h3v2H2V3zm0 3h12v9H2V6z'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.date-input::-moz-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(195, 255, 0, 0.15);
 }
 
 .first-order-switch,
@@ -317,7 +391,7 @@
   .type-dropdown,
   .value-input,
   .max-uses-input,
-  .expiry-calendar,
+  .date-input,
   .products-dropdown {
     max-width: 100%;
   }
@@ -340,29 +414,120 @@
       padding: 4px 8px;
     }
 
-    .p-dropdown,
-    .p-inputnumber,
-    .p-calendar {
+    /* Dropdown Styling */
+    .p-dropdown {
+      background: var(--surface-ground, #1a1a1a) !important;
+      border: 1px solid var(--surface-border, #444) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+      transition: all 0.2s ease !important;
+
       .p-inputtext {
-        background: var(--surface-ground, #1e1e1e);
-        color: var(--text-color, #fff);
-        border-color: var(--surface-border, #333);
-        font-size: 13px;
+        background: transparent !important;
+        color: var(--text-color, #fff) !important;
+        border: none !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+      }
+
+      .p-dropdown-trigger {
+        color: #c3ff00 !important;
+        width: 2.5rem !important;
+      }
+
+      &:hover {
+        border-color: #666 !important;
+      }
+
+      &.p-focus,
+      &:focus {
+        border-color: #c3ff00 !important;
+        background: var(--surface-ground, #222) !important;
+        box-shadow: 0 0 0 3px rgba(195, 255, 0, 0.15) !important;
       }
     }
 
-    .p-dropdown-panel {
-      background: var(--surface-section, #2a2a2a);
-      border-color: var(--surface-border, #333);
+    /* InputNumber Styling */
+    .p-inputnumber {
+      .p-inputnumber-input {
+        background: var(--surface-ground, #1a1a1a) !important;
+        color: var(--text-color, #fff) !important;
+        border: 1px solid var(--surface-border, #444) !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+        text-align: left !important;
+      }
+
+      .p-inputnumber-input:hover {
+        border-color: #666 !important;
+      }
+
+      .p-inputnumber-input:focus {
+        border-color: #c3ff00 !important;
+        background: var(--surface-ground, #222) !important;
+        box-shadow: 0 0 0 3px rgba(195, 255, 0, 0.15) !important;
+      }
     }
 
-    .p-dropdown-item {
-      color: var(--text-color, #fff);
-      padding: 8px 12px;
+    /* MultiSelect Styling */
+    .p-multiselect {
+      .p-inputtext {
+        background: transparent !important;
+        color: var(--text-color, #fff) !important;
+        border: none !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+      }
     }
 
-    .p-dropdown-item:hover {
-      background: var(--surface-hover, #444);
+    .p-dropdown-panel,
+    .p-multiselect-panel {
+      background: var(--surface-section, #1a1a1a) !important;
+      border: 1px solid var(--surface-border, #444) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .p-dropdown-item,
+    .p-multiselect-item {
+      color: var(--text-color, #fff) !important;
+      padding: 10px 14px !important;
+      font-size: 14px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .p-dropdown-item:hover,
+    .p-multiselect-item:hover {
+      background: var(--surface-hover, #2a2a2a) !important;
+    }
+
+    .p-dropdown-item.p-highlight,
+    .p-multiselect-item.p-highlight {
+      background: rgba(195, 255, 0, 0.15) !important;
+      color: #c3ff00 !important;
+    }
+
+    .p-inputnumber-button {
+      background: var(--surface-ground, #2a2a2a) !important;
+      border-color: var(--surface-border, #444) !important;
+      color: var(--text-color, #fff) !important;
+
+      &:hover {
+        background: var(--surface-hover, #333) !important;
+        border-color: #666 !important;
+      }
+
+      &:active {
+        background: #c3ff00 !important;
+        color: #333 !important;
+        border-color: #c3ff00 !important;
+      }
     }
 
     .p-inputswitch {
@@ -384,21 +549,30 @@
     }
 
     .p-multiselect {
+      background: var(--surface-ground, #1a1a1a) !important;
+      border: 1px solid var(--surface-border, #444) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+
       .p-multiselect-label {
-        background: var(--surface-ground, #1e1e1e);
-        color: var(--text-color, #fff);
-        border-color: var(--surface-border, #333);
+        background: transparent !important;
+        color: var(--text-color, #fff) !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+      }
+
+      &:hover {
+        border-color: #666 !important;
+      }
+
+      &.p-focus {
+        border-color: #c3ff00 !important;
+        background: var(--surface-ground, #222) !important;
+        box-shadow: 0 0 0 3px rgba(195, 255, 0, 0.15) !important;
       }
     }
 
-    .p-multiselect-item {
-      color: var(--text-color, #fff);
-      padding: 8px 12px;
-    }
-
-    .p-multiselect-item:hover {
-      background: var(--surface-hover, #444);
-    }
     ::ng-deep .p-dialog {
       background: var(--surface-section, #2a2a2a) !important;
       border: 2px solid var(--surface-border, #333) !important;

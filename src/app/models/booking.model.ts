@@ -22,6 +22,7 @@ export interface Booking {
   _id?: string;
   type: BookingType;
   createdAt: Date;
+  updatedAt: Date;
   price: number;
   date: Date;
   startDate?: Date;
@@ -40,6 +41,11 @@ export interface Booking {
   };
   teamId?: string | TeamInfo;
   secondaryNumber?: string;
+  rating?: {
+    value: number;
+    comment?: string;
+    photoUrl?: string;
+  };
 }
 export interface BookingSlots {
   daySlots: { date: string; slots: [string, string][] }[]; // These are BOOKED slots

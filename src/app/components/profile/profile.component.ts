@@ -4,19 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Personal } from '../../models/personal.model';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
-import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    NavbarComponent,
-    BottomBarComponent,
-  ],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })

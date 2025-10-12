@@ -1,0 +1,164 @@
+<div class="view-booking-modal">
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2>Détails de la Réservation</h2>
+    <button class="close-btn" (click)="onClose()" type="button">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="modal-body loading-state">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="modal-body error-state">
+    <i class="pi pi-exclamation-triangle"></i>
+    <p>{{ error() }}</p>
+    <button class="retry-btn" (click)="ngOnInit()">Réessayer</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="booking() && !loading() && !error()" class="modal-body">
+    <!-- Status Badge -->
+    <div class="status-section">
+      <span class="status-badge" [class]="'status-' + statusColor()">
+        {{ statusLabel() }}
+      </span>
+    </div>
+
+    <!-- Client Information -->
+    <div class="info-section">
+      <h3>
+        <i class="pi pi-user"></i>
+        Informations Client
+      </h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Nom</span>
+          <span class="value">{{ getClientName() }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Téléphone</span>
+          <a
+            *ngIf="getClientPhone() !== 'N/A'"
+            [href]="'tel:' + getClientPhone()"
+            class="value phone-link"
+          >
+            <i class="pi pi-phone"></i>
+            {{ getClientPhone() }}
+          </a>
+          <span *ngIf="getClientPhone() === 'N/A'" class="value">N/A</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Email</span>
+          <span class="value">{{ getClientEmail() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Details -->
+    <div class="info-section">
+      <h3>
+        <i class="pi pi-calendar"></i>
+        Détails de la Réservation
+      </h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Date</span>
+          <span class="value">{{ formatDate(booking()?.date) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Heure</span>
+          <span class="value">{{ formatTime(booking()?.date) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Type de Service</span>
+          <span class="value">{{ serviceTypeLabel() }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Prix</span>
+          <span class="value price">{{ formatPrice(booking()?.price) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="info-section" *ngIf="booking()?.address">
+      <h3>
+        <i class="pi pi-map-marker"></i>
+        Adresse
+      </h3>
+      <a
+        *ngIf="booking()?.coordinates"
+        [href]="getGoogleMapsUrl()"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="address-box clickable"
+      >
+        <p>
+          <i class="pi pi-map-marker map-icon"></i>
+          {{ booking()?.address }}
+        </p>
+        <div class="coordinates">
+          <small>
+            Lat: {{ booking()?.coordinates?.[1] }}, Lng:
+            {{ booking()?.coordinates?.[0] }}
+          </small>
+          <i class="pi pi-external-link external-icon"></i>
+        </div>
+      </a>
+      <div *ngIf="!booking()?.coordinates" class="address-box">
+        <p>{{ booking()?.address }}</p>
+      </div>
+    </div>
+
+    <!-- Team Assignment -->
+    <div class="info-section">
+      <h3>
+        <i class="pi pi-users"></i>
+        Équipe Assignée
+      </h3>
+      <div class="info-grid">
+        <div class="info-item full-width">
+          <span class="label">Équipe</span>
+          <span class="value">{{ getTeamName() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="info-section" *ngIf="booking()?.rating">
+      <h3>
+        <i class="pi pi-comment"></i>
+        Commentaires
+      </h3>
+      <div class="comments-box">
+        <p>{{ booking()?.rating }}</p>
+      </div>
+    </div>
+
+    <!-- Timestamps -->
+    <div class="info-section timestamps">
+      <div class="timestamp-item" *ngIf="booking()?.createdAt">
+        <span class="label">Créée le</span>
+        <span class="value">{{ formatDate(booking()?.createdAt) }}</span>
+      </div>
+      <div class="timestamp-item" *ngIf="booking()?.startDate">
+        <span class="label">Démarrée le</span>
+        <span class="value">{{ formatDate(booking()?.startDate) }}</span>
+      </div>
+      <div class="timestamp-item" *ngIf="booking()?.updatedAt">
+        <span class="label">Mise à jour le</span>
+        <span class="value">{{ formatDate(booking()?.updatedAt) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Footer -->
+  <div class="modal-footer" *ngIf="booking() && !loading() && !error()">
+    <button class="close-btn-footer" (click)="onClose()">Fermer</button>
+  </div>
+</div>

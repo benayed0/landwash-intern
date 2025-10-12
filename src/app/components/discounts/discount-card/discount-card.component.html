@@ -121,14 +121,14 @@
           >
             {{ formatDate(discount.expiresAt) }}
           </span>
-          <p-calendar
+          <input
             *ngIf="isEditing()"
-            [(ngModel)]="editForm().expiresAt"
-            [showIcon]="true"
-            placeholder="Date d'expiration (optionnel)"
-            dateFormat="dd/mm/yy"
-            class="expiry-calendar"
-          ></p-calendar>
+            type="date"
+            [value]="formatDateForInput(editForm().expiresAt)"
+            (change)="onDateChange($event)"
+            class="date-input"
+            placeholder="Date d'expiration"
+          />
         </div>
       </div>
 
@@ -233,20 +233,3 @@
     </button>
   </div>
 </div>
-
-<app-custom-confirm-dialog
-  [visible]="showDeleteDialog()"
-  [title]="'Confirmer la suppression'"
-  [message]="
-    'Êtes-vous sûr de vouloir supprimer le code ' +
-    (discount?.code || 'inconnu') +
-    ' ?'
-  "
-  [acceptLabel]="'Supprimer'"
-  [rejectLabel]="'Annuler'"
-  [acceptButtonClass]="'danger'"
-  [icon]="'pi-exclamation-triangle'"
-  (accept)="onDeleteConfirm()"
-  (reject)="onDeleteReject()"
-  (visibleChange)="showDeleteDialog.set($event)"
-></app-custom-confirm-dialog>

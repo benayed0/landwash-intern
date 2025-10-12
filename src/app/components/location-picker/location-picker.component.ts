@@ -1,9 +1,24 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ElementRef, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  signal,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import * as L from 'leaflet';
-import { LocationService, LocationSearchResult, SelectedLocation } from '../../services/location.service';
+import {
+  LocationService,
+  LocationSearchResult,
+  SelectedLocation,
+} from '../../services/location.service';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Subject, Subscription } from 'rxjs';
 
@@ -12,9 +27,11 @@ import { Subject, Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './location-picker.component.html',
-  styleUrls: ['./location-picker.component.css']
+  styleUrls: ['./location-picker.component.css'],
 })
-export class LocationPickerComponent implements OnInit, OnDestroy {
+export class LocationPickerComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   @Input() initialLocation?: SelectedLocation | null;
   @Input() placeholder: string = 'Rechercher une adresse...';
@@ -32,13 +49,25 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
   currentSelection = signal<SelectedLocation | null>(null);
 
   constructor(private locationService: LocationService) {}
-
+  ngAfterViewInit() {
+    // Defensive: mobile webviews love focusing inputs randomly
+    setTimeout(() => {
+      const inputEl = this.mapContainer.nativeElement
+        .closest('.location-picker')
+        ?.querySelector('.search-input') as HTMLInputElement;
+      if (inputEl) inputEl.blur();
+    }, 150);
+  }
   ngOnInit() {
     this.initializeMap();
     this.setupSearch();
 
     if (this.initialLocation) {
-      this.setLocation(this.initialLocation.lat, this.initialLocation.lng, this.initialLocation.address);
+      this.setLocation(
+        this.initialLocation.lat,
+        this.initialLocation.lng,
+        this.initialLocation.address
+      );
     }
   }
 
@@ -55,19 +84,25 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
     const defaultLng = 10.1815;
     const defaultZoom = 10;
 
-    this.map = L.map(this.mapContainer.nativeElement).setView([defaultLat, defaultLng], defaultZoom);
+    this.map = L.map(this.mapContainer.nativeElement).setView(
+      [defaultLat, defaultLng],
+      defaultZoom
+    );
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
     // Fix Leaflet default icon issue
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconRetinaUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+      iconUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      shadowUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
     });
 
     // Add click event to map
@@ -78,18 +113,20 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
   }
 
   private setupSearch() {
-    const searchSubscription = this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap(query => {
-        this.isLoading.set(true);
-        return this.locationService.searchLocations(query);
-      })
-    ).subscribe(results => {
-      this.searchResults.set(results);
-      this.showSuggestions.set(results.length > 0);
-      this.isLoading.set(false);
-    });
+    const searchSubscription = this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((query) => {
+          this.isLoading.set(true);
+          return this.locationService.searchLocations(query);
+        })
+      )
+      .subscribe((results) => {
+        this.searchResults.set(results);
+        this.showSuggestions.set(results.length > 0);
+        this.isLoading.set(false);
+      });
 
     this.subscription.add(searchSubscription);
   }
@@ -140,7 +177,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy {
   private setLocationFromCoordinates(lat: number, lng: number) {
     this.isLoading.set(true);
 
-    this.locationService.reverseGeocode(lat, lng).subscribe(address => {
+    this.locationService.reverseGeocode(lat, lng).subscribe((address) => {
       this.setLocation(lat, lng, address);
       this.isLoading.set(false);
     });

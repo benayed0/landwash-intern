@@ -12,8 +12,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { TeamService } from '../../../services/team.service';
-import { PersonalService } from '../../../services/personal.service';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
 import { HotToastService } from '@ngneat/hot-toast';
@@ -22,21 +25,27 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-create-team-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputSwitchModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    InputSwitchModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './create-team-modal.component.html',
   styleUrl: './create-team-modal.component.css',
 })
 export class CreateTeamModalComponent
   implements OnInit, OnChanges, AfterViewInit, OnDestroy
 {
-  @Input() isOpen = false;
   @Input() availablePersonals: Personal[] = [];
-  @Output() close = new EventEmitter<void>();
   @Output() teamCreated = new EventEmitter<Team>();
 
   private teamService = inject(TeamService);
-  private personalService = inject(PersonalService);
   private toast = inject(HotToastService);
+  private dialogRef = inject(MatDialogRef<CreateTeamModalComponent>);
 
   newTeam: Partial<Team> = {
     name: '',
@@ -61,23 +70,16 @@ export class CreateTeamModalComponent
   }
 
   ngAfterViewInit() {
-    // Map will be initialized when modal opens
+    // Initialize map after view is ready
+    setTimeout(() => this.initializeMap(), 200);
   }
 
   ngOnChanges() {
-    if (this.isOpen && !this.mapInitialized) {
-      setTimeout(() => this.initializeMap(), 200);
-    }
+    // Map initialization will be handled in ngAfterViewInit
   }
 
   ngOnDestroy() {
     this.destroyMap();
-  }
-
-  onModalOpen() {
-    if (!this.mapInitialized) {
-      setTimeout(() => this.initializeMap(), 100);
-    }
   }
 
   initializeMap() {
@@ -149,7 +151,7 @@ export class CreateTeamModalComponent
 
       // Adjust zoom level based on new radius for optimal view
       const newZoom = this.calculateZoomFromRadius(this.newTeam.radius || 1);
-      this.map?.setZoom(newZoom);
+      // this.map?.setZoom(newZoom);
     }
   }
 
@@ -254,7 +256,7 @@ export class CreateTeamModalComponent
   onCancel() {
     this.resetForm();
     this.destroyMap();
-    this.close.emit();
+    this.dialogRef.close();
   }
 
   resetForm() {

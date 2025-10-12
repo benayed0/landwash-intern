@@ -49,6 +49,8 @@
   margin-bottom: 25px;
   padding-bottom: 15px;
   border-bottom: 1px solid #2a2a2a;
+  display: flex;
+  justify-content: space-between;
 }
 
 .modal-header h3 {
@@ -77,6 +79,21 @@
   font-weight: 500;
 }
 
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #e5e5e5;
+  background: #333;
+}
 .form-input {
   width: 100%;
   padding: 12px;
@@ -147,7 +164,7 @@
   box-shadow: none !important;
   flex: 1;
   padding: 12px 15px !important;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   letter-spacing: 1px;
   font-size: 15px;
 }
@@ -166,7 +183,7 @@
   border-radius: 6px;
   color: #c3ff00;
   font-size: 12px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   letter-spacing: 0.5px;
   text-align: center;
 }

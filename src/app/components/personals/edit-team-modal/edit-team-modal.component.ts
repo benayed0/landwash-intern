@@ -12,8 +12,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { TeamService } from '../../../services/team.service';
-import { PersonalService } from '../../../services/personal.service';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
 import { HotToastService } from '@ngneat/hot-toast';
@@ -22,22 +25,28 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-edit-team-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputSwitchModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    InputSwitchModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './edit-team-modal.component.html',
   styleUrl: './edit-team-modal.component.css',
 })
 export class EditTeamModalComponent
   implements OnInit, OnChanges, AfterViewInit, OnDestroy
 {
-  @Input() isOpen = false;
   @Input() team: Team | null = null;
   @Input() availablePersonals: Personal[] = [];
-  @Output() close = new EventEmitter<void>();
   @Output() teamUpdated = new EventEmitter<Team>();
 
   private teamService = inject(TeamService);
-  private personalService = inject(PersonalService);
   private toast = inject(HotToastService);
+  private dialogRef = inject(MatDialogRef<EditTeamModalComponent>);
 
   editedTeam: Partial<Team> = {
     name: '',
@@ -62,13 +71,11 @@ export class EditTeamModalComponent
   }
 
   ngAfterViewInit() {
-    // Map will be initialized when modal opens
+    // Initialize map after view is ready
+    setTimeout(() => this.initializeMap(), 200);
   }
 
   ngOnChanges() {
-    if (this.isOpen && !this.mapInitialized) {
-      setTimeout(() => this.initializeMap(), 200);
-    }
     if (this.team) {
       this.initializeForm();
     }
@@ -293,7 +300,7 @@ export class EditTeamModalComponent
 
   onCancel() {
     this.destroyMap();
-    this.close.emit();
+    this.dialogRef.close();
   }
 
   destroyMap() {

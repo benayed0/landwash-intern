@@ -1,6 +1,5 @@
 import {
   Component,
-  Input,
   Output,
   EventEmitter,
   OnInit,
@@ -8,6 +7,12 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { HotToastService } from '@ngneat/hot-toast';
 import { PersonalService } from '../../../services/personal.service';
 import { Personal } from '../../../models/personal.model';
@@ -23,16 +28,25 @@ interface NewPersonal {
 @Component({
   selector: 'app-add-personal-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+  ],
   templateUrl: './add-personal-modal.component.html',
   styleUrl: './add-personal-modal.component.css',
 })
 export class AddPersonalModalComponent implements OnInit {
   personalService = inject(PersonalService);
   toast = inject(HotToastService);
-  @Input() isOpen = false;
+  dialogRef = inject(MatDialogRef<AddPersonalModalComponent>);
+
   @Output() confirmAdd = new EventEmitter<Personal>();
-  @Output() close = new EventEmitter<void>();
 
   newPersonal: NewPersonal = {
     email: '',
@@ -157,7 +171,7 @@ export class AddPersonalModalComponent implements OnInit {
   }
 
   onCancel() {
-    this.close.emit();
+    this.dialogRef.close();
     this.resetForm();
   }
 
@@ -173,11 +187,5 @@ export class AddPersonalModalComponent implements OnInit {
     this.isSubmitting = false;
     this.emailError = '';
     this.nameError = '';
-  }
-
-  onModalOpen() {
-    if (this.isOpen) {
-      this.resetForm();
-    }
   }
 }

@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
-import { BottomBarComponent } from '../shared/bottom-bar/bottom-bar.component';
 import { ProductModalComponent } from './product-modal/product-modal.component';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 
@@ -14,8 +12,6 @@ import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinn
   imports: [
     CommonModule,
     RouterModule,
-    NavbarComponent,
-    BottomBarComponent,
     ProductModalComponent,
     LoadingSpinnerComponent,
   ],

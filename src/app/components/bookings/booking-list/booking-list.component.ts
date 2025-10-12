@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BookingService } from '../../../services/booking.service';
 import { TeamService } from '../../../services/team.service';
 import { Booking, BookingStatus } from '../../../models/booking.model';
@@ -21,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PriceConfirmModalComponent } from '../price-confirm-modal/price-confirm-modal.component';
 import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team-assign-modal.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ViewBookingModalComponent } from '../view-booking-modal/view-booking-modal.component';
 
 @Component({
   selector: 'app-booking-list',
@@ -37,6 +39,8 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 export class BookingListComponent implements OnInit {
   private bookingService = inject(BookingService);
   private teamService = inject(TeamService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   dialog = inject(MatDialog);
 
   activeTab = 'all';
@@ -65,46 +69,79 @@ export class BookingListComponent implements OnInit {
   personnelSearchTerm = signal<string>('');
   clientSearchTerm = signal<string>('');
 
-  // Booking arrays as signals
-  pendingBookings = signal<Booking[]>([]);
-  confirmedBookings = signal<Booking[]>([]);
-  inProgressBookings = signal<Booking[]>([]);
-  completedBookings = signal<Booking[]>([]);
-  rejectedBookings = signal<Booking[]>([]);
-  canceledBookings = signal<Booking[]>([]);
+  // Use bookings from the centralized service
+  pendingBookings = this.bookingService.pendingBookings;
+  confirmedBookings = this.bookingService.confirmedBookings;
+  inProgressBookings = this.bookingService.inProgressBookings;
+  completedBookings = this.bookingService.completedBookings;
+  rejectedBookings = this.bookingService.rejectedBookings;
+  canceledBookings = this.bookingService.canceledBookings;
+
   // Modal state (only keeping this for reject operation)
   selectedBookingForRejection: Booking | null = null;
 
+  // Personnel-Team sync effect (must be at class level to run in injection context)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private personnelTeamSyncEffect = effect(() => {
+    const personnelId = this.selectedPersonnel();
+    if (personnelId !== 'all') {
+      const teamId = this.findTeamForPersonnel(personnelId);
+      if (teamId && teamId !== this.selectedTeam()) {
+        this.selectedTeam.set(teamId);
+      }
+    }
+  });
+
   ngOnInit() {
     this.loadBookings();
+    this.watchRouteParams();
     this.loadTeams();
     this.loadPersonnel();
     this.loadClients();
-    this.setupPersonnelTeamSync();
+  }
+
+  /**
+   * Watch for route parameters and open view booking modal if bookingId is present
+   */
+  private watchRouteParams() {
+    console.log('watching');
+
+    this.route.paramMap.subscribe((params) => {
+      const bookingId = params.get('bookingId');
+      console.log(bookingId);
+
+      if (bookingId) {
+        this.openViewBookingModal(bookingId);
+      }
+    });
+  }
+
+  /**
+   * Open view booking modal
+   */
+  openViewBookingModal(bookingId: string) {
+    const dialogRef = this.dialog.open(ViewBookingModalComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container',
+      data: { bookingId },
+    });
+
+    // Remove bookingId from route when dialog closes
+    dialogRef.afterClosed().subscribe(() => {
+      // Navigate back to bookings list without the bookingId parameter
+      this.router.navigate(['/dashboard/bookings'], {
+        queryParamsHandling: 'preserve',
+      });
+    });
   }
 
   loadBookings() {
     this.loading = true;
     this.bookingService.getAllBookings().subscribe({
-      next: (bookings) => {
-        this.pendingBookings.set(
-          bookings.filter((b) => b.status === 'pending')
-        );
-        this.confirmedBookings.set(
-          bookings.filter((b) => b.status === 'confirmed')
-        );
-        this.inProgressBookings.set(
-          bookings.filter((b) => b.status === 'in-progress')
-        );
-        this.completedBookings.set(
-          bookings.filter((b) => b.status === 'completed')
-        );
-        this.rejectedBookings.set(
-          bookings.filter((b) => b.status === 'rejected')
-        );
-        this.canceledBookings.set(
-          bookings.filter((b) => b.status === 'canceled')
-        );
+      next: () => {
+        // Bookings are now automatically stored in the service
         console.log('Loaded pending bookings:', this.pendingBookings().length);
         console.log(
           'Loaded confirmed bookings:',
@@ -121,10 +158,6 @@ export class BookingListComponent implements OnInit {
         console.log(
           'Loaded canceled bookings:',
           this.canceledBookings().length
-        );
-        console.log(
-          'Filtered pending bookings:',
-          this.filteredPendingBookings()
         );
 
         this.loading = false;
@@ -695,80 +728,13 @@ export class BookingListComponent implements OnInit {
       .updateBooking(event.bookingId, event.updateData)
       .subscribe({
         next: (updatedBooking) => {
-          // Update the booking in the appropriate array
-          this.updateBookingInArrays(updatedBooking);
+          // Service automatically updates state via tap operator
           console.log('Booking updated successfully:', updatedBooking);
         },
         error: (err: any) => {
           console.error('Error updating booking:', err);
         },
       });
-  }
-
-  private updateBookingInArrays(updatedBooking: Booking) {
-    // Remove from all arrays first
-    this.pendingBookings.set(
-      this.pendingBookings().filter((b) => b._id !== updatedBooking._id)
-    );
-    this.confirmedBookings.set(
-      this.confirmedBookings().filter((b) => b._id !== updatedBooking._id)
-    );
-    this.inProgressBookings.set(
-      this.inProgressBookings().filter((b) => b._id !== updatedBooking._id)
-    );
-    this.completedBookings.set(
-      this.completedBookings().filter((b) => b._id !== updatedBooking._id)
-    );
-    this.rejectedBookings.set(
-      this.rejectedBookings().filter((b) => b._id !== updatedBooking._id)
-    );
-    this.canceledBookings.set(
-      this.canceledBookings().filter((b) => b._id !== updatedBooking._id)
-    );
-
-    // Add to the correct array based on status
-    switch (updatedBooking.status) {
-      case 'pending':
-        this.pendingBookings.set([...this.pendingBookings(), updatedBooking]);
-        break;
-      case 'confirmed':
-        this.confirmedBookings.set([
-          ...this.confirmedBookings(),
-          updatedBooking,
-        ]);
-        break;
-      case 'in-progress':
-        this.inProgressBookings.set([
-          ...this.inProgressBookings(),
-          updatedBooking,
-        ]);
-        break;
-      case 'completed':
-        this.completedBookings.set([
-          ...this.completedBookings(),
-          updatedBooking,
-        ]);
-        break;
-      case 'rejected':
-        this.rejectedBookings.set([...this.rejectedBookings(), updatedBooking]);
-        break;
-      case 'canceled':
-        this.canceledBookings.set([...this.canceledBookings(), updatedBooking]);
-        break;
-    }
-  }
-
-  private setupPersonnelTeamSync() {
-    // Watch for changes in personnel selection and auto-select the corresponding team
-    effect(() => {
-      const personnelId = this.selectedPersonnel();
-      if (personnelId !== 'all') {
-        const teamId = this.findTeamForPersonnel(personnelId);
-        if (teamId && teamId !== this.selectedTeam()) {
-          this.selectedTeam.set(teamId);
-        }
-      }
-    });
   }
 
   private findTeamForPersonnel(personnelId: string): string | null {

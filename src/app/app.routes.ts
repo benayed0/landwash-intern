@@ -38,6 +38,11 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'dashboard/bookings/:bookingId',
+    component: DashboardComponent,
+    canActivate: [adminGuard],
+  },
+  {
     path: 'dashboard/create-booking',
     component: DashboardComponent,
     canActivate: [adminGuard],
