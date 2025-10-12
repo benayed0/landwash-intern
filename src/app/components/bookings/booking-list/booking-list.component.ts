@@ -39,11 +39,11 @@ export class BookingListComponent implements OnInit {
   private teamService = inject(TeamService);
   dialog = inject(MatDialog);
 
-  activeTab = 'pending';
+  activeTab = 'all';
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
   filtersExpanded = false;
-  sortBy: string = 'date-desc';
+  sortBy: string = 'date-asc';
 
   // Date filtering properties
   selectedPreset = signal<'all' | 'today' | '7days' | '30days' | 'custom'>(
@@ -230,6 +230,16 @@ export class BookingListComponent implements OnInit {
     let bookings: Booking[];
 
     switch (this.activeTab) {
+      case 'all':
+        bookings = [
+          ...this.filteredPendingBookings(),
+          ...this.filteredConfirmedBookings(),
+          ...this.filteredInProgressBookings(),
+          ...this.filteredCompletedBookings(),
+          ...this.filteredRejectedBookings(),
+          ...this.filteredCanceledBookings(),
+        ];
+        break;
       case 'pending':
         bookings = this.filteredPendingBookings();
         break;
@@ -242,11 +252,11 @@ export class BookingListComponent implements OnInit {
       case 'completed':
         bookings = this.filteredCompletedBookings();
         break;
-      case 'others':
-        bookings = [
-          ...this.filteredRejectedBookings(),
-          ...this.filteredCanceledBookings(),
-        ];
+      case 'rejected':
+        bookings = this.filteredRejectedBookings();
+        break;
+      case 'canceled':
+        bookings = this.filteredCanceledBookings();
         break;
       default:
         bookings = [];
@@ -257,6 +267,8 @@ export class BookingListComponent implements OnInit {
 
   get sectionTitle() {
     switch (this.activeTab) {
+      case 'all':
+        return 'Toutes les réservations';
       case 'pending':
         return 'Réservations en attente';
       case 'confirmed':
@@ -264,9 +276,11 @@ export class BookingListComponent implements OnInit {
       case 'in-progress':
         return 'Réservations en cours';
       case 'completed':
-        return 'Historique des réservations';
-      case 'others':
-        return 'Autres réservations (Rejetées & Annulées)';
+        return 'Réservations terminées';
+      case 'rejected':
+        return 'Réservations rejetées';
+      case 'canceled':
+        return 'Réservations annulées';
       default:
         return '';
     }
@@ -367,7 +381,9 @@ export class BookingListComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Démarrer la réservation',
-        message: `Êtes-vous sûr de vouloir démarrer cette réservation pour ${booking.userId?.name || 'ce client'} ?`,
+        message: `Êtes-vous sûr de vouloir démarrer cette réservation pour ${
+          booking.userId?.name || 'ce client'
+        } ?`,
         confirmText: 'Démarrer',
         cancelText: 'Annuler',
       },
@@ -785,6 +801,22 @@ export class BookingListComponent implements OnInit {
   onSortChange() {
     // Trigger change detection by just changing the sort property
     // The currentBookings getter will automatically apply the new sort
+  }
+
+  onStatusFilterChange() {
+    // Trigger change detection when status filter changes
+    // The currentBookings getter will automatically apply the new filter
+  }
+
+  getTotalBookings(): number {
+    return (
+      this.filteredPendingBookings().length +
+      this.filteredConfirmedBookings().length +
+      this.filteredInProgressBookings().length +
+      this.filteredCompletedBookings().length +
+      this.filteredRejectedBookings().length +
+      this.filteredCanceledBookings().length
+    );
   }
 
   private sortBookings(bookings: Booking[]): Booking[] {

@@ -31,42 +31,63 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(195, 255, 0, 0.3);
 }
-.tabs {
-  display: flex;
+/* Filter Section */
+.filter-section {
   background: #1a1a1a;
-  padding: 10px;
-  gap: 10px;
-  overflow-x: auto;
+  border-bottom: 1px solid #333;
+  padding: 12px 15px;
+  flex-shrink: 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.tab {
+.filter-row {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.status-selector {
+  display: flex;
+  gap: 10px;
   flex: 1;
-  min-width: 120px;
-  padding: 12px 20px;
-  background: #2a2a2a;
-  color: #999;
-  border: 1px solid #333;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: center;
-  font-weight: 600;
+}
+
+.status-selector label {
   font-size: 14px;
-}
-
-.tab.active {
-  background: #c3ff00;
-  color: #0a0a0a;
-  border-color: #c3ff00;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(195, 255, 0, 0.3);
-}
-
-.tab:hover:not(.active) {
-  background: #333;
   color: #e5e5e5;
-  transform: translateY(-1px);
+  font-weight: 600;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.status-select {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #e5e5e5;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.status-select:hover {
+  border-color: #c3ff00;
+  background: #333;
+}
+
+.status-select:focus {
+  border-color: #c3ff00;
+  box-shadow: 0 0 0 2px rgba(195, 255, 0, 0.1);
+}
+
+.status-select option {
+  background: #2a2a2a;
+  color: #e5e5e5;
+  padding: 8px;
 }
 
 .content {
@@ -82,16 +103,33 @@
   font-weight: 600;
 }
 
+/* Sort Selector */
+.sort-selector {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.sort-selector label {
+  font-size: 14px;
+  color: #e5e5e5;
+  font-weight: 600;
+  white-space: nowrap;
+  align-self: center;
+}
+
 .sort-select {
   background: #2a2a2a;
   border: 1px solid #444;
   border-radius: 6px;
   color: #e5e5e5;
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
   outline: none;
+  flex: 1;
+  min-width: 0;
 }
 
 .sort-select:hover {
@@ -256,23 +294,51 @@
 }
 
 @media (max-width: 768px) {
-  .tabs {
-    padding: 8px;
-    gap: 8px;
+  .page-header {
+    padding: 12px 15px;
   }
 
-  .tab {
-    min-width: 100px;
-    padding: 10px 16px;
-    font-size: 12px;
+  .page-header h1 {
+    font-size: 20px;
+  }
+
+  .add-order-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .filter-section {
+    padding: 10px 12px;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .status-selector,
+  .sort-selector {
+    width: 100%;
+  }
+
+  .status-selector label,
+  .sort-selector label {
+    font-size: 13px;
+  }
+
+  .status-select,
+  .sort-select {
+    padding: 10px 12px;
+    font-size: 13px;
   }
 
   .content {
-    padding: 15px;
+    padding: 12px;
   }
 
   .section-title {
-    font-size: 20px;
+    font-size: 18px;
+    margin-bottom: 15px;
   }
 
   .date-filter-container {
@@ -465,94 +531,6 @@
   transform: scale(0.95);
 }
 
-/* Sort Section */
-.sort-section {
-  background: #1a1a1a;
-  border-bottom: 1px solid #333;
-  padding: 12px 15px;
-  flex-shrink: 0;
-}
-
-.sort-selector {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sort-selector label {
-  font-size: 14px;
-  color: #e5e5e5;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  /* Sort section on mobile */
-  .sort-section {
-    padding: 10px 12px;
-  }
-
-  .sort-selector {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .sort-selector label {
-    font-size: 13px;
-  }
-
-  .sort-select {
-    max-width: 100%;
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-
-  /* Make tabs more compact */
-  .tabs {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #1a1a1a;
-    padding: 8px;
-  }
-
-  .tab {
-    padding: 8px 12px;
-    font-size: 11px;
-    min-width: 90px;
-  }
-
-  /* Reduce header padding */
-  .page-header {
-    padding: 12px 15px;
-  }
-
-  .page-header h1 {
-    font-size: 20px;
-  }
-
-  .add-order-btn {
-    padding: 8px 14px;
-    font-size: 13px;
-  }
-
-  .btn-icon {
-    font-size: 16px;
-  }
-
-  /* Reduce content padding */
-  .content {
-    padding: 12px;
-  }
-
-  .section-title {
-    font-size: 18px;
-    margin-bottom: 15px;
-  }
-
-}
 
 @media (max-width: 480px) {
   .searchable-select {

@@ -25,10 +25,10 @@ export class OrderListComponent implements OnInit {
   private orderService = inject(OrderService);
   private toast = inject(HotToastService);
 
-  activeTab = 'pending';
+  activeTab = 'all';
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
-  sortBy: string = 'date-desc';
+  sortBy: string = 'date-asc';
 
   // Modal state
   isCreateOrderModalOpen = signal(false);
@@ -73,6 +73,16 @@ export class OrderListComponent implements OnInit {
     let orders: Order[];
 
     switch (this.activeTab) {
+      case 'all':
+        orders = [
+          ...this.filteredPendingOrders(),
+          ...this.filteredConfirmedOrders(),
+          ...this.filteredShippedOrders(),
+          ...this.filteredDeliveredOrders(),
+          ...this.filteredCompletedOrders(),
+          ...this.filteredCancelledOrders(),
+        ];
+        break;
       case 'pending':
         orders = this.filteredPendingOrders();
         break;
@@ -138,6 +148,8 @@ export class OrderListComponent implements OnInit {
 
   get sectionTitle() {
     switch (this.activeTab) {
+      case 'all':
+        return 'Toutes les commandes';
       case 'pending':
         return 'Commandes en attente';
       case 'confirmed':
@@ -324,6 +336,22 @@ export class OrderListComponent implements OnInit {
   onSortChange() {
     // Trigger change detection by just changing the sort property
     // The currentOrders getter will automatically apply the new sort
+  }
+
+  onStatusChange() {
+    // Trigger change detection when status filter changes
+    // The currentOrders getter will automatically apply the new filter
+  }
+
+  getTotalOrders(): number {
+    return (
+      this.filteredPendingOrders().length +
+      this.filteredConfirmedOrders().length +
+      this.filteredShippedOrders().length +
+      this.filteredDeliveredOrders().length +
+      this.filteredCompletedOrders().length +
+      this.filteredCancelledOrders().length
+    );
   }
 
   private sortOrders(orders: Order[]): Order[] {

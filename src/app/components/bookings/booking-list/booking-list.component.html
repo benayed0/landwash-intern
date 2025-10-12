@@ -6,58 +6,33 @@
       <span class="btn-text">Nouvelle réservation</span>
     </button>
   </div>
-  <!-- Sub-tabs for Bookings -->
-  <div class="tabs">
-    <button
-      class="tab"
-      [class.active]="activeTab === 'pending'"
-      (click)="activeTab = 'pending'"
-    >
-      En attente ({{ filteredPendingBookings().length }})
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'confirmed'"
-      (click)="activeTab = 'confirmed'"
-    >
-      Confirmées ({{ filteredConfirmedBookings().length }})
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'in-progress'"
-      (click)="activeTab = 'in-progress'"
-    >
-      En cours ({{ filteredInProgressBookings().length }})
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'completed'"
-      (click)="activeTab = 'completed'"
-    >
-      Historique ({{ filteredCompletedBookings().length }})
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'others'"
-      (click)="activeTab = 'others'"
-    >
-      Autres ({{
-        filteredRejectedBookings().length + filteredCanceledBookings().length
-      }})
-    </button>
-  </div>
-  <!-- Sort Section -->
-  <div class="sort-section">
-    <div class="sort-selector">
-      <label for="sort-select">Trier par:</label>
-      <select id="sort-select" [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
-        <option value="date-desc">Date (récent d'abord)</option>
-        <option value="date-asc">Date (ancien d'abord)</option>
-        <option value="price-desc">Prix (élevé d'abord)</option>
-        <option value="price-asc">Prix (bas d'abord)</option>
-        <option value="client-name">Client (A-Z)</option>
-        <option value="status">Statut</option>
-      </select>
+  <!-- Filter and Sort Controls -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="status-selector">
+        <label for="status-select">Filtrer par statut:</label>
+        <select id="status-select" [(ngModel)]="activeTab" (change)="onStatusFilterChange()" class="status-select">
+          <option value="all">Tous les statuts ({{ getTotalBookings() }})</option>
+          <option value="pending">En attente ({{ filteredPendingBookings().length }})</option>
+          <option value="confirmed">Confirmées ({{ filteredConfirmedBookings().length }})</option>
+          <option value="in-progress">En cours ({{ filteredInProgressBookings().length }})</option>
+          <option value="completed">Terminées ({{ filteredCompletedBookings().length }})</option>
+          <option value="rejected">Rejetées ({{ filteredRejectedBookings().length }})</option>
+          <option value="canceled">Annulées ({{ filteredCanceledBookings().length }})</option>
+        </select>
+      </div>
+
+      <div class="sort-selector">
+        <label for="sort-select">Trier par:</label>
+        <select id="sort-select" [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+          <option value="date-desc">Date (récent d'abord)</option>
+          <option value="date-asc">Date (ancien d'abord)</option>
+          <option value="price-desc">Prix (élevé d'abord)</option>
+          <option value="price-asc">Prix (bas d'abord)</option>
+          <option value="client-name">Client (A-Z)</option>
+          <option value="status">Statut</option>
+        </select>
+      </div>
     </div>
   </div>
   <div class="content">

@@ -52,20 +52,19 @@
     ></app-loading-spinner>
 
     <!-- Empty State -->
-    <div *ngIf="!loading() && currentDiscounts().length === 0" class="empty-state">
+    <div
+      *ngIf="!loading() && currentDiscounts().length === 0"
+      class="empty-state"
+    >
       <div class="empty-icon">🎫</div>
       <p>Aucun code de réduction dans cette catégorie</p>
-      <button
-        *ngIf="activeTab() === 'active'"
-        class="create-first-btn"
-        (click)="showCreateDiscountModal()"
-      >
-        Créer le premier code de réduction
-      </button>
     </div>
 
     <!-- Discount Cards Grid -->
-    <div *ngIf="!loading() && currentDiscounts().length > 0" class="discounts-grid">
+    <div
+      *ngIf="!loading() && currentDiscounts().length > 0"
+      class="discounts-grid"
+    >
       <app-discount-card
         *ngFor="let discount of currentDiscounts()"
         [discount]="discount"
