@@ -104,11 +104,8 @@ export class BookingListComponent implements OnInit {
    * Watch for route parameters and open view booking modal if bookingId is present
    */
   private watchRouteParams() {
-    console.log('watching');
-
     this.route.paramMap.subscribe((params) => {
       const bookingId = params.get('bookingId');
-      console.log(bookingId);
 
       if (bookingId) {
         this.openViewBookingModal(bookingId);
@@ -142,24 +139,6 @@ export class BookingListComponent implements OnInit {
     this.bookingService.getAllBookings().subscribe({
       next: () => {
         // Bookings are now automatically stored in the service
-        console.log('Loaded pending bookings:', this.pendingBookings().length);
-        console.log(
-          'Loaded confirmed bookings:',
-          this.confirmedBookings().length
-        );
-        console.log(
-          'Loaded completed bookings:',
-          this.completedBookings().length
-        );
-        console.log(
-          'Loaded rejected bookings:',
-          this.rejectedBookings().length
-        );
-        console.log(
-          'Loaded canceled bookings:',
-          this.canceledBookings().length
-        );
-
         this.loading = false;
       },
       error: (err) => {

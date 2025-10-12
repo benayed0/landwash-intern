@@ -156,21 +156,14 @@ export class AuthService {
 
   // Method to check if user is admin (uses cache)
   checkIsAdmin(): Observable<boolean> {
-    console.log('🔑 checkIsAdmin: Called');
     if (!this.isLoggedIn()) {
-      console.log('🔑 checkIsAdmin: Not logged in, returning false');
       return of(false);
     }
 
     return this.loadUserData().pipe(
       map((user) => {
         const isAdmin = user?.role === 'admin' || false;
-        console.log(
-          '🔑 checkIsAdmin: User role is',
-          user?.role,
-          '- isAdmin?',
-          isAdmin
-        );
+
         return isAdmin;
       })
     );

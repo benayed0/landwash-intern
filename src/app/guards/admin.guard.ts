@@ -14,7 +14,6 @@ export const adminGuard = () => {
   // Check if user is admin (this will fetch user data if needed)
   return authService.checkIsAdmin().pipe(
     map((isAdmin) => {
-      console.log('🛡️ AdminGuard: isAdmin?', isAdmin);
       if (isAdmin) {
         return true;
       } else {
