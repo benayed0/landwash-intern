@@ -1,9 +1,14 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialog,
+} from '@angular/material/dialog';
 import { BookingService } from '../../../services/booking.service';
 import { Booking } from '../../../models/booking.model';
 import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team-assign-modal.component';
+import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
 
 export interface ViewBookingDialogData {
   bookingId: string;
@@ -12,7 +17,7 @@ export interface ViewBookingDialogData {
 @Component({
   selector: 'app-view-booking-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RatingDisplayComponent],
   templateUrl: './view-booking-modal.component.html',
   styleUrls: ['./view-booking-modal.component.css'],
 })
@@ -227,7 +232,7 @@ export class ViewBookingModalComponent implements OnInit {
       error: (err: any) => {
         console.error('Error assigning team:', err);
         this.actionLoading.set(false);
-        alert('Erreur lors de l\'assignation de l\'équipe');
+        alert("Erreur lors de l'assignation de l'équipe");
       },
     });
   }
@@ -292,7 +297,7 @@ export class ViewBookingModalComponent implements OnInit {
       error: (err: any) => {
         console.error('Error reassigning team:', err);
         this.actionLoading.set(false);
-        alert('Erreur lors de la réaffectation de l\'équipe');
+        alert("Erreur lors de la réaffectation de l'équipe");
       },
     });
   }

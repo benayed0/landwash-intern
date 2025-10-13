@@ -457,6 +457,115 @@
   transform: none;
 }
 
+/* Rating Display Styles */
+.rating-display {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  background: var(--surface-ground, #1a1a1a);
+  border-radius: 8px;
+  border: 1px solid rgba(195, 255, 0, 0.2);
+}
+
+.star {
+  font-size: 28px;
+  color: #444;
+  transition: all 0.2s ease;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.star.filled {
+  color: #c3ff00;
+  text-shadow: 0 0 10px rgba(195, 255, 0, 0.6);
+  animation: starGlow 2s ease-in-out infinite;
+}
+
+@keyframes starGlow {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+}
+
+.rating-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #c3ff00;
+  margin-left: 12px;
+  padding: 6px 14px;
+  background: rgba(195, 255, 0, 0.15);
+  border-radius: 16px;
+  border: 1px solid rgba(195, 255, 0, 0.3);
+}
+
+.rating-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-label,
+.photo-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c3ff00;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.comment-label i,
+.photo-label i {
+  font-size: 14px;
+}
+
+.comment-text {
+  margin: 0;
+  padding: 16px;
+  background: var(--surface-ground, #1a1a1a);
+  border-radius: 8px;
+  border-left: 3px solid #c3ff00;
+  color: var(--text-color, #fff);
+  line-height: 1.6;
+  font-style: italic;
+  word-break: break-word;
+}
+
+.rating-photo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rating-image {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid rgba(195, 255, 0, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rating-image:hover {
+  border-color: #c3ff00;
+  box-shadow: 0 4px 16px rgba(195, 255, 0, 0.3);
+  transform: scale(1.02);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .view-booking-modal {
@@ -500,5 +609,28 @@
 
   .close-btn-footer {
     width: 100%;
+  }
+
+  .star {
+    font-size: 24px;
+  }
+
+  .rating-value {
+    font-size: 16px;
+    padding: 5px 12px;
+  }
+
+  .rating-stars {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .rating-image {
+    max-height: 250px;
+  }
+
+  .comment-text {
+    padding: 12px;
+    font-size: 14px;
   }
 }

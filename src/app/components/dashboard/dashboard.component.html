@@ -21,8 +21,6 @@
   <!-- Sidebar Navigation -->
   <div class="sidebar" [class.open]="!sidebarCollapsed()">
     <nav class="sidebar-nav">
-      @if((authService.currentUser$ | async)?.role==='admin'){
-
       <button
         class="nav-item"
         [class.active]="viewType() === 'bookings'"
@@ -33,6 +31,7 @@
           >Réservations</span
         >
       </button>
+      @if((authService.currentUser$ | async)?.role==='admin'){
       <button
         class="nav-item"
         [class.active]="viewType() === 'orders'"
@@ -103,17 +102,6 @@
           >Réductions</span
         >
       </button>
-      }@else{
-      <button
-        class="nav-item"
-        [class.active]="viewType() === 'worker-dashboard'"
-        (click)="switchToWorkerDashboard()"
-      >
-        <span class="nav-icon">👷</span>
-        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
-          >Réservations</span
-        >
-      </button>
       }
       <button
         class="nav-item"
@@ -153,15 +141,6 @@
     <!-- Bookings View -->
     <div class="view-container" [class.active]="viewType() === 'bookings'">
       <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>
-    </div>
-
-    <div
-      class="view-container"
-      [class.active]="viewType() === 'worker-dashboard'"
-    >
-      <app-worker-dashboard
-        *ngIf="viewType() === 'worker-dashboard'"
-      ></app-worker-dashboard>
     </div>
 
     <!-- Orders View -->

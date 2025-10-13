@@ -37,7 +37,11 @@
               type="text"
               [(ngModel)]="searchTerm"
               (input)="onSearchChange()"
-              [placeholder]="activeTab === 'teams' ? 'Rechercher équipes...' : 'Rechercher personnel...'"
+              [placeholder]="
+                activeTab === 'teams'
+                  ? 'Rechercher équipes...'
+                  : 'Rechercher personnel...'
+              "
               class="search-input"
             />
             <button
@@ -74,18 +78,25 @@
             </button>
             <button
               class="control-btn"
-              [class.active]="showPersonalFilterPanel || getActiveRoleFiltersCount() > 0"
+              [class.active]="
+                showPersonalFilterPanel || getActiveRoleFiltersCount() > 0
+              "
               (click)="togglePersonalFilterPanel()"
               title="Filtrer"
             >
               <span class="btn-icon">⚡</span>
-              <span class="badge" *ngIf="getActiveRoleFiltersCount() > 0">{{ getActiveRoleFiltersCount() }}</span>
+              <span class="badge" *ngIf="getActiveRoleFiltersCount() > 0">{{
+                getActiveRoleFiltersCount()
+              }}</span>
             </button>
           </div>
         </div>
 
         <!-- Team Sort Menu -->
-        <div class="sort-menu" *ngIf="showTeamSortMenu && activeTab === 'teams'">
+        <div
+          class="sort-menu"
+          *ngIf="showTeamSortMenu && activeTab === 'teams'"
+        >
           <div class="menu-header">
             <span>Trier par</span>
           </div>
@@ -96,7 +107,7 @@
           >
             <span>📝 Nom</span>
             <span class="sort-indicator" *ngIf="teamSortBy === 'name'">
-              {{ teamSortOrder === 'asc' ? '↑' : '↓' }}
+              {{ teamSortOrder === "asc" ? "↑" : "↓" }}
             </span>
           </button>
           <button
@@ -106,13 +117,16 @@
           >
             <span>👥 Nombre de membres</span>
             <span class="sort-indicator" *ngIf="teamSortBy === 'members'">
-              {{ teamSortOrder === 'asc' ? '↑' : '↓' }}
+              {{ teamSortOrder === "asc" ? "↑" : "↓" }}
             </span>
           </button>
         </div>
 
         <!-- Personal Sort Menu -->
-        <div class="sort-menu" *ngIf="showPersonalSortMenu && activeTab === 'personnel'">
+        <div
+          class="sort-menu"
+          *ngIf="showPersonalSortMenu && activeTab === 'personnel'"
+        >
           <div class="menu-header">
             <span>Trier par</span>
           </div>
@@ -123,7 +137,7 @@
           >
             <span>👤 Nom</span>
             <span class="sort-indicator" *ngIf="personalSortBy === 'name'">
-              {{ personalSortOrder === 'asc' ? '↑' : '↓' }}
+              {{ personalSortOrder === "asc" ? "↑" : "↓" }}
             </span>
           </button>
           <button
@@ -133,13 +147,16 @@
           >
             <span>⭐ Rôle</span>
             <span class="sort-indicator" *ngIf="personalSortBy === 'role'">
-              {{ personalSortOrder === 'asc' ? '↑' : '↓' }}
+              {{ personalSortOrder === "asc" ? "↑" : "↓" }}
             </span>
           </button>
         </div>
 
         <!-- Personal Filter Panel -->
-        <div class="filter-panel" *ngIf="showPersonalFilterPanel && activeTab === 'personnel'">
+        <div
+          class="filter-panel"
+          *ngIf="showPersonalFilterPanel && activeTab === 'personnel'"
+        >
           <div class="menu-header">
             <span>Filtrer par rôle</span>
             <button
@@ -179,82 +196,102 @@
 
       <!-- Teams Section -->
       <div *ngIf="activeTab === 'teams'">
-      <div
-        *ngIf="filteredTeams.length === 0 && !searchTerm"
-        class="empty-state"
-      >
-        <p>Aucune équipe disponible</p>
-        <button class="add-btn-icon" (click)="openCreateTeamModal()" title="Créer une équipe">
-          ➕
-        </button>
-      </div>
+        <div
+          *ngIf="filteredTeams.length === 0 && !searchTerm"
+          class="empty-state"
+        >
+          <p>Aucune équipe disponible</p>
+          <button
+            class="add-btn-icon"
+            (click)="openCreateTeamModal()"
+            title="Créer une équipe"
+          >
+            ➕
+          </button>
+        </div>
 
-      <div *ngIf="filteredTeams.length === 0 && searchTerm" class="empty-state">
-        <p>Aucun résultat trouvé pour "{{ searchTerm }}"</p>
-      </div>
+        <div
+          *ngIf="filteredTeams.length === 0 && searchTerm"
+          class="empty-state"
+        >
+          <p>Aucun résultat trouvé pour "{{ searchTerm }}"</p>
+        </div>
 
-      <!-- Teams Table -->
-      <div class="table-container" *ngIf="filteredTeams.length > 0">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Équipe</th>
-              <th>Membres</th>
-              <th class="hide-mobile">Localisation</th>
-              <th>Actions</th>
-              <th class="add-column">
-                <button class="add-btn-icon" (click)="openCreateTeamModal()" title="Créer une équipe">
-                  ➕
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let team of paginatedTeams">
-              <td class="team-info-cell">
-                <div class="team-main-info">
-                  <div class="team-name-with-icon">{{ team.name }}</div>
-                  <div *ngIf="team.chiefId" class="team-chief-info">
-                    <span class="chief-crown">👑</span>
-                    <div class="chief-avatar-mini">
-                      {{ getInitials(getChiefInfo(team).name) }}
+        <!-- Teams Table -->
+        <div class="table-container" *ngIf="filteredTeams.length > 0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Équipe</th>
+                <th>Membres</th>
+                <th class="hide-mobile">Localisation</th>
+                <th>Actions</th>
+                <th class="add-column">
+                  <button
+                    class="add-btn-icon"
+                    (click)="openCreateTeamModal()"
+                    title="Créer une équipe"
+                  >
+                    ➕
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let team of paginatedTeams">
+                <td class="team-info-cell">
+                  <div class="team-main-info">
+                    <div class="team-name-with-icon">{{ team.name }}</div>
+                    <div *ngIf="team.chiefId" class="team-chief-info">
+                      <span class="chief-crown">👑</span>
+                      <div class="chief-avatar-mini">
+                        {{ getInitials(getChiefInfo(team).name) }}
+                      </div>
+                      <span class="chief-name-text">{{
+                        getChiefInfo(team).name
+                      }}</span>
                     </div>
-                    <span class="chief-name-text">{{ getChiefInfo(team).name }}</span>
                   </div>
-                </div>
-              </td>
-              <td>
-                <span class="member-badge">{{ team.members?.length || 0 }}</span>
-              </td>
-              <td class="hide-mobile">
-                <div *ngIf="team.coordinates" class="location-cell">
-                  <div>📍 {{ team.coordinates[1].toFixed(4) }}, {{ team.coordinates[0].toFixed(4) }}</div>
-                  <div *ngIf="team.radius" class="radius-text">🎯 {{ team.radius }}km</div>
-                </div>
-              </td>
-              <td>
-                <div class="table-actions">
-                  <button
-                    class="action-btn edit-btn"
-                    (click)="openEditTeam(team)"
-                    title="Modifier"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    class="action-btn delete-btn"
-                    (click)="openDeleteConfirm(team)"
-                    title="Supprimer"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </td>
-              <td class="add-column"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                </td>
+                <td>
+                  <span class="member-badge">{{
+                    team.members?.length || 0
+                  }}</span>
+                </td>
+                <td class="hide-mobile">
+                  <div *ngIf="team.coordinates" class="location-cell">
+                    <div>
+                      📍 {{ team.coordinates[1].toFixed(4) }},
+                      {{ team.coordinates[0].toFixed(4) }}
+                    </div>
+                    <div *ngIf="team.radius" class="radius-text">
+                      🎯 {{ team.radius / 1000 }}km
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button
+                      class="action-btn edit-btn"
+                      (click)="openEditTeam(team)"
+                      title="Modifier"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      class="action-btn delete-btn"
+                      (click)="openDeleteConfirm(team)"
+                      title="Supprimer"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </td>
+                <td class="add-column"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <!-- Teams Pagination -->
         <div class="pagination" *ngIf="totalTeamPages > 1">
@@ -292,7 +329,11 @@
           class="empty-state"
         >
           <p>Aucun personnel disponible</p>
-          <button class="add-btn-icon" (click)="openAddPersonalModal()" title="Créer un compte">
+          <button
+            class="add-btn-icon"
+            (click)="openAddPersonalModal()"
+            title="Créer un compte"
+          >
             ➕
           </button>
         </div>
@@ -314,7 +355,11 @@
                 <th class="hide-mobile">Téléphone</th>
                 <th>Rôle</th>
                 <th class="add-column">
-                  <button class="add-btn-icon" (click)="openAddPersonalModal()" title="Créer un compte">
+                  <button
+                    class="add-btn-icon"
+                    (click)="openAddPersonalModal()"
+                    title="Créer un compte"
+                  >
                     ➕
                   </button>
                 </th>
@@ -333,7 +378,10 @@
                 <td class="hide-mobile">{{ personal.email }}</td>
                 <td class="hide-mobile">{{ personal.phone }}</td>
                 <td>
-                  <span class="role-badge" [class.admin-badge]="personal.role === 'admin'">
+                  <span
+                    class="role-badge"
+                    [class.admin-badge]="personal.role === 'admin'"
+                  >
                     {{ personal.role === "admin" ? "Admin" : "Employé" }}
                   </span>
                 </td>
@@ -372,6 +420,5 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>

@@ -17,7 +17,6 @@ import { ProductsComponent } from '../products/products.component';
 import { TeamsComponent } from '../personals/teams/teams.component';
 import { UsersComponent } from '../users/users.component';
 import { ProfileComponent } from '../profile/profile.component';
-import { WorkerDashboardComponent } from '../worker-dashboard/worker-dashboard.component';
 import { DiscountListComponent } from '../discounts/discount-list/discount-list.component';
 
 @Component({
@@ -34,7 +33,6 @@ import { DiscountListComponent } from '../discounts/discount-list/discount-list.
     TeamsComponent,
     UsersComponent,
     ProfileComponent,
-    WorkerDashboardComponent,
     DiscountListComponent,
   ],
   templateUrl: './dashboard.component.html',
@@ -56,7 +54,6 @@ export class DashboardComponent implements OnInit {
     | 'users'
     | 'discounts'
     | 'profile'
-    | 'worker-dashboard'
   >('bookings');
 
   // Sidebar toggle state
@@ -97,8 +94,7 @@ export class DashboardComponent implements OnInit {
     | 'personals'
     | 'users'
     | 'discounts'
-    | 'profile'
-    | 'worker-dashboard' {
+    | 'profile' {
     return [
       'bookings',
       'orders',
@@ -109,7 +105,6 @@ export class DashboardComponent implements OnInit {
       'users',
       'discounts',
       'profile',
-      'worker-dashboard',
     ].includes(view);
   }
   getPageTitle(): string {
@@ -132,21 +127,15 @@ export class DashboardComponent implements OnInit {
         return 'Réductions';
       case 'profile':
         return 'Profil';
-      case 'worker-dashboard':
-        return 'Tableau de bord des employés';
       default:
         return '';
     }
   }
   switchToBookings() {
     this.hapticFeedback();
-    if (this.authService.isWebView()) {
-      // In WebView mode, just update the signal (Flutter handles navigation)
-      this.viewType.set('bookings');
-    } else {
-      // In browser mode, navigate to route
-      this.router.navigate(['/dashboard/bookings']);
-    }
+    // In WebView mode, just update the signal (Flutter handles navigation)
+    this.viewType.set('bookings');
+    this.router.navigate(['/dashboard/bookings']);
   }
 
   switchToUsers() {
@@ -171,16 +160,6 @@ export class DashboardComponent implements OnInit {
     } else {
       // In browser mode, navigate to route
       this.router.navigate(['/dashboard/discounts']);
-    }
-  }
-  switchToWorkerDashboard() {
-    this.hapticFeedback();
-    if (this.authService.isWebView()) {
-      // In WebView mode, just update the signal (Flutter handles navigation)
-      this.viewType.set('worker-dashboard');
-    } else {
-      // In browser mode, navigate to route
-      this.router.navigate(['/dashboard/worker-dashboard']);
     }
   }
 

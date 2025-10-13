@@ -5,6 +5,7 @@ import { TokenAuthComponent } from './components/token-auth/token-auth.component
 import { adminGuard } from './guards/admin.guard';
 import { noAuthGuard } from './guards/no-auth.guard';
 import { roleRedirectGuard } from './guards/role-redirect.guard';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   // {
@@ -26,6 +27,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [authGuard],
   },
   // {
   //   path: 'dashboard/:view',
@@ -35,7 +37,7 @@ export const routes: Routes = [
   {
     path: 'dashboard/bookings',
     component: DashboardComponent,
-    canActivate: [adminGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'dashboard/bookings/:bookingId',

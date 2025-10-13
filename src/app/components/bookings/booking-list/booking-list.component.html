@@ -11,20 +11,44 @@
     <div class="filter-row">
       <div class="status-selector">
         <label for="status-select">Filtrer par statut:</label>
-        <select id="status-select" [(ngModel)]="activeTab" (change)="onStatusFilterChange()" class="status-select">
-          <option value="all">Tous les statuts ({{ getTotalBookings() }})</option>
-          <option value="pending">En attente ({{ filteredPendingBookings().length }})</option>
-          <option value="confirmed">Confirmées ({{ filteredConfirmedBookings().length }})</option>
-          <option value="in-progress">En cours ({{ filteredInProgressBookings().length }})</option>
-          <option value="completed">Terminées ({{ filteredCompletedBookings().length }})</option>
-          <option value="rejected">Rejetées ({{ filteredRejectedBookings().length }})</option>
-          <option value="canceled">Annulées ({{ filteredCanceledBookings().length }})</option>
+        <select
+          id="status-select"
+          [(ngModel)]="activeTab"
+          (change)="onStatusFilterChange()"
+          class="status-select"
+        >
+          <option value="all">
+            Tous les statuts ({{ getTotalBookings() }})
+          </option>
+          <option value="pending">
+            En attente ({{ filteredPendingBookings().length }})
+          </option>
+          <option value="confirmed">
+            Confirmées ({{ filteredConfirmedBookings().length }})
+          </option>
+          <option value="in-progress">
+            En cours ({{ filteredInProgressBookings().length }})
+          </option>
+          <option value="completed">
+            Terminées ({{ filteredCompletedBookings().length }})
+          </option>
+          <option value="rejected">
+            Rejetées ({{ filteredRejectedBookings().length }})
+          </option>
+          <option value="canceled">
+            Annulées ({{ filteredCanceledBookings().length }})
+          </option>
         </select>
       </div>
 
       <div class="sort-selector">
         <label for="sort-select">Trier par:</label>
-        <select id="sort-select" [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+        <select
+          id="sort-select"
+          [(ngModel)]="sortBy"
+          (change)="onSortChange()"
+          class="sort-select"
+        >
           <option value="date-desc">Date (récent d'abord)</option>
           <option value="date-asc">Date (ancien d'abord)</option>
           <option value="price-desc">Prix (élevé d'abord)</option>
@@ -51,11 +75,11 @@
       <p>Aucune réservation dans cette catégorie</p>
     </div>
 
-    <div *ngIf="!loading && currentBookings.length > 0">
+    <div *ngIf="!loading && currentBookings.length > 0 && userRole">
       <app-booking-card
         *ngFor="let booking of currentBookings"
         [booking]="booking"
-        [userRole]="'admin'"
+        [userRole]="userRole"
         [showMapsButton]="false"
         (statusChange)="onStatusChange($event)"
         (requestComplete)="onRequestComplete($event)"

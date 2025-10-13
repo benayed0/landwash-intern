@@ -129,7 +129,10 @@
       </div>
       <!-- Reassign button for confirmed/in-progress bookings -->
       <button
-        *ngIf="booking()?.status === 'confirmed' || booking()?.status === 'in-progress'"
+        *ngIf="
+          booking()?.status === 'confirmed' ||
+          booking()?.status === 'in-progress'
+        "
         class="reassign-btn"
         (click)="onReassignTeam()"
         [disabled]="actionLoading()"
@@ -139,16 +142,13 @@
       </button>
     </div>
 
-    <!-- Comments -->
-    <div class="info-section" *ngIf="booking()?.rating">
-      <h3>
-        <i class="pi pi-comment"></i>
-        Commentaires
-      </h3>
-      <div class="comments-box">
-        <p>{{ booking()?.rating }}</p>
-      </div>
-    </div>
+    <!-- Rating Section -->
+    @if (booking()?.status === 'completed' && booking()?.rating) {
+    <app-rating-display
+      [rating]="booking()?.rating!"
+      variant="compact"
+    ></app-rating-display>
+    }
 
     <!-- Timestamps -->
     <div class="info-section timestamps">
@@ -177,7 +177,7 @@
         [disabled]="actionLoading()"
       >
         <i class="pi pi-check"></i>
-        {{ actionLoading() ? 'Confirmation...' : 'Confirmer' }}
+        {{ actionLoading() ? "Confirmation..." : "Confirmer" }}
       </button>
       <button
         class="reject-btn"
@@ -185,7 +185,7 @@
         [disabled]="actionLoading()"
       >
         <i class="pi pi-times"></i>
-        {{ actionLoading() ? 'Rejet...' : 'Rejeter' }}
+        {{ actionLoading() ? "Rejet..." : "Rejeter" }}
       </button>
     </div>
 
@@ -197,7 +197,7 @@
         [disabled]="actionLoading()"
       >
         <i class="pi pi-times"></i>
-        {{ actionLoading() ? 'Rejet...' : 'Rejeter' }}
+        {{ actionLoading() ? "Rejet..." : "Rejeter" }}
       </button>
     </div>
 

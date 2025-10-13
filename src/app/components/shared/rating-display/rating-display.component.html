@@ -1,0 +1,55 @@
+<div
+  class="rating-display"
+  [class.compact]="variant === 'compact'"
+  [class.detailed]="variant === 'detailed'"
+>
+  <!-- Header -->
+  <div class="rating-header">
+    <span class="rating-icon">⭐</span>
+    <span class="rating-label">{{
+      variant === "compact" ? "Évaluation Client" : "Évaluation Client"
+    }}</span>
+  </div>
+
+  <!-- Stars -->
+  <div class="rating-stars">
+    <span
+      *ngFor="let star of stars"
+      class="star"
+      [class.filled]="isStarFilled(star)"
+    >
+      ★
+    </span>
+    <span class="rating-value">{{ rating.value }}/5</span>
+  </div>
+
+  <!-- Comment -->
+  <div class="rating-comment" *ngIf="rating.comment">
+    <div class="comment-header" *ngIf="variant === 'detailed'">
+      <span class="comment-icon">💬</span>
+      <span class="comment-label">Commentaire</span>
+    </div>
+    <div
+      class="comment-content"
+      [class.compact-comment]="variant === 'compact'"
+    >
+      <span class="comment-icon-inline" *ngIf="variant === 'compact'">💬</span>
+      <span class="comment-text">{{ rating.comment }}</span>
+    </div>
+  </div>
+
+  <!-- Photo -->
+  <div class="rating-photo" *ngIf="rating.photoUrl">
+    <div class="photo-header" *ngIf="variant === 'detailed'">
+      <span class="photo-icon">📷</span>
+      <span class="photo-label">Photo</span>
+    </div>
+    <div class="photo-container" (click)="openImageFullscreen()">
+      <img
+        [src]="rating.photoUrl"
+        alt="Photo de la réservation"
+        class="rating-image"
+      />
+    </div>
+  </div>
+</div>

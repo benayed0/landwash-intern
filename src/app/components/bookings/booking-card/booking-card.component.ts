@@ -17,11 +17,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { Booking, BookingStatus, BookingSlots } from '../../../models/booking.model';
 import { DelayModalComponent } from '../delay-modal/delay-modal.component';
 import { BookingService } from '../../../services/booking.service';
+import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
 
 @Component({
   selector: 'app-booking-card',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RatingDisplayComponent],
   templateUrl: './booking-card.component.html',
   styleUrls: ['./booking-card.component.css'],
 })

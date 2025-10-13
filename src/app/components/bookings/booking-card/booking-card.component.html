@@ -206,6 +206,11 @@
     </button>
     }
   </div>
+
+  <!-- Rating Section (only for completed bookings) -->
+  @if (booking.status === 'completed' && booking.rating) {
+  <app-rating-display [rating]="booking.rating" variant="compact"></app-rating-display>
+  }
   @if (booking.teamId ) {
   <div class="team-info">
     <div class="team-details">

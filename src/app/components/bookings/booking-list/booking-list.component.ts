@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingService } from '../../../services/booking.service';
 import { TeamService } from '../../../services/team.service';
+import { AuthService } from '../../../services/auth.service';
 import { Booking, BookingStatus } from '../../../models/booking.model';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
@@ -39,6 +40,7 @@ import { ViewBookingModalComponent } from '../view-booking-modal/view-booking-mo
 export class BookingListComponent implements OnInit {
   private bookingService = inject(BookingService);
   private teamService = inject(TeamService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   dialog = inject(MatDialog);
@@ -48,6 +50,8 @@ export class BookingListComponent implements OnInit {
   operationLoading: { [key: string]: boolean } = {};
   filtersExpanded = false;
   sortBy: string = 'date-asc';
+  currentUser: Personal | null = null;
+  userRole: 'admin' | 'worker' | null = null;
 
   // Date filtering properties
   selectedPreset = signal<'all' | 'today' | '7days' | '30days' | 'custom'>(
@@ -93,6 +97,9 @@ export class BookingListComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.authService.checkIsAdmin().subscribe((isAdmin) => {
+      this.userRole = isAdmin ? 'admin' : 'worker';
+    });
     this.loadBookings();
     this.watchRouteParams();
     this.loadTeams();

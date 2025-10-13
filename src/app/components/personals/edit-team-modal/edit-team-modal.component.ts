@@ -8,11 +8,18 @@ import {
   OnChanges,
   inject,
   AfterViewInit,
+  Inject,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputSwitchModule } from 'primeng/inputswitch';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -40,6 +47,7 @@ import * as L from 'leaflet';
 export class EditTeamModalComponent
   implements OnInit, OnChanges, AfterViewInit, OnDestroy
 {
+  @ViewChild('mapContainer', { static: false }) mapContainer?: ElementRef;
   @Input() team: Team | null = null;
   @Input() availablePersonals: Personal[] = [];
   @Output() teamUpdated = new EventEmitter<Team>();
@@ -47,6 +55,17 @@ export class EditTeamModalComponent
   private teamService = inject(TeamService);
   private toast = inject(HotToastService);
   private dialogRef = inject(MatDialogRef<EditTeamModalComponent>);
+
+  constructor(
+    @Inject(MAT_DIALOG_DATA)
+    public data?: { team: Team; availablePersonals: Personal[] }
+  ) {
+    // Initialize inputs from dialog data if available
+    if (data) {
+      this.team = data.team;
+      this.availablePersonals = data.availablePersonals;
+    }
+  }
 
   editedTeam: Partial<Team> = {
     name: '',
@@ -72,7 +91,13 @@ export class EditTeamModalComponent
 
   ngAfterViewInit() {
     // Initialize map after view is ready
-    setTimeout(() => this.initializeMap(), 200);
+    setTimeout(() => {
+      try {
+        this.initializeMap();
+      } catch (error) {
+        console.error('Error initializing map in ngAfterViewInit:', error);
+      }
+    }, 200);
   }
 
   ngOnChanges() {
@@ -113,9 +138,16 @@ export class EditTeamModalComponent
   }
 
   initializeMap() {
-    if (this.mapInitialized || !document.getElementById('edit-map')) return;
+    console.log('Initializing map, mapContainer:', this.mapContainer, 'mapInitialized:', this.mapInitialized);
+
+    if (this.mapInitialized || !this.mapContainer) {
+      console.log('Skipping map init - already initialized or element not found');
+      return;
+    }
 
     try {
+      console.log('Starting map initialization with data:', this.editedTeam);
+
       // Initialize map centered on Tunisia or existing location
       const center = this.editedTeam.coordinates
         ? [this.editedTeam.coordinates[1], this.editedTeam.coordinates[0]]
@@ -126,16 +158,29 @@ export class EditTeamModalComponent
         this.editedTeam.radius || 1
       );
 
-      this.map = L.map('edit-map').setView(
+      this.map = L.map(this.mapContainer.nativeElement).setView(
         center as [number, number],
         this.editedTeam.coordinates ? zoomLevel : 7
       );
+
+      console.log('Map object created:', this.map);
 
       // Add OpenStreetMap tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(this.map);
+
+      // Fix Leaflet default icon issue (like in location-picker)
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl:
+          'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+        iconUrl:
+          'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+        shadowUrl:
+          'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      });
 
       // Add click event to map
       this.map.on('click', (e: L.LeafletMouseEvent) => {
@@ -151,8 +196,10 @@ export class EditTeamModalComponent
       }
 
       this.mapInitialized = true;
+      console.log('Map initialized successfully');
     } catch (error) {
       console.error('Error initializing map:', error);
+      this.toast.error('Erreur lors de l\'initialisation de la carte');
     }
   }
 

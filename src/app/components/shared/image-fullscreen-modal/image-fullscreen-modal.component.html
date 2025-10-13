@@ -1,0 +1,21 @@
+<div class="fullscreen-modal" (click)="onBackdropClick()">
+  <div class="modal-header">
+    <h3 *ngIf="data.title">{{ data.title }}</h3>
+    <button
+      class="close-btn"
+      (click)="close()"
+      type="button"
+      title="Fermer (Esc)"
+    >
+      ✕
+    </button>
+  </div>
+
+  <div class="image-container" (click)="onImageClick($event)">
+    <img
+      [src]="data.imageUrl"
+      alt="Image en plein écran"
+      class="fullscreen-image"
+    />
+  </div>
+</div>

@@ -16,12 +16,7 @@ import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-sp
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    LoadingSpinnerComponent,
-  ],
+  imports: [CommonModule, FormsModule, RouterModule, LoadingSpinnerComponent],
   templateUrl: './teams.component.html',
   styleUrl: './teams.component.css',
 })
@@ -35,6 +30,7 @@ export class TeamsComponent implements OnInit {
   selectedTeam: Team | null = null;
   isDeleting = false;
   loading = false;
+  isDialogOpen = false;
 
   // Tab functionality
   activeTab: 'teams' | 'personnel' = 'teams';
@@ -59,7 +55,7 @@ export class TeamsComponent implements OnInit {
   // Advanced filters for personnel
   roleFilters = {
     admin: false,
-    worker: false
+    worker: false,
   };
 
   // Pagination
@@ -131,8 +127,10 @@ export class TeamsComponent implements OnInit {
 
     if (activeRoleFilters.length > 0) {
       filteredPersonals = filteredPersonals.filter((personal) => {
-        if (activeRoleFilters.includes('admin') && personal.role === 'admin') return true;
-        if (activeRoleFilters.includes('worker') && personal.role === 'worker') return true;
+        if (activeRoleFilters.includes('admin') && personal.role === 'admin')
+          return true;
+        if (activeRoleFilters.includes('worker') && personal.role === 'worker')
+          return true;
         return false;
       });
     }
@@ -162,14 +160,18 @@ export class TeamsComponent implements OnInit {
 
       switch (this.teamSortBy) {
         case 'name':
-          compareValue = a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+          compareValue = a.name
+            .toLowerCase()
+            .localeCompare(b.name.toLowerCase());
           break;
         case 'members':
           compareValue = (a.members?.length || 0) - (b.members?.length || 0);
           break;
         case 'date':
           // Assuming teams have a creation date, otherwise use name
-          compareValue = a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+          compareValue = a.name
+            .toLowerCase()
+            .localeCompare(b.name.toLowerCase());
           break;
       }
 
@@ -183,7 +185,9 @@ export class TeamsComponent implements OnInit {
 
       switch (this.personalSortBy) {
         case 'name':
-          compareValue = a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+          compareValue = a.name
+            .toLowerCase()
+            .localeCompare(b.name.toLowerCase());
           break;
         case 'role':
           const roleA = a.role || '';
@@ -192,7 +196,9 @@ export class TeamsComponent implements OnInit {
           break;
         case 'date':
           // Assuming personals have a creation date, otherwise use name
-          compareValue = a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+          compareValue = a.name
+            .toLowerCase()
+            .localeCompare(b.name.toLowerCase());
           break;
       }
 
@@ -289,7 +295,8 @@ export class TeamsComponent implements OnInit {
   // Personal sort and filter methods
   setPersonalSortBy(sortBy: 'name' | 'role' | 'date'): void {
     if (this.personalSortBy === sortBy) {
-      this.personalSortOrder = this.personalSortOrder === 'asc' ? 'desc' : 'asc';
+      this.personalSortOrder =
+        this.personalSortOrder === 'asc' ? 'desc' : 'asc';
     } else {
       this.personalSortBy = sortBy;
       this.personalSortOrder = 'asc';
@@ -320,13 +327,13 @@ export class TeamsComponent implements OnInit {
   clearPersonalFilters(): void {
     this.roleFilters = {
       admin: false,
-      worker: false
+      worker: false,
     };
     this.updateFilteredLists();
   }
 
   getActiveRoleFiltersCount(): number {
-    return Object.values(this.roleFilters).filter(v => v).length;
+    return Object.values(this.roleFilters).filter((v) => v).length;
   }
 
   getChiefInfo(team: Team): Personal {
@@ -377,26 +384,55 @@ export class TeamsComponent implements OnInit {
   }
 
   openEditTeam(team: Team) {
-    this.selectedTeam = team;
-    const dialogRef = this.dialog.open(EditTeamModalComponent, {
-      width: '800px',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
-      disableClose: false,
-    });
+    // Prevent multiple dialogs from opening (Chrome fix)
+    if (this.isDialogOpen) {
+      console.log('Dialog already open, ignoring click');
+      return;
+    }
 
-    dialogRef.componentInstance.team = team;
-    dialogRef.componentInstance.availablePersonals = this.personals;
+    try {
+      this.isDialogOpen = true;
+      this.selectedTeam = team;
+      console.log('Opening edit dialog for team:', team);
 
-    dialogRef.componentInstance.teamUpdated.subscribe((updatedTeam: Team) => {
-      const index = this.teams.findIndex((t) => t._id === updatedTeam._id);
-      if (index !== -1) {
-        this.teams[index] = updatedTeam;
-      }
-      this.updateFilteredLists();
-      this.selectedTeam = null;
-      dialogRef.close();
-    });
+      const dialogRef = this.dialog.open(EditTeamModalComponent, {
+        width: '800px',
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        disableClose: false,
+        hasBackdrop: true,
+        data: {
+          team: team,
+          availablePersonals: this.personals,
+        },
+      });
+      console.log('Dialog ref created:', dialogRef);
+
+      // Subscribe to the teamUpdated event
+      const subscription = dialogRef.componentInstance.teamUpdated.subscribe(
+        (updatedTeam: Team) => {
+          console.log('Team updated:', updatedTeam);
+          const index = this.teams.findIndex((t) => t._id === updatedTeam._id);
+          if (index !== -1) {
+            this.teams[index] = updatedTeam;
+          }
+          this.updateFilteredLists();
+          this.selectedTeam = null;
+        }
+      );
+
+      // Clean up subscription when dialog closes
+      dialogRef.afterClosed().subscribe(() => {
+        subscription.unsubscribe();
+        this.selectedTeam = null;
+        this.isDialogOpen = false;
+        console.log('Edit dialog closed and cleaned up');
+      });
+    } catch (error) {
+      console.error('Error opening edit dialog:', error);
+      this.toast.error("Erreur lors de l'ouverture du dialogue");
+      this.isDialogOpen = false;
+    }
   }
 
   openDeleteConfirm(team: Team) {
