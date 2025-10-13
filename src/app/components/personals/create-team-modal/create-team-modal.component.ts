@@ -148,10 +148,6 @@ export class CreateTeamModalComponent
     if (this.radiusCircle && this.newTeam.coordinates) {
       // Convert km to meters for Leaflet
       this.radiusCircle.setRadius(this.newTeam.radius || 1);
-
-      // Adjust zoom level based on new radius for optimal view
-      const newZoom = this.calculateZoomFromRadius(this.newTeam.radius || 1);
-      // this.map?.setZoom(newZoom);
     }
   }
 
@@ -285,19 +281,5 @@ export class CreateTeamModalComponent
   getPersonalName(personalId: string): string {
     const personal = this.availablePersonals.find((p) => p._id === personalId);
     return personal?.name || 'Personnel inconnu';
-  }
-
-  calculateZoomFromRadius(radiusKm: number): number {
-    // Calculate appropriate zoom level based on radius
-    // Smaller radius = higher zoom (closer view)
-    // Larger radius = lower zoom (wider view)
-
-    if (radiusKm <= 1000) return 15; // Very close for small areas
-    if (radiusKm <= 3000) return 13; // Close for neighborhoods
-    if (radiusKm <= 5000) return 12; // City district level
-    if (radiusKm <= 10000) return 11; // City level
-    if (radiusKm <= 20000) return 10; // Multiple cities
-    if (radiusKm <= 50000) return 9; // Regional level
-    return 8; // Wide regional view
   }
 }

@@ -104,7 +104,15 @@ export class CreateBookingComponent implements OnInit {
   setMinDate() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    this.minDateString = tomorrow.toISOString().split('T')[0];
+    this.minDateString = this.formatDateToLocalString(tomorrow);
+  }
+
+  // Helper function to format date to local YYYY-MM-DD string without timezone issues
+  private formatDateToLocalString(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   initializeForm() {
@@ -167,9 +175,7 @@ export class CreateBookingComponent implements OnInit {
           // Find and select the nearest available date (without time)
           const nearestAvailableDate = this.findNearestAvailableSlot(slots);
           if (nearestAvailableDate) {
-            this.selectedDateString = nearestAvailableDate
-              .toISOString()
-              .split('T')[0];
+            this.selectedDateString = this.formatDateToLocalString(nearestAvailableDate);
             // Trigger the date change to load available time slots
             this.onDateInputChange({
               target: { value: this.selectedDateString },
@@ -252,7 +258,7 @@ export class CreateBookingComponent implements OnInit {
     this.bookingForm.get('date')?.setValue(selectedDate);
 
     if (selectedDate && this.bookedSlots()) {
-      const dateString = selectedDate.toISOString().split('T')[0];
+      const dateString = this.formatDateToLocalString(selectedDate);
       const daySlot = this.bookedSlots()?.daySlots.find(
         (slot) => slot.date === dateString
       );
@@ -370,7 +376,7 @@ export class CreateBookingComponent implements OnInit {
       const currentCheckDate = new Date(checkDate);
       currentCheckDate.setDate(checkDate.getDate() + dayOffset);
 
-      const dateString = currentCheckDate.toISOString().split('T')[0];
+      const dateString = this.formatDateToLocalString(currentCheckDate);
       const daySlot = slots.daySlots.find((slot) => slot.date === dateString);
 
       // Generate all possible time slots for this day

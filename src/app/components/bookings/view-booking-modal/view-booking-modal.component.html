@@ -127,6 +127,16 @@
           <span class="value">{{ getTeamName() }}</span>
         </div>
       </div>
+      <!-- Reassign button for confirmed/in-progress bookings -->
+      <button
+        *ngIf="booking()?.status === 'confirmed' || booking()?.status === 'in-progress'"
+        class="reassign-btn"
+        (click)="onReassignTeam()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-refresh"></i>
+        Réassigner l'équipe
+      </button>
     </div>
 
     <!-- Comments -->
@@ -159,6 +169,38 @@
 
   <!-- Modal Footer -->
   <div class="modal-footer" *ngIf="booking() && !loading() && !error()">
+    <!-- Action buttons for pending bookings -->
+    <div *ngIf="canConfirm()" class="action-buttons">
+      <button
+        class="confirm-btn"
+        (click)="onRequestConfirm()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-check"></i>
+        {{ actionLoading() ? 'Confirmation...' : 'Confirmer' }}
+      </button>
+      <button
+        class="reject-btn"
+        (click)="onRejectBooking()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-times"></i>
+        {{ actionLoading() ? 'Rejet...' : 'Rejeter' }}
+      </button>
+    </div>
+
+    <!-- Reject button for confirmed bookings -->
+    <div *ngIf="!canConfirm() && canReject()" class="action-buttons">
+      <button
+        class="reject-btn"
+        (click)="onRejectBooking()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-times"></i>
+        {{ actionLoading() ? 'Rejet...' : 'Rejeter' }}
+      </button>
+    </div>
+
     <button class="close-btn-footer" (click)="onClose()">Fermer</button>
   </div>
 </div>

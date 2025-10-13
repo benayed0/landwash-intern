@@ -276,8 +276,16 @@ export class DiscountCardComponent implements OnChanges {
   formatDateForInput(date: Date | string | undefined): string {
     if (!date) return '';
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    // Format as YYYY-MM-DD for HTML5 date input
-    return dateObj.toISOString().split('T')[0];
+    // Format as YYYY-MM-DD for HTML5 date input (use local timezone)
+    return this.formatDateToLocalString(dateObj);
+  }
+
+  // Helper function to format date to local YYYY-MM-DD string without timezone issues
+  private formatDateToLocalString(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   onDateChange(event: Event) {

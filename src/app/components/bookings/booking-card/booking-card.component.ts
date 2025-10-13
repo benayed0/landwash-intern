@@ -9,12 +9,14 @@ import {
   inject,
   ChangeDetectorRef,
   NgZone,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Booking, BookingStatus } from '../../../models/booking.model';
+import { Booking, BookingStatus, BookingSlots } from '../../../models/booking.model';
 import { DelayModalComponent } from '../delay-modal/delay-modal.component';
+import { BookingService } from '../../../services/booking.service';
 
 @Component({
   selector: 'app-booking-card',
@@ -57,11 +59,21 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     address: '',
     secondaryNumber: '',
   };
+  previousServiceType: 'small' | 'big' | 'salon' = 'small';
+
+  // Slot management for edit mode
+  bookedSlots = signal<BookingSlots | null>(null);
+  availableTimeSlots = signal<string[]>([]);
+  selectedDateString: string = '';
+  selectedTimeSlot: string = '';
+  minDateString: string = '';
+  workingHours = { start: '08:00', end: '18:00' };
 
   // Inject services
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
+  private bookingService = inject(BookingService);
 
   getVehicleTypeLabel(type: string): string {
     const labels: any = {
@@ -222,6 +234,193 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       address: this.booking.address || '',
       secondaryNumber: this.booking.secondaryNumber || '',
     };
+
+    // Initialize previous service type
+    this.previousServiceType = this.booking.type;
+
+    // Set min date for date picker
+    this.setMinDate();
+
+    // Extract date and time from booking (use local timezone)
+    const bookingDate = new Date(this.booking.date);
+    const year = bookingDate.getFullYear();
+    const month = (bookingDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = bookingDate.getDate().toString().padStart(2, '0');
+    this.selectedDateString = `${year}-${month}-${day}`;
+    const hours = bookingDate.getHours().toString().padStart(2, '0');
+    const minutes = bookingDate.getMinutes().toString().padStart(2, '0');
+    this.selectedTimeSlot = `${hours}:${minutes}`;
+
+    // Fetch available slots for the booking's location
+    if (this.booking.coordinates && this.booking.coordinates.length >= 2) {
+      this.getSlots();
+    }
+  }
+
+  setMinDate() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = (tomorrow.getMonth() + 1).toString().padStart(2, '0');
+    const day = tomorrow.getDate().toString().padStart(2, '0');
+    this.minDateString = `${year}-${month}-${day}`;
+  }
+
+  getSlots() {
+    if (this.booking.coordinates && this.booking.coordinates.length >= 2) {
+      const [lng, lat] = this.booking.coordinates;
+      this.bookingService.getSlots(lat, lng).subscribe({
+        next: (slots) => {
+          this.bookedSlots.set(slots);
+          // Update available time slots for the currently selected date
+          if (this.selectedDateString) {
+            this.updateAvailableTimeSlots();
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching slots:', err);
+        },
+      });
+    }
+  }
+
+  onDateInputChange(event: any) {
+    const dateString = event.target.value;
+    this.selectedDateString = dateString;
+    this.selectedTimeSlot = ''; // Reset time slot when date changes
+    this.updateAvailableTimeSlots();
+  }
+
+  updateAvailableTimeSlots() {
+    if (this.selectedDateString && this.bookedSlots()) {
+      const daySlot = this.bookedSlots()?.daySlots.find(
+        (slot) => slot.date === this.selectedDateString
+      );
+
+      // Generate all possible time slots
+      const allTimeSlots = this.generateAllTimeSlots();
+
+      if (daySlot) {
+        // Remove booked time slots from all available slots
+        const bookedTimes = this.getBookedTimesForDay(daySlot.slots);
+        const availableSlots = allTimeSlots.filter(
+          (time) => !bookedTimes.includes(time)
+        );
+        this.availableTimeSlots.set(availableSlots);
+      } else {
+        // No bookings for this date, all time slots are available
+        this.availableTimeSlots.set(allTimeSlots);
+      }
+    }
+  }
+
+  onTimeSlotClick(timeSlot: string) {
+    this.selectedTimeSlot = timeSlot;
+
+    // Combine date and time to create a Date object
+    if (this.selectedDateString && timeSlot) {
+      const [hours, minutes] = timeSlot.split(':').map(Number);
+      const date = new Date(this.selectedDateString);
+      date.setHours(hours, minutes, 0, 0);
+
+      // Update edit form with the new datetime
+      this.editForm.date = this.formatDateTimeForInput(date);
+    }
+  }
+
+  onServiceTypeChange() {
+    // When service type changes, refresh available time slots
+    if (this.previousServiceType !== this.editForm.type) {
+      this.previousServiceType = this.editForm.type;
+
+      // Clear selected time slot when changing service type
+      this.selectedTimeSlot = '';
+
+      // Refresh available time slots if we have a date selected
+      if (this.selectedDateString && this.bookedSlots()) {
+        this.updateAvailableTimeSlots();
+      }
+    }
+  }
+
+  private generateAllTimeSlots(): string[] {
+    const serviceType = this.editForm.type;
+
+    // For non-salon services (small and big cars), only allow specific time slots
+    if (serviceType === 'small' || serviceType === 'big') {
+      return ['08:00', '11:00', '14:00'];
+    }
+
+    // For salon services, generate 30-minute interval slots from 8am to 6pm
+    const slots: string[] = [];
+    const [startHour] = this.workingHours.start.split(':').map(Number);
+    const [endHour] = this.workingHours.end.split(':').map(Number);
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      slots.push(`${hour.toString().padStart(2, '0')}:00`);
+      slots.push(`${hour.toString().padStart(2, '0')}:30`);
+    }
+    return slots;
+  }
+
+  private getBookedTimesForDay(bookedSlots: [string, string][]): string[] {
+    const serviceType = this.editForm.type;
+    const bookedTimes: string[] = [];
+
+    bookedSlots.forEach(([start, end]) => {
+      if (serviceType === 'small' || serviceType === 'big') {
+        // For car wash services, check if any of the specific slots (8h, 11h, 14h) overlap
+        const carWashSlots = ['08:00', '11:00', '14:00'];
+
+        const [startHourStr, startMinStr] = start.split(':');
+        const [endHourStr, endMinStr] = end.split(':');
+        const startHour = parseInt(startHourStr);
+        const startMin = parseInt(startMinStr);
+        const endHour = parseInt(endHourStr);
+        const endMin = parseInt(endMinStr);
+
+        const startMinutes = startHour * 60 + startMin;
+        const endMinutes = endHour * 60 + endMin;
+
+        carWashSlots.forEach((slot) => {
+          const slotHour = parseInt(slot.split(':')[0]);
+          const slotStartMinutes = slotHour * 60;
+          const slotEndMinutes = slotStartMinutes + 120; // Car wash is 2 hours (120 minutes)
+
+          // Check if this slot overlaps with the booked time range
+          if (slotStartMinutes < endMinutes && slotEndMinutes > startMinutes) {
+            bookedTimes.push(slot);
+          }
+        });
+      } else {
+        // For salon services, mark all 30-minute intervals between start and end as booked
+        const [startHourStr, startMinStr] = start.split(':');
+        const [endHourStr, endMinStr] = end.split(':');
+        const startHour = parseInt(startHourStr);
+        const startMin = parseInt(startMinStr);
+        const endHour = parseInt(endHourStr);
+        const endMin = parseInt(endMinStr);
+
+        const startMinutes = startHour * 60 + startMin;
+        const endMinutes = endHour * 60 + endMin;
+
+        // Generate all 30-minute slots and check if they fall within the booked range
+        const allSlots = this.generateAllTimeSlots();
+        allSlots.forEach((slot) => {
+          const [slotHourStr, slotMinStr] = slot.split(':');
+          const slotHour = parseInt(slotHourStr);
+          const slotMin = parseInt(slotMinStr);
+          const slotMinutes = slotHour * 60 + slotMin;
+
+          // If the slot falls within the booked time range, mark it as booked
+          if (slotMinutes >= startMinutes && slotMinutes < endMinutes) {
+            bookedTimes.push(slot);
+          }
+        });
+      }
+    });
+
+    return bookedTimes;
   }
 
   cancelEdit() {

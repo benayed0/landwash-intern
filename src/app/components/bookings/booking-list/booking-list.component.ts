@@ -569,7 +569,7 @@ export class BookingListComponent implements OnInit {
   setDatePreset(preset: 'all' | 'today' | '7days' | '30days' | 'custom') {
     this.selectedPreset.set(preset);
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = this.formatDateToLocalString(today);
 
     switch (preset) {
       case 'all':
@@ -584,14 +584,14 @@ export class BookingListComponent implements OnInit {
         const sevenDaysAgo = new Date(
           today.getTime() - 7 * 24 * 60 * 60 * 1000
         );
-        this.startDate.set(sevenDaysAgo.toISOString().split('T')[0]);
+        this.startDate.set(this.formatDateToLocalString(sevenDaysAgo));
         this.endDate.set(todayStr);
         break;
       case '30days':
         const thirtyDaysAgo = new Date(
           today.getTime() - 30 * 24 * 60 * 60 * 1000
         );
-        this.startDate.set(thirtyDaysAgo.toISOString().split('T')[0]);
+        this.startDate.set(this.formatDateToLocalString(thirtyDaysAgo));
         this.endDate.set(todayStr);
         break;
       case 'custom':
@@ -600,6 +600,14 @@ export class BookingListComponent implements OnInit {
         if (!this.endDate()) this.endDate.set(todayStr);
         break;
     }
+  }
+
+  // Helper function to format date to local YYYY-MM-DD string without timezone issues
+  private formatDateToLocalString(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   onStartDateChange(event: Event) {

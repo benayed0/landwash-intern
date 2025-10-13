@@ -1,8 +1,9 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { BookingService } from '../../../services/booking.service';
 import { Booking } from '../../../models/booking.model';
+import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team-assign-modal.component';
 
 export interface ViewBookingDialogData {
   bookingId: string;
@@ -19,10 +20,12 @@ export class ViewBookingModalComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<ViewBookingModalComponent>);
   private data = inject<ViewBookingDialogData>(MAT_DIALOG_DATA);
   private bookingService = inject(BookingService);
+  private dialog = inject(MatDialog);
 
   booking = signal<Booking | null>(null);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
+  actionLoading = signal<boolean>(false);
 
   // Computed properties for display
   statusLabel = computed(() => {
@@ -164,5 +167,133 @@ export class ViewBookingModalComponent implements OnInit {
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  // Check if we can confirm the booking (pending status)
+  canConfirm(): boolean {
+    return this.booking()?.status === 'pending';
+  }
+
+  // Check if we can reject the booking (pending or confirmed status)
+  canReject(): boolean {
+    const status = this.booking()?.status;
+    return status === 'pending' || status === 'confirmed';
+  }
+
+  // Open team assignment modal for confirming booking
+  onRequestConfirm() {
+    const booking = this.booking();
+    if (!booking) return;
+
+    const dialogRef = this.dialog.open(TeamAssignModalComponent, {
+      data: { booking, isReassignment: false },
+      width: '500px',
+      maxWidth: '95vw',
+      panelClass: 'custom-dialog-container',
+    });
+
+    dialogRef.componentInstance.confirmAssign.subscribe(
+      (event: { booking: Booking; teamId: string }) => {
+        this.onConfirmAssign(event);
+        dialogRef.close();
+      }
+    );
+  }
+
+  // Confirm booking with team assignment
+  onConfirmAssign(event: { booking: Booking; teamId: string }) {
+    this.actionLoading.set(true);
+    // First assign the team, then update status to confirmed
+    this.bookingService.assignTeam(event.booking._id!, event.teamId).subscribe({
+      next: () => {
+        // Now update status to confirmed
+        this.bookingService
+          .updateBookingStatus(event.booking._id!, 'confirmed')
+          .subscribe({
+            next: (updatedBooking: Booking) => {
+              console.log('Booking confirmed with team:', updatedBooking);
+              this.booking.set(updatedBooking);
+              this.actionLoading.set(false);
+              // Optionally close the modal after confirmation
+              // this.dialogRef.close({ action: 'confirmed', booking: updatedBooking });
+            },
+            error: (err: any) => {
+              console.error('Error updating booking status:', err);
+              this.actionLoading.set(false);
+              alert('Erreur lors de la confirmation de la réservation');
+            },
+          });
+      },
+      error: (err: any) => {
+        console.error('Error assigning team:', err);
+        this.actionLoading.set(false);
+        alert('Erreur lors de l\'assignation de l\'équipe');
+      },
+    });
+  }
+
+  // Reject booking
+  onRejectBooking() {
+    const booking = this.booking();
+    if (!booking?._id) return;
+
+    const confirmed = confirm(
+      'Êtes-vous sûr de vouloir rejeter cette réservation ?'
+    );
+    if (!confirmed) return;
+
+    this.actionLoading.set(true);
+    this.bookingService.updateBookingStatus(booking._id, 'rejected').subscribe({
+      next: (updatedBooking: Booking) => {
+        console.log('Booking rejected:', updatedBooking);
+        this.booking.set(updatedBooking);
+        this.actionLoading.set(false);
+        // Optionally close the modal after rejection
+        // this.dialogRef.close({ action: 'rejected', booking: updatedBooking });
+      },
+      error: (err: any) => {
+        console.error('Error rejecting booking:', err);
+        this.actionLoading.set(false);
+        alert('Erreur lors du rejet de la réservation');
+      },
+    });
+  }
+
+  // Reassign team (for confirmed bookings)
+  onReassignTeam() {
+    const booking = this.booking();
+    if (!booking) return;
+
+    const dialogRef = this.dialog.open(TeamAssignModalComponent, {
+      data: { booking, isReassignment: true },
+      width: '500px',
+      maxWidth: '95vw',
+      panelClass: 'custom-dialog-container',
+    });
+
+    dialogRef.componentInstance.reassignTeam.subscribe(
+      (event: { booking: Booking; teamId: string }) => {
+        this.onConfirmReassign(event);
+        dialogRef.close();
+      }
+    );
+  }
+
+  // Confirm team reassignment
+  onConfirmReassign(event: { booking: Booking; teamId: string }) {
+    this.actionLoading.set(true);
+    // Only assign the team, don't change the status
+    this.bookingService.assignTeam(event.booking._id!, event.teamId).subscribe({
+      next: (updatedBooking: Booking) => {
+        console.log('Team reassigned:', updatedBooking);
+        this.booking.set(updatedBooking);
+        this.actionLoading.set(false);
+      },
+      error: (err: any) => {
+        console.error('Error reassigning team:', err);
+        this.actionLoading.set(false);
+        alert('Erreur lors de la réaffectation de l\'équipe');
+      },
+    });
   }
 }

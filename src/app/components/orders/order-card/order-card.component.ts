@@ -158,6 +158,14 @@ export class OrderCardComponent {
   getTomorrowDate(): string {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    return this.formatDateToLocalString(tomorrow);
+  }
+
+  // Helper function to format date to local YYYY-MM-DD string without timezone issues
+  private formatDateToLocalString(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

@@ -42,7 +42,7 @@
   <div class="edit-form">
     <div class="form-group">
       <label>Type de véhicule</label>
-      <select [(ngModel)]="editForm.type" class="form-input">
+      <select [(ngModel)]="editForm.type" class="form-input" (change)="onServiceTypeChange()">
         <option value="small">Citadines / Petites Voitures</option>
         <option value="big">SUV / Grandes Voitures</option>
         <option value="salon">Salon</option>
@@ -74,13 +74,43 @@
     </div>
 
     <div class="form-group">
-      <label>Date et heure</label>
+      <label>Sélectionner une date</label>
       <input
-        type="datetime-local"
-        [(ngModel)]="editForm.date"
+        type="date"
+        [(ngModel)]="selectedDateString"
         class="date-input"
+        [min]="minDateString"
+        (change)="onDateInputChange($event)"
       />
     </div>
+
+    <!-- Available Time Slots Display -->
+    @if (selectedDateString && availableTimeSlots().length > 0) {
+    <div class="available-slots">
+      <label>Sélectionner un créneau horaire :</label>
+      <div class="time-slots">
+        <button
+          type="button"
+          *ngFor="let slot of availableTimeSlots()"
+          class="time-slot"
+          [class.selected]="selectedTimeSlot === slot"
+          (click)="onTimeSlotClick(slot)"
+        >
+          {{ slot }}
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- No slots available message -->
+    @if (selectedDateString && bookedSlots() && availableTimeSlots().length === 0) {
+    <div class="no-slots">
+      <p>
+        Aucun créneau disponible pour cette date. Tous les créneaux sont
+        réservés.
+      </p>
+    </div>
+    }
 
     <div class="form-group">
       <label>Statut</label>
