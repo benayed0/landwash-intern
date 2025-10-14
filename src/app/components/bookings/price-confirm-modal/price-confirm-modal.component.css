@@ -81,6 +81,19 @@
   margin-left: 5px;
 }
 
+.value.car-plate {
+  color: #c3ff00;
+  font-weight: 600;
+  font-family: monospace;
+  letter-spacing: 1px;
+  font-size: 16px;
+}
+
+.value.subscription-plan {
+  color: #c3ff00;
+  font-weight: 600;
+}
+
 .price-section {
   margin-top: 20px;
 }
@@ -118,6 +131,13 @@
   transform: scale(1.02);
 }
 
+.price-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border-color: #666;
+  color: #999;
+}
+
 .currency {
   color: #c3ff00;
   font-size: 20px;
@@ -129,6 +149,18 @@
   font-size: 12px;
   color: #999;
   text-align: center;
+}
+
+.subscription-notice {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(195, 255, 0, 0.1);
+  border: 1px solid rgba(195, 255, 0, 0.3);
+  border-radius: 8px;
+  color: #c3ff00;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
 }
 
 .modal-footer {

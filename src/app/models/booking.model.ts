@@ -39,6 +39,19 @@ export interface Booking {
     phoneNumber: string;
     name: string;
   };
+  subId: {
+    allowedBookingsPerMonth: number;
+    carPlate: string;
+    plan: string;
+    price: number;
+    renewalDate: string; // ISO date string
+    renewalType: string;
+    startDate: string; // ISO date string
+    status: string;
+    used: number;
+    userId: string;
+    _id: string;
+  };
   teamId?: string | TeamInfo;
   secondaryNumber?: string;
   rating?: {

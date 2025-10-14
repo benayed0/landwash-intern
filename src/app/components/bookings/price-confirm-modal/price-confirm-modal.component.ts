@@ -29,8 +29,26 @@ export class PriceConfirmModalComponent implements OnInit {
 
   ngOnInit() {
     if (this.booking) {
+      console.log(this.booking);
+
       this.finalPrice = this.booking.price || 0;
     }
+  }
+
+  isSubscriptionBooking(): boolean {
+    return this.booking?.withSub === true;
+  }
+
+  shouldShowCarPlate(): boolean {
+    return this.isSubscriptionBooking() && this.booking?.type !== 'salon';
+  }
+
+  getCarPlate(): string {
+    return this.booking?.subId?.carPlate || 'N/A';
+  }
+
+  getSubscriptionPlan(): string {
+    return this.booking?.subId?.plan || 'N/A';
   }
 
   getVehicleTypeLabel(type: string): string {
@@ -73,7 +91,7 @@ export class PriceConfirmModalComponent implements OnInit {
   }
 
   confirm() {
-    if (this.booking?._id && this.finalPrice > 0) {
+    if (this.booking?._id) {
       this.confirmComplete.emit({
         booking: this.booking,
         price: this.finalPrice,

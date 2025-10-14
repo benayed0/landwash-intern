@@ -14,7 +14,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Booking, BookingStatus, BookingSlots } from '../../../models/booking.model';
+import {
+  Booking,
+  BookingStatus,
+  BookingSlots,
+} from '../../../models/booking.model';
 import { DelayModalComponent } from '../delay-modal/delay-modal.component';
 import { BookingService } from '../../../services/booking.service';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
@@ -187,7 +191,11 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // Calculate time remaining (called only by the timer)
-  private calculateTimeRemaining(): { minutes: number; seconds: number; percentage: number } {
+  private calculateTimeRemaining(): {
+    minutes: number;
+    seconds: number;
+    percentage: number;
+  } {
     if (this.booking.status !== 'in-progress') {
       return { minutes: 0, seconds: 0, percentage: 0 };
     }
@@ -455,11 +463,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   isValidEdit(): boolean {
-    return (
-      this.editForm.price > 0 &&
-      this.editForm.date !== '' &&
-      this.editForm.address.trim() !== ''
-    );
+    return this.editForm.date !== '' && this.editForm.address.trim() !== '';
   }
 
   // Check if admin can edit (admin role and not editing)

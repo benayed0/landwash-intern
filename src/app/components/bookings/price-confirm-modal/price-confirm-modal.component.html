@@ -24,6 +24,14 @@
             booking?.userId?.name || booking?.userId?.email || "N/A"
           }}</span>
         </div>
+        <div class="info-row" *ngIf="shouldShowCarPlate()">
+          <span class="label">Plaque:</span>
+          <span class="value car-plate">{{ getCarPlate() }}</span>
+        </div>
+        <div class="info-row" *ngIf="isSubscriptionBooking()">
+          <span class="label">Abonnement:</span>
+          <span class="value subscription-plan">{{ getSubscriptionPlan() }}</span>
+        </div>
         <div class="info-row">
           <span class="label">Date:</span>
           <span class="value">{{ formatDate(booking?.date) }}</span>
@@ -50,12 +58,16 @@
             min="0"
             step="10"
             (keyup.enter)="confirm()"
+            [disabled]="isSubscriptionBooking()"
           />
           <span class="currency">DT</span>
         </div>
+        <div class="subscription-notice" *ngIf="isSubscriptionBooking()">
+          Service gratuit (inclus dans l'abonnement)
+        </div>
         <div
           class="original-price"
-          *ngIf="booking && finalPrice !== booking.price"
+          *ngIf="booking && !isSubscriptionBooking() && finalPrice !== booking.price"
         >
           Prix original: {{ booking.price }} DT
         </div>
