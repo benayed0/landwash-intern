@@ -57,6 +57,18 @@
           <option value="status">Statut</option>
         </select>
       </div>
+
+      <div class="user-selector">
+        <app-user-filter-select
+          [users]="clients()"
+          [selectedUserId]="selectedClient()"
+          [label]="'Filtrer par client'"
+          [placeholder]="'Rechercher un client...'"
+          [showPhoneNumber]="true"
+          [showEmail]="false"
+          (selectionChange)="selectedClient.set($event)"
+        ></app-user-filter-select>
+      </div>
     </div>
   </div>
   <div class="content">

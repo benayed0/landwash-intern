@@ -6,15 +6,19 @@ import { Subscription } from '../../../models/subscription.model';
 import { SubscriptionCardComponent } from '../subscription-card/subscription-card.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { CreateSubscriptionComponent } from '../create-subscription/create-subscription.component';
+import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-filter-select.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-subscription-list',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     LoadingSpinnerComponent,
     SubscriptionCardComponent,
     MatDialogModule,
+    UserFilterSelectComponent,
   ],
   templateUrl: './subscription-list.component.html',
   styleUrls: ['./subscription-list.component.css'],
@@ -27,24 +31,38 @@ export class SubscriptionListComponent implements OnInit {
   loading = signal<boolean>(false);
   activeTab = signal<string>('pending');
 
+  // User filtering properties
+  clients = signal<any[]>([]);
+  selectedClient = signal<string>('all');
+
   pendingSubscriptions = computed(() =>
-    this.subscriptions().filter((sub) => sub.status === 'pending')
+    this.filterSubscriptions(
+      this.subscriptions().filter((sub) => sub.status === 'pending')
+    )
   );
 
   activeSubscriptions = computed(() =>
-    this.subscriptions().filter((sub) => sub.status === 'active')
+    this.filterSubscriptions(
+      this.subscriptions().filter((sub) => sub.status === 'active')
+    )
   );
 
   inactiveSubscriptions = computed(() =>
-    this.subscriptions().filter((sub) => sub.status === 'inactive')
+    this.filterSubscriptions(
+      this.subscriptions().filter((sub) => sub.status === 'inactive')
+    )
   );
 
   canceledSubscriptions = computed(() =>
-    this.subscriptions().filter((sub) => sub.status === 'canceled')
+    this.filterSubscriptions(
+      this.subscriptions().filter((sub) => sub.status === 'canceled')
+    )
   );
 
   expiredSubscriptions = computed(() =>
-    this.subscriptions().filter((sub) => sub.status === 'expired')
+    this.filterSubscriptions(
+      this.subscriptions().filter((sub) => sub.status === 'expired')
+    )
   );
 
   currentSubscriptions = computed(() => {
@@ -83,6 +101,7 @@ export class SubscriptionListComponent implements OnInit {
 
   ngOnInit() {
     this.loadSubscriptions();
+    this.loadClients();
   }
 
   private loadSubscriptions() {
@@ -97,6 +116,40 @@ export class SubscriptionListComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  private loadClients() {
+    // Extract unique clients from subscriptions
+    this.subscriptionService.getAllSubscriptions().subscribe({
+      next: (subscriptions) => {
+        const uniqueClients = subscriptions
+          .map((subscription) => subscription.userId)
+          .filter((user) => user && user._id) // Filter out null/undefined users
+          .filter(
+            (user, index, self) =>
+              index === self.findIndex((u) => u._id === user._id)
+          );
+        this.clients.set(uniqueClients);
+      },
+      error: (err) => {
+        console.error('Error loading clients:', err);
+      },
+    });
+  }
+
+  private filterSubscriptions(subscriptions: Subscription[]): Subscription[] {
+    if (!subscriptions || subscriptions.length === 0) {
+      return [];
+    }
+
+    // Apply user filtering
+    if (this.selectedClient() !== 'all') {
+      return subscriptions.filter((subscription) => {
+        return subscription.userId && subscription.userId._id === this.selectedClient();
+      });
+    }
+
+    return subscriptions;
   }
 
   onSubscriptionStatusChange(event: {

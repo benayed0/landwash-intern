@@ -7,7 +7,7 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingService } from '../../../services/booking.service';
 import { TeamService } from '../../../services/team.service';
@@ -24,6 +24,7 @@ import { PriceConfirmModalComponent } from '../price-confirm-modal/price-confirm
 import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team-assign-modal.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { ViewBookingModalComponent } from '../view-booking-modal/view-booking-modal.component';
+import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-filter-select.component';
 
 @Component({
   selector: 'app-booking-list',
@@ -31,8 +32,10 @@ import { ViewBookingModalComponent } from '../view-booking-modal/view-booking-mo
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     BookingCardComponent,
     LoadingSpinnerComponent,
+    UserFilterSelectComponent,
   ],
   templateUrl: './booking-list.component.html',
   styleUrl: './booking-list.component.css',
@@ -71,7 +74,6 @@ export class BookingListComponent implements OnInit {
   // Search properties for filters
   teamSearchTerm = signal<string>('');
   personnelSearchTerm = signal<string>('');
-  clientSearchTerm = signal<string>('');
 
   // Use bookings from the centralized service
   pendingBookings = this.bookingService.pendingBookings;
@@ -183,10 +185,12 @@ export class BookingListComponent implements OnInit {
       next: (bookings) => {
         const uniqueClients = bookings
           .map((booking) => booking.userId)
+          .filter((user) => user && user._id) // Filter out null/undefined users
           .filter(
             (user, index, self) =>
               index === self.findIndex((u) => u._id === user._id)
           );
+        console.log('Loaded clients:', uniqueClients);
         this.clients.set(uniqueClients);
       },
       error: (err) => {
@@ -231,17 +235,6 @@ export class BookingListComponent implements OnInit {
       (person) =>
         person.name.toLowerCase().includes(searchTerm) ||
         person.email.toLowerCase().includes(searchTerm)
-    );
-  });
-
-  filteredClients = computed(() => {
-    const searchTerm = this.clientSearchTerm().toLowerCase();
-    if (!searchTerm) return this.clients();
-    return this.clients().filter(
-      (client) =>
-        client.name.toLowerCase().includes(searchTerm) ||
-        client.email.toLowerCase().includes(searchTerm) ||
-        (client.phoneNumber && client.phoneNumber.includes(searchTerm))
     );
   });
 

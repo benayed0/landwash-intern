@@ -1,0 +1,33 @@
+<mat-form-field appearance="outline" class="user-filter-select">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select
+    [value]="selectedUserId"
+    (selectionChange)="onSelectionChange($event.value)"
+  >
+    <mat-select-trigger>
+      <span>{{ getSelectedUserName() }}</span>
+    </mat-select-trigger>
+
+    <mat-option class="search-option" disabled>
+      <input
+        type="text"
+        class="search-input-native"
+        [placeholder]="placeholder"
+        [value]="searchTerm()"
+        (input)="searchTerm.set($any($event.target).value)"
+        (click)="$event.stopPropagation()"
+        (keydown)="$event.stopPropagation()"
+      />
+    </mat-option>
+
+    <mat-option value="all">
+      Tous les clients ({{ users.length }})
+    </mat-option>
+    <mat-option
+      *ngFor="let user of filteredUsers()"
+      [value]="user._id"
+    >
+      {{ getUserDisplayText(user) }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

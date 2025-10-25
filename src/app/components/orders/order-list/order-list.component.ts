@@ -10,6 +10,7 @@ import { CreateOrderModalComponent } from '../create-order-modal/create-order-mo
 import { HotToastService } from '@ngneat/hot-toast';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewOrderModalComponent } from '../view-order-modal/view-order-modal.component';
+import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-filter-select.component';
 
 @Component({
   selector: 'app-order-list',
@@ -20,6 +21,7 @@ import { ViewOrderModalComponent } from '../view-order-modal/view-order-modal.co
     OrderCardComponent,
     LoadingSpinnerComponent,
     CreateOrderModalComponent,
+    UserFilterSelectComponent,
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.css'],
@@ -48,6 +50,10 @@ export class OrderListComponent implements OnInit {
   endDate = signal<string>('');
   isFilterCollapsed = signal<boolean>(true);
 
+  // User filtering properties
+  clients = signal<any[]>([]);
+  selectedClient = signal<string>('all');
+
   // Order arrays as signals
   pendingOrders = signal<Order[]>([]);
   confirmedOrders = signal<Order[]>([]);
@@ -58,22 +64,22 @@ export class OrderListComponent implements OnInit {
 
   // Computed properties for filtered orders
   filteredPendingOrders = computed(() =>
-    this.filterOrdersByDate(this.pendingOrders())
+    this.filterOrders(this.pendingOrders())
   );
   filteredConfirmedOrders = computed(() =>
-    this.filterOrdersByDate(this.confirmedOrders())
+    this.filterOrders(this.confirmedOrders())
   );
   filteredShippedOrders = computed(() =>
-    this.filterOrdersByDate(this.shippedOrders())
+    this.filterOrders(this.shippedOrders())
   );
   filteredDeliveredOrders = computed(() =>
-    this.filterOrdersByDate(this.deliveredOrders())
+    this.filterOrders(this.deliveredOrders())
   );
   filteredCompletedOrders = computed(() =>
-    this.filterOrdersByDate(this.completedOrders())
+    this.filterOrders(this.completedOrders())
   );
   filteredCancelledOrders = computed(() =>
-    this.filterOrdersByDate(this.cancelledOrders())
+    this.filterOrders(this.cancelledOrders())
   );
 
   get currentOrders() {
@@ -117,6 +123,7 @@ export class OrderListComponent implements OnInit {
 
   ngOnInit() {
     this.loadOrders();
+    this.loadClients();
     this.watchRouteParams();
   }
 
@@ -193,6 +200,25 @@ export class OrderListComponent implements OnInit {
             '❌ Orders load failed, refresh indicator should be hidden'
           );
         }, 100);
+      },
+    });
+  }
+
+  loadClients() {
+    // Extract unique clients from orders
+    this.orderService.getAllOrders().subscribe({
+      next: (orders) => {
+        const uniqueClients = orders
+          .map((order) => order.userId)
+          .filter((user) => user && user._id) // Filter out null/undefined users
+          .filter(
+            (user, index, self) =>
+              index === self.findIndex((u) => u._id === user._id)
+          );
+        this.clients.set(uniqueClients);
+      },
+      error: (err) => {
+        console.error('Error loading clients:', err);
       },
     });
   }
@@ -362,34 +388,44 @@ export class OrderListComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  private filterOrdersByDate(orders: Order[]): Order[] {
+  private filterOrders(orders: Order[]): Order[] {
     // Return empty array if orders haven't loaded yet
     if (!orders || orders.length === 0) {
       return [];
     }
 
+    let filteredOrders = orders;
+
+    // Apply date filtering
     if (
-      this.selectedPreset() === 'all' ||
-      (!this.startDate() && !this.endDate())
+      this.selectedPreset() !== 'all' &&
+      (this.startDate() || this.endDate())
     ) {
-      return orders;
+      const start = this.startDate() ? new Date(this.startDate()) : null;
+      const end = this.endDate() ? new Date(this.endDate()) : null;
+
+      filteredOrders = filteredOrders.filter((order) => {
+        const orderDate = new Date(order.createdAt || order.updatedAt);
+
+        if (start && orderDate < start) return false;
+        if (end) {
+          const endOfDay = new Date(end);
+          endOfDay.setHours(23, 59, 59, 999);
+          if (orderDate > endOfDay) return false;
+        }
+
+        return true;
+      });
     }
 
-    const start = this.startDate() ? new Date(this.startDate()) : null;
-    const end = this.endDate() ? new Date(this.endDate()) : null;
+    // Apply user filtering
+    if (this.selectedClient() !== 'all') {
+      filteredOrders = filteredOrders.filter((order) => {
+        return order.userId && order.userId._id === this.selectedClient();
+      });
+    }
 
-    return orders.filter((order) => {
-      const orderDate = new Date(order.createdAt || order.updatedAt);
-
-      if (start && orderDate < start) return false;
-      if (end) {
-        const endOfDay = new Date(end);
-        endOfDay.setHours(23, 59, 59, 999);
-        if (orderDate > endOfDay) return false;
-      }
-
-      return true;
-    });
+    return filteredOrders;
   }
 
   onSortChange() {

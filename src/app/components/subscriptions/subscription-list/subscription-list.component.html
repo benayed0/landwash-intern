@@ -1,32 +1,57 @@
 <div class="subscription-list-container">
   <!-- Compact Header with select filter and add button -->
   <div class="header-section">
-    <h1 class="main-title">Abonnements</h1>
-
     <div class="controls-wrapper">
+      <h1 class="main-title">Abonnements</h1>
+      <button
+        class="add-btn-fab"
+        (click)="showCreateModal()"
+        title="Créer un abonnement"
+      >
+        ➕
+      </button>
+    </div>
+    <div style="display: grid; gap: 10px">
       <div class="filter-select-wrapper">
         <select
           class="filter-select"
           [value]="activeTab()"
           (change)="activeTab.set($any($event.target).value)"
         >
-          <option value="pending">📋 En attente ({{ pendingSubscriptions().length }})</option>
-          <option value="active">✅ Actives ({{ activeSubscriptions().length }})</option>
-          <option value="inactive">⏸️ Inactives ({{ inactiveSubscriptions().length }})</option>
-          <option value="canceled">❌ Annulées ({{ canceledSubscriptions().length }})</option>
-          <option value="expired">⏰ Expirées ({{ expiredSubscriptions().length }})</option>
+          <option value="pending">
+            📋 En attente ({{ pendingSubscriptions().length }})
+          </option>
+          <option value="active">
+            ✅ Actives ({{ activeSubscriptions().length }})
+          </option>
+          <option value="inactive">
+            ⏸️ Inactives ({{ inactiveSubscriptions().length }})
+          </option>
+          <option value="canceled">
+            ❌ Annulées ({{ canceledSubscriptions().length }})
+          </option>
+          <option value="expired">
+            ⏰ Expirées ({{ expiredSubscriptions().length }})
+          </option>
         </select>
         <span class="select-icon">▼</span>
       </div>
 
-      <button class="add-btn-fab" (click)="showCreateModal()" title="Créer un abonnement">
-        ➕
-      </button>
+      <div class="user-filter-wrapper">
+        <app-user-filter-select
+          [users]="clients()"
+          [selectedUserId]="selectedClient()"
+          [label]="'Filtrer par client'"
+          [placeholder]="'Rechercher un client...'"
+          [showPhoneNumber]="true"
+          [showEmail]="false"
+          (selectionChange)="selectedClient.set($event)"
+        ></app-user-filter-select>
+      </div>
     </div>
   </div>
 
   <div class="content">
-
     <app-loading-spinner
       *ngIf="loading()"
       [size]="'medium'"
