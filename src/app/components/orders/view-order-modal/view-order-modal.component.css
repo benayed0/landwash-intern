@@ -1,4 +1,4 @@
-.view-booking-modal {
+.view-order-modal {
   background: var(--surface-ground, #1e1e1e);
   border-radius: 12px;
   width: 100%;
@@ -139,6 +139,12 @@
   border: 1px solid #2196f3;
 }
 
+.status-badge.status-shipped {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  border: 1px solid #ff9800;
+}
+
 .status-badge.status-primary {
   background: rgba(195, 255, 0, 0.2);
   color: #c3ff00;
@@ -161,6 +167,12 @@
   background: rgba(158, 158, 158, 0.2);
   color: #9e9e9e;
   border: 1px solid #9e9e9e;
+}
+
+.status-badge.status-completed {
+  background: rgba(195, 255, 0, 0.2);
+  color: #c3ff00;
+  border: 1px solid #c3ff00;
 }
 
 /* Info Sections */
@@ -299,7 +311,7 @@
 .products-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .product-item {
@@ -312,25 +324,60 @@
   border: 1px solid var(--surface-border, #444);
 }
 
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.product-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--surface-border, #444);
+}
+
+.product-details {
+  flex: 1;
+}
+
 .product-name {
   color: var(--text-color, #fff);
   font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.product-type {
+  color: #c3ff00;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
 }
 
 .product-quantity {
-  color: #c3ff00;
-  font-weight: 600;
+  color: var(--text-color-secondary, #ccc);
+  font-size: 14px;
 }
 
-/* Comments Box */
-.comments-box {
+.product-price {
+  color: #c3ff00;
+  font-weight: 600;
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+/* Notes Box */
+.notes-box {
   background: var(--surface-ground, #1e1e1e);
   padding: 16px;
   border-radius: 6px;
   border: 1px solid var(--surface-border, #444);
 }
 
-.comments-box p {
+.notes-box p {
   margin: 0;
   color: var(--text-color, #fff);
   line-height: 1.6;
@@ -401,8 +448,10 @@
 
 /* Action Buttons */
 .confirm-btn,
-.reject-btn,
-.reassign-btn {
+.ship-btn,
+.deliver-btn,
+.complete-btn,
+.cancel-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -416,160 +465,73 @@
 }
 
 .confirm-btn {
-  background: #4caf50;
+  background: #2196f3;
   color: white;
 }
 
 .confirm-btn:hover:not(:disabled) {
-  background: #45a049;
+  background: #1976d2;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
-.reject-btn {
-  background: #f44336;
-  color: white;
-}
-
-.reject-btn:hover:not(:disabled) {
-  background: #da190b;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
-}
-
-.reassign-btn {
+.ship-btn {
   background: #ff9800;
   color: white;
-  margin-top: 12px;
 }
 
-.reassign-btn:hover:not(:disabled) {
+.ship-btn:hover:not(:disabled) {
   background: #f57c00;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
 }
 
+.deliver-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.deliver-btn:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.complete-btn {
+  background: #c3ff00;
+  color: #000;
+}
+
+.complete-btn:hover:not(:disabled) {
+  background: #a8d400;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(195, 255, 0, 0.3);
+}
+
+.cancel-btn {
+  background: #f44336;
+  color: white;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #da190b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
 .confirm-btn:disabled,
-.reject-btn:disabled,
-.reassign-btn:disabled {
+.ship-btn:disabled,
+.deliver-btn:disabled,
+.complete-btn:disabled,
+.cancel-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-/* Rating Display Styles */
-.rating-display {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.rating-stars {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 16px;
-  background: var(--surface-ground, #1a1a1a);
-  border-radius: 8px;
-  border: 1px solid rgba(195, 255, 0, 0.2);
-}
-
-.star {
-  font-size: 28px;
-  color: #444;
-  transition: all 0.2s ease;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-}
-
-.star.filled {
-  color: #c3ff00;
-  text-shadow: 0 0 10px rgba(195, 255, 0, 0.6);
-  animation: starGlow 2s ease-in-out infinite;
-}
-
-@keyframes starGlow {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.3);
-  }
-}
-
-.rating-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: #c3ff00;
-  margin-left: 12px;
-  padding: 6px 14px;
-  background: rgba(195, 255, 0, 0.15);
-  border-radius: 16px;
-  border: 1px solid rgba(195, 255, 0, 0.3);
-}
-
-.rating-comment {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.comment-label,
-.photo-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #c3ff00;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.comment-label i,
-.photo-label i {
-  font-size: 14px;
-}
-
-.comment-text {
-  margin: 0;
-  padding: 16px;
-  background: var(--surface-ground, #1a1a1a);
-  border-radius: 8px;
-  border-left: 3px solid #c3ff00;
-  color: var(--text-color, #fff);
-  line-height: 1.6;
-  font-style: italic;
-  word-break: break-word;
-}
-
-.rating-photo {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.rating-image {
-  width: 100%;
-  height: auto;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid rgba(195, 255, 0, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.rating-image:hover {
-  border-color: #c3ff00;
-  box-shadow: 0 4px 16px rgba(195, 255, 0, 0.3);
-  transform: scale(1.02);
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
-  .view-booking-modal {
+  .view-order-modal {
     max-width: 100%;
     max-height: 100%;
     border-radius: 0;
@@ -613,26 +575,12 @@
     width: 100%;
   }
 
-  .star {
-    font-size: 24px;
+  .product-image {
+    width: 40px;
+    height: 40px;
   }
 
-  .rating-value {
-    font-size: 16px;
-    padding: 5px 12px;
-  }
-
-  .rating-stars {
-    flex-wrap: wrap;
-    padding: 10px 12px;
-  }
-
-  .rating-image {
-    max-height: 250px;
-  }
-
-  .comment-text {
-    padding: 12px;
+  .product-price {
     font-size: 14px;
   }
 }

@@ -9,6 +9,8 @@ import { BookingService } from '../../../services/booking.service';
 import { Booking } from '../../../models/booking.model';
 import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team-assign-modal.component';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
+import { UserService } from '../../../services/user.service';
+import { AuthService } from '../../../services/auth.service';
 
 export interface ViewBookingDialogData {
   bookingId: string;
@@ -26,7 +28,7 @@ export class ViewBookingModalComponent implements OnInit {
   private data = inject<ViewBookingDialogData>(MAT_DIALOG_DATA);
   private bookingService = inject(BookingService);
   private dialog = inject(MatDialog);
-
+  auth = inject(AuthService);
   booking = signal<Booking | null>(null);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);

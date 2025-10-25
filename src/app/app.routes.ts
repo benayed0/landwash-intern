@@ -25,16 +25,6 @@ export const routes: Routes = [
     // No guard - this route should be accessible for WebView integration
   },
   {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [authGuard],
-  },
-  // {
-  //   path: 'dashboard/:view',
-  //   component: DashboardComponent,
-  // },
-  // Admin-only routes
-  {
     path: 'dashboard/bookings',
     component: DashboardComponent,
     canActivate: [authGuard],
@@ -42,13 +32,9 @@ export const routes: Routes = [
   {
     path: 'dashboard/bookings/:bookingId',
     component: DashboardComponent,
-    canActivate: [adminGuard],
+    canActivate: [authGuard],
   },
-  {
-    path: 'dashboard/create-booking',
-    component: DashboardComponent,
-    canActivate: [adminGuard],
-  },
+  // Admin-only routes
   {
     path: 'dashboard/discounts',
     component: DashboardComponent,
@@ -56,6 +42,11 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/orders',
+    component: DashboardComponent,
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'dashboard/orders/:orderId',
     component: DashboardComponent,
     canActivate: [adminGuard],
   },
@@ -83,10 +74,6 @@ export const routes: Routes = [
     path: 'dashboard/users',
     component: DashboardComponent,
     canActivate: [adminGuard],
-  },
-  {
-    path: 'dashboard/worker-dashboard',
-    component: DashboardComponent,
   },
   {
     path: 'dashboard/profile',

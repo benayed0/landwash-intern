@@ -20,7 +20,7 @@ export const adminGuard = () => {
         // Check if user is a worker and redirect to worker dashboard
         const user = authService.getCurrentUser();
         if (user?.role === 'worker') {
-          return router.createUrlTree(['/dashboard/worker-dashboard']);
+          return router.createUrlTree(['/dashboard']);
         } else {
           return router.createUrlTree(['/login']);
         }

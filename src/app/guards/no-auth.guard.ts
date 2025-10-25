@@ -25,11 +25,7 @@ export const noAuthGuard = () => {
         map((user) => {
           console.log('🔐 NoAuthGuard: Fetched user data:', user);
           if (user) {
-            if (user.role === 'admin') {
-              return router.createUrlTree(['/dashboard']);
-            } else {
-              return router.createUrlTree(['/worker']);
-            }
+            return router.createUrlTree(['/dashboard']);
           }
           return true; // Allow access to login if no user data
         })

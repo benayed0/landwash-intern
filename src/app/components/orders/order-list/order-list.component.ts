@@ -1,12 +1,15 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { Order, OrderStatus } from '../../../models/order.model';
 import { OrderCardComponent } from '../order-card/order-card.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { CreateOrderModalComponent } from '../create-order-modal/create-order-modal.component';
 import { HotToastService } from '@ngneat/hot-toast';
+import { MatDialog } from '@angular/material/dialog';
+import { ViewOrderModalComponent } from '../view-order-modal/view-order-modal.component';
 
 @Component({
   selector: 'app-order-list',
@@ -24,6 +27,9 @@ import { HotToastService } from '@ngneat/hot-toast';
 export class OrderListComponent implements OnInit {
   private orderService = inject(OrderService);
   private toast = inject(HotToastService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  dialog = inject(MatDialog);
 
   activeTab = 'all';
   loading = false;
@@ -32,6 +38,7 @@ export class OrderListComponent implements OnInit {
 
   // Modal state
   isCreateOrderModalOpen = signal(false);
+  private currentOpenOrderId: string | null = null;
 
   // Date filtering properties
   selectedPreset = signal<'all' | 'today' | '7days' | '30days' | 'custom'>(
@@ -110,6 +117,50 @@ export class OrderListComponent implements OnInit {
 
   ngOnInit() {
     this.loadOrders();
+    this.watchRouteParams();
+  }
+
+  /**
+   * Watch for route parameters and open view order modal if orderId is present
+   */
+  private watchRouteParams() {
+    this.route.paramMap.subscribe((params) => {
+      const orderId = params.get('orderId');
+      console.log('orderId', orderId);
+
+      // Only open if there's an orderId and it's not already open
+      if (orderId && orderId !== this.currentOpenOrderId) {
+        this.openViewOrderModal(orderId);
+      }
+    });
+  }
+
+  /**
+   * Open view order modal
+   */
+  openViewOrderModal(orderId: string) {
+    // Set the currently open order ID to prevent duplicates
+    this.currentOpenOrderId = orderId;
+    console.log('opening', orderId);
+
+    const dialogRef = this.dialog.open(ViewOrderModalComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container',
+      data: { orderId },
+    });
+
+    // Handle dialog close
+    dialogRef.afterClosed().subscribe(() => {
+      // Clear the current order ID
+      this.currentOpenOrderId = null;
+
+      // Navigate back to clean URL without the orderId
+      window.location.href = this.router
+        .createUrlTree(['/dashboard/orders'])
+        .toString();
+    });
   }
 
   loadOrders() {

@@ -16,23 +16,14 @@ export const roleRedirectGuard: CanActivateFn = (route, state) => {
   const user = authService.getCurrentUser();
 
   if (user) {
-    // If we already have user data, redirect based on role
-    if (user.role === 'admin') {
-      return router.createUrlTree(['/dashboard/bookings']);
-    } else if (user.role === 'worker') {
-      return router.createUrlTree(['/dashboard/worker-dashboard']);
-    } else {
-      return router.createUrlTree(['/login']);
-    }
+    return router.createUrlTree(['/dashboard/bookings']);
   }
 
   // If no user data cached, fetch it first
   return authService.refreshUserData().pipe(
     map((user) => {
-      if (user?.role === 'admin') {
+      if (user) {
         return router.createUrlTree(['/dashboard/bookings']);
-      } else if (user?.role === 'worker') {
-        return router.createUrlTree(['/dashboard/worker-dashboard']);
       } else {
         return router.createUrlTree(['/login']);
       }

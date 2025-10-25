@@ -101,15 +101,9 @@ export class LoginComponent {
         // Wait for user data to be loaded, then navigate
         setTimeout(() => {
           this.loading = false;
-          const user = this.authService.getCurrentUser();
-          if (user?.role === 'admin') {
-            this.router.navigate(['/dashboard']);
-          } else if (user?.role === 'worker') {
-            this.router.navigate(['/worker-dashboard']);
-          } else {
-            // Default fallback
-            this.router.navigate(['/dashboard']);
-          }
+
+          // Default fallback
+          this.router.navigate(['/dashboard']);
         }, 500); // Small delay to ensure user data is loaded
       },
       error: (err) => {

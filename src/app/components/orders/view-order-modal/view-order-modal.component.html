@@ -1,0 +1,233 @@
+<div class="view-order-modal">
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2>Détails de la Commande</h2>
+    <button class="close-btn" (click)="onClose()" type="button">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="modal-body loading-state">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="modal-body error-state">
+    <i class="pi pi-exclamation-triangle"></i>
+    <p>{{ error() }}</p>
+    <button class="retry-btn" (click)="ngOnInit()">Réessayer</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="order() && !loading() && !error()" class="modal-body">
+    <!-- Status Badge -->
+    <div class="status-section">
+      <span class="status-badge" [class]="'status-' + statusColor()">
+        {{ statusLabel() }}
+      </span>
+    </div>
+
+    <!-- Client Information -->
+    <div class="info-section">
+      <h3>
+        <i class="pi pi-user"></i>
+        Informations Client
+      </h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Nom</span>
+          <span class="value">{{ getClientName() }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Téléphone</span>
+          <a
+            *ngIf="getClientPhone() !== 'N/A'"
+            [href]="'tel:' + getClientPhone()"
+            class="value phone-link"
+          >
+            <i class="pi pi-phone"></i>
+            {{ getClientPhone() }}
+          </a>
+          <span *ngIf="getClientPhone() === 'N/A'" class="value">N/A</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="info-section">
+      <h3>
+        <i class="pi pi-calendar"></i>
+        Détails de la Commande
+      </h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Date de commande</span>
+          <span class="value">{{ formatDate(order()?.createdAt) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Méthode de paiement</span>
+          <span class="value">{{ order()?.paymentMethod }}</span>
+        </div>
+        <div class="info-item" *ngIf="order()?.estimatedDeliveryDate">
+          <span class="label">Livraison estimée</span>
+          <span class="value">{{ formatDate(order()?.estimatedDeliveryDate) }}</span>
+        </div>
+        <div class="info-item" *ngIf="order()?.deliveredAt">
+          <span class="label">Livrée le</span>
+          <span class="value">{{ formatDate(order()?.deliveredAt) }}</span>
+        </div>
+        <div class="info-item full-width">
+          <span class="label">Prix total</span>
+          <span class="value price">{{ formatPrice(order()?.totalPrice) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipping Address -->
+    <div class="info-section" *ngIf="order()?.shippingAddress">
+      <h3>
+        <i class="pi pi-map-marker"></i>
+        Adresse de livraison
+      </h3>
+      <a
+        *ngIf="order()?.coordinates"
+        [href]="getGoogleMapsUrl()"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="address-box clickable"
+      >
+        <p>
+          <i class="pi pi-map-marker map-icon"></i>
+          {{ order()?.shippingAddress }}
+        </p>
+        <div class="coordinates">
+          <small>
+            Lat: {{ order()?.coordinates?.[1] }}, Lng:
+            {{ order()?.coordinates?.[0] }}
+          </small>
+          <i class="pi pi-external-link external-icon"></i>
+        </div>
+      </a>
+      <div *ngIf="!order()?.coordinates" class="address-box">
+        <p>{{ order()?.shippingAddress }}</p>
+      </div>
+    </div>
+
+    <!-- Products List -->
+    <div class="info-section">
+      <h3>
+        <i class="pi pi-shopping-cart"></i>
+        Produits commandés
+      </h3>
+      <div class="products-list">
+        <div class="product-item" *ngFor="let product of order()?.products">
+          <div class="product-info">
+            <img
+              *ngIf="
+                product.productId.pictures && product.productId.pictures.length > 0
+              "
+              [src]="product.productId.pictures[0]"
+              [alt]="product.productId.name"
+              class="product-image"
+            />
+            <div class="product-details">
+              <div class="product-name">{{ product.productId.name }}</div>
+              <div class="product-type">{{ product.productId.type }}</div>
+              <div class="product-quantity">Quantité: {{ product.quantity }}</div>
+            </div>
+          </div>
+          <div class="product-price">
+            {{ formatPrice(product.price * product.quantity) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="info-section" *ngIf="order()?.notes">
+      <h3>
+        <i class="pi pi-comment"></i>
+        Notes
+      </h3>
+      <div class="notes-box">
+        <p>{{ order()?.notes }}</p>
+      </div>
+    </div>
+
+    <!-- Timestamps -->
+    <div class="info-section timestamps">
+      <div class="timestamp-item" *ngIf="order()?.createdAt">
+        <span class="label">Créée le</span>
+        <span class="value">{{ formatDate(order()?.createdAt) }}</span>
+      </div>
+      <div class="timestamp-item" *ngIf="order()?.updatedAt">
+        <span class="label">Mise à jour le</span>
+        <span class="value">{{ formatDate(order()?.updatedAt) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Footer -->
+  <div class="modal-footer" *ngIf="order() && !loading() && !error() && auth.isAdmin()">
+    <!-- Action buttons based on order status -->
+    <div class="action-buttons">
+      <button
+        *ngIf="canConfirm()"
+        class="confirm-btn"
+        (click)="onConfirmOrder()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-check"></i>
+        {{ actionLoading() ? "Confirmation..." : "Confirmer" }}
+      </button>
+
+      <button
+        *ngIf="canShip()"
+        class="ship-btn"
+        (click)="onShipOrder()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-send"></i>
+        {{ actionLoading() ? "Expédition..." : "Expédier" }}
+      </button>
+
+      <button
+        *ngIf="canDeliver()"
+        class="deliver-btn"
+        (click)="onDeliverOrder()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-truck"></i>
+        {{ actionLoading() ? "Livraison..." : "Livrer" }}
+      </button>
+
+      <button
+        *ngIf="canComplete()"
+        class="complete-btn"
+        (click)="onCompleteOrder()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-check-circle"></i>
+        {{ actionLoading() ? "Finalisation..." : "Terminer" }}
+      </button>
+
+      <button
+        *ngIf="canCancel()"
+        class="cancel-btn"
+        (click)="onCancelOrder()"
+        [disabled]="actionLoading()"
+      >
+        <i class="pi pi-times"></i>
+        {{ actionLoading() ? "Annulation..." : "Annuler" }}
+      </button>
+    </div>
+
+    <button class="close-btn-footer" (click)="onClose()">Fermer</button>
+  </div>
+
+  <div class="modal-footer" *ngIf="order() && !loading() && !error() && !auth.isAdmin()">
+    <button class="close-btn-footer" (click)="onClose()">Fermer</button>
+  </div>
+</div>

@@ -68,7 +68,11 @@ export class DashboardComponent implements OnInit {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const currentUrl = event.url;
-        const view = currentUrl.split('/dashboard/')[1];
+        const urlParts = currentUrl.split('/dashboard/')[1];
+        // Extract just the first segment (e.g., "orders" from "orders/123abc")
+        const view = urlParts ? urlParts.split('/')[0] : '';
+        console.log(view);
+
         if (view && this.isValidViewType(view)) {
           this.viewType.set(view);
         }
@@ -77,7 +81,11 @@ export class DashboardComponent implements OnInit {
 
     // Set initial view based on current URL
     const currentUrl = this.router.url;
-    const view = currentUrl.split('/dashboard/')[1];
+    const urlParts = currentUrl.split('/dashboard/')[1];
+    // Extract just the first segment (e.g., "orders" from "orders/123abc")
+    const view = urlParts ? urlParts.split('/')[0] : '';
+    console.log(view);
+
     if (view && this.isValidViewType(view)) {
       this.viewType.set(view);
     }

@@ -128,6 +128,8 @@
         </div>
       </div>
       <!-- Reassign button for confirmed/in-progress bookings -->
+      @if(auth.isAdmin()){
+
       <button
         *ngIf="
           booking()?.status === 'confirmed' ||
@@ -140,6 +142,7 @@
         <i class="pi pi-refresh"></i>
         Réassigner l'équipe
       </button>
+      }
     </div>
 
     <!-- Rating Section -->
@@ -190,7 +193,10 @@
     </div>
 
     <!-- Reject button for confirmed bookings -->
-    <div *ngIf="!canConfirm() && canReject()" class="action-buttons">
+    <div
+      *ngIf="!canConfirm() && canReject() && auth.isAdmin()"
+      class="action-buttons"
+    >
       <button
         class="reject-btn"
         (click)="onRejectBooking()"

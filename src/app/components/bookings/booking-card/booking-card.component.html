@@ -17,6 +17,8 @@
           ? "En attente"
           : booking.status === "confirmed"
           ? "Confirmé"
+          : booking.status === "in-progress"
+          ? "En cours"
           : booking.status === "completed"
           ? "Terminé"
           : booking.status === "rejected"
@@ -42,7 +44,11 @@
   <div class="edit-form">
     <div class="form-group">
       <label>Type de véhicule</label>
-      <select [(ngModel)]="editForm.type" class="form-input" (change)="onServiceTypeChange()">
+      <select
+        [(ngModel)]="editForm.type"
+        class="form-input"
+        (change)="onServiceTypeChange()"
+      >
         <option value="small">Citadines / Petites Voitures</option>
         <option value="big">SUV / Grandes Voitures</option>
         <option value="salon">Salon</option>
@@ -103,7 +109,8 @@
     }
 
     <!-- No slots available message -->
-    @if (selectedDateString && bookedSlots() && availableTimeSlots().length === 0) {
+    @if (selectedDateString && bookedSlots() && availableTimeSlots().length ===
+    0) {
     <div class="no-slots">
       <p>
         Aucun créneau disponible pour cette date. Tous les créneaux sont
@@ -209,9 +216,11 @@
 
   <!-- Rating Section (only for completed bookings) -->
   @if (booking.status === 'completed' && booking.rating) {
-  <app-rating-display [rating]="booking.rating" variant="compact"></app-rating-display>
-  }
-  @if (booking.teamId ) {
+  <app-rating-display
+    [rating]="booking.rating"
+    variant="compact"
+  ></app-rating-display>
+  } @if (booking.teamId ) {
   <div class="team-info">
     <div class="team-details">
       <span class="team-icon">👥</span>
@@ -253,7 +262,7 @@
 
   <div class="booking-actions">
     <button class="action-btn delay-btn" (click)="openDelayModal()">
-      ⏰ {{ booking.delayedOf ? 'Modifier le retard' : 'Signaler un retard' }}
+      ⏰ {{ booking.delayedOf ? "Modifier le retard" : "Signaler un retard" }}
     </button>
     <button class="action-btn start-progress-btn" (click)="startProgress()">
       ▶️ Commencer
