@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
 import { PullToRefreshService } from './services/pull-to-refresh.service';
+import { PwaUpdateService } from './services/pwa-update.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -17,11 +18,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private pullToRefreshService: PullToRefreshService,
+    private pwaUpdateService: PwaUpdateService,
     private router: Router,
     private elementRef: ElementRef
   ) {}
 
   ngOnInit() {
+    // Initialize PWA update service for automatic cache reload on new deployments
+    this.pwaUpdateService.initialize();
+
     // Initialize pull-to-refresh
     this.pullToRefreshService.initialize(this.elementRef.nativeElement);
 
