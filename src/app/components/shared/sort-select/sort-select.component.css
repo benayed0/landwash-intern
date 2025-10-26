@@ -19,6 +19,7 @@
 
 ::ng-deep .sort-selector .mat-mdc-form-field-focus-overlay {
   background-color: transparent;
+  pointer-events: none;
 }
 
 ::ng-deep .sort-selector .mat-mdc-form-field-subscript-wrapper {
@@ -71,6 +72,7 @@
 
 ::ng-deep .sort-selector .mat-mdc-form-field-focus-overlay {
   background-color: transparent;
+  pointer-events: none;
 }
 
 ::ng-deep .sort-selector .mdc-text-field--focused .mat-mdc-form-field-label {
