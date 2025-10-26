@@ -63,6 +63,7 @@ export class BookingListComponent implements OnInit {
   operationLoading: { [key: string]: boolean } = {};
   filtersExpanded = false;
   sortBy: string = 'date-asc';
+  isFilterExpanded = signal(false);
   currentUser: Personal | null = null;
   userRole: 'admin' | 'worker' | null = null;
   bookingTypeFilter = signal<'all' | 'detailing' | 'salon'>('all');
@@ -285,10 +286,10 @@ export class BookingListComponent implements OnInit {
   ]);
 
   sortOptions: SortOption[] = [
-    { value: 'date-desc', label: 'Date (récent d\'abord)' },
-    { value: 'date-asc', label: 'Date (ancien d\'abord)' },
-    { value: 'price-desc', label: 'Prix (élevé d\'abord)' },
-    { value: 'price-asc', label: 'Prix (bas d\'abord)' },
+    { value: 'date-desc', label: "Date (récent d'abord)" },
+    { value: 'date-asc', label: "Date (ancien d'abord)" },
+    { value: 'price-desc', label: "Prix (élevé d'abord)" },
+    { value: 'price-asc', label: "Prix (bas d'abord)" },
     { value: 'client-name', label: 'Client (A-Z)' },
     { value: 'status', label: 'Statut' },
   ];
@@ -815,10 +816,6 @@ export class BookingListComponent implements OnInit {
     return null;
   }
 
-  toggleFilters() {
-    this.filtersExpanded = !this.filtersExpanded;
-  }
-
   onSortChange() {
     // Trigger change detection by just changing the sort property
     // The currentBookings getter will automatically apply the new sort
@@ -832,6 +829,10 @@ export class BookingListComponent implements OnInit {
   onBookingTypeFilterChange() {
     // Trigger change detection when booking type filter changes
     // The currentBookings getter will automatically apply the new filter
+  }
+
+  toggleFilters() {
+    this.isFilterExpanded.set(!this.isFilterExpanded());
   }
 
   getTotalBookings(): number {

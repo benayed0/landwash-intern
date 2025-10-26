@@ -47,6 +47,7 @@ export class OrderListComponent implements OnInit {
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
   sortBy: string = 'date-asc';
+  isFilterExpanded = signal(false);
 
   // Modal state
   isCreateOrderModalOpen = signal(false);
@@ -490,6 +491,10 @@ export class OrderListComponent implements OnInit {
   onStatusChange() {
     // Trigger change detection when status filter changes
     // The currentOrders getter will automatically apply the new filter
+  }
+
+  toggleFilters() {
+    this.isFilterExpanded.set(!this.isFilterExpanded());
   }
 
   getTotalOrders(): number {
