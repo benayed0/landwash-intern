@@ -10,14 +10,16 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
-import { CardModule } from 'primeng/card';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatBadgeModule } from '@angular/material/badge';
 
 import { ProductService } from '../../../services/product.service';
 import { OrderService } from '../../../services/order.service';
@@ -28,7 +30,6 @@ import { CreateOrderDto, Order } from '../../../models/order.model';
 import { SelectedLocation } from '../../../services/location.service';
 import { HotToastService } from '@ngneat/hot-toast';
 import { User } from '../../users/users.component';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 
 interface SelectedProduct {
   product: Product;
@@ -42,15 +43,16 @@ interface SelectedProduct {
   imports: [
     CommonModule,
     FormsModule,
-    DropdownModule,
-    ButtonModule,
-    InputTextModule,
-    InputNumberModule,
-    RadioButtonModule,
-    InputTextareaModule,
-    SkeletonModule,
-    TagModule,
-    CardModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatRadioModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatBadgeModule,
     LocationPickerComponent,
   ],
   templateUrl: './create-order-modal.component.html',

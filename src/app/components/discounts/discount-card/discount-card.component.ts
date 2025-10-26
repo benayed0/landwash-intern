@@ -11,15 +11,21 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
-import { TagModule } from 'primeng/tag';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../shared/confirm-dialog/confirm-dialog.component';
 
 import {
   Discount,
@@ -36,13 +42,17 @@ import { HotToastService } from '@ngneat/hot-toast';
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    InputSwitchModule,
-    InputTextModule,
-    InputNumberModule,
-    DropdownModule,
-    TagModule,
-    MultiSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatChipsModule,
+    MatProgressBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIcon,
   ],
   templateUrl: './discount-card.component.html',
   styleUrls: ['./discount-card.component.css'],
@@ -203,19 +213,21 @@ export class DiscountCardComponent implements OnChanges {
   confirmDelete() {
     const dialogData: ConfirmDialogData = {
       title: 'Confirmer la suppression',
-      message: `Êtes-vous sûr de vouloir supprimer le code ${this.discount?.code || 'inconnu'} ?`,
+      message: `Êtes-vous sûr de vouloir supprimer le code ${
+        this.discount?.code || 'inconnu'
+      } ?`,
       confirmText: 'Supprimer',
       cancelText: 'Annuler',
-      isDanger: true
+      isDanger: true,
     };
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: dialogData,
-      panelClass: 'custom-dialog-container'
+      panelClass: 'custom-dialog-container',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.delete.emit(this.discount._id!);
       }

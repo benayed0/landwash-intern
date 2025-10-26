@@ -1,7 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Order } from '../../../models/order.model';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { DeliveryDateDialogComponent } from '../delivery-date-dialog/delivery-date-dialog.component';
 
 @Component({
   selector: 'app-order-card',
@@ -11,7 +14,18 @@ import { Order } from '../../../models/order.model';
   styleUrls: ['./order-card.component.css'],
 })
 export class OrderCardComponent {
-  @Input() order!: Order;
+  private dialog = inject(MatDialog);
+
+  private _order = signal<Order | undefined>(undefined);
+
+  @Input()
+  set order(value: Order) {
+    this._order.set(value);
+  }
+  get order(): Order {
+    return this._order()!;
+  }
+
   @Input() userRole: string = 'admin';
   @Output() statusChange = new EventEmitter<{
     orderId: string;
@@ -19,29 +33,14 @@ export class OrderCardComponent {
     estimatedDeliveryDate?: string;
   }>();
 
-  showDeliveryDateModal = false;
-  estimatedDeliveryDate = '';
-  showConfirmDialog = false;
-  pendingAction: { label: string; status: string; class: string } | null = null;
+  // Computed signal for available actions - only recalculates when order changes
+  availableActions = computed(() => {
+    const order = this._order();
+    if (!order) return [];
 
-  getStatusClass(status: string): string {
-    return `status-${status.toLowerCase()}`;
-  }
-
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
-
-  getAvailableActions(): { label: string; status: string; class: string }[] {
     const actions = [];
 
-    switch (this.order.status) {
+    switch (order.status) {
       case 'pending':
         actions.push(
           { label: '✓ Confirmer', status: 'confirmed', class: 'btn-confirm' },
@@ -85,6 +84,20 @@ export class OrderCardComponent {
     }
 
     return actions;
+  });
+
+  getStatusClass(status: string): string {
+    return `status-${status.toLowerCase()}`;
+  }
+
+  formatDate(date: Date): string {
+    return new Date(date).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   onActionClick(action: {
@@ -92,80 +105,96 @@ export class OrderCardComponent {
     status: string;
     class: string;
   }): void {
-    // Store the pending action and show confirm dialog
-    this.pendingAction = action;
+    console.log(action);
 
-    // If the action is to ship, show delivery date modal instead of confirm dialog
+    // If the action is to ship, show delivery date dialog
     if (action.status === 'shipped') {
-      this.showDeliveryDateModal = true;
+      this.openDeliveryDateDialog(action);
     } else {
-      this.showConfirmDialog = true;
+      this.openConfirmDialog(action);
     }
   }
 
-  onConfirmAction(): void {
-    if (this.pendingAction) {
-      this.statusChange.emit({
-        orderId: this.order._id!,
-        status: this.pendingAction.status,
-      });
-      this.closeConfirmDialog();
+  private openConfirmDialog(action: {
+    label: string;
+    status: string;
+    class: string;
+  }): void {
+    // Generate context-aware message based on current status and target status
+    let message = '';
+    console.log(action);
+
+    if (action.class === 'btn-revert') {
+      // For revert actions, use specific messages
+      if (action.status === 'pending') {
+        message =
+          'Êtes-vous sûr de vouloir remettre cette commande en attente ?';
+      } else if (action.status === 'confirmed') {
+        message =
+          "Êtes-vous sûr de vouloir remettre cette commande à l'état confirmé ?";
+      } else if (action.status === 'shipped') {
+        message =
+          "Êtes-vous sûr de vouloir remettre cette commande à l'état expédié ?";
+      }
+    } else {
+      // For forward progression actions
+      const statusMessages: { [key: string]: string } = {
+        confirmed: 'Êtes-vous sûr de vouloir confirmer cette commande ?',
+        cancelled:
+          '⚠️ Êtes-vous sûr de vouloir annuler cette commande ? Cette action peut être inversée.',
+        shipped:
+          'Êtes-vous sûr de vouloir marquer cette commande comme expédiée ?',
+        delivered:
+          'Êtes-vous sûr de vouloir marquer cette commande comme livrée ?',
+        completed: 'Êtes-vous sûr de vouloir terminer cette commande ?',
+      };
+
+      message =
+        statusMessages[action.status] ||
+        'Êtes-vous sûr de vouloir effectuer cette action ?';
     }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '450px',
+      maxWidth: '95vw',
+      data: {
+        title: "Confirmer l'action",
+        message: message,
+        confirmText: 'Confirmer',
+        cancelText: 'Annuler',
+        isDanger: action.status === 'cancelled',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.statusChange.emit({
+          orderId: this.order._id!,
+          status: action.status,
+        });
+      }
+    });
   }
 
-  closeConfirmDialog(): void {
-    this.showConfirmDialog = false;
-    this.pendingAction = null;
-  }
+  private openDeliveryDateDialog(action: {
+    label: string;
+    status: string;
+    class: string;
+  }): void {
+    const dialogRef = this.dialog.open(DeliveryDateDialogComponent, {
+      width: '500px',
+      maxWidth: '95vw',
+      data: {},
+    });
 
-  getConfirmMessage(): string {
-    if (!this.pendingAction) return '';
-
-    const statusMessages: { [key: string]: string } = {
-      confirmed: 'Êtes-vous sûr de vouloir confirmer cette commande ?',
-      cancelled:
-        '⚠️ Êtes-vous sûr de vouloir annuler cette commande ? Cette action peut être inversée.',
-      shipped:
-        'Êtes-vous sûr de vouloir marquer cette commande comme expédiée ?',
-      delivered:
-        'Êtes-vous sûr de vouloir marquer cette commande comme livrée ?',
-      completed: 'Êtes-vous sûr de vouloir terminer cette commande ?',
-      pending: 'Êtes-vous sûr de vouloir remettre cette commande en attente ?',
-    };
-
-    return (
-      statusMessages[this.pendingAction.status] ||
-      'Êtes-vous sûr de vouloir effectuer cette action ?'
-    );
-  }
-
-  onConfirmWithDeliveryDate(): void {
-    if (this.estimatedDeliveryDate) {
-      this.statusChange.emit({
-        orderId: this.order._id!,
-        status: 'shipped',
-        estimatedDeliveryDate: this.estimatedDeliveryDate,
-      });
-      this.closeDeliveryDateModal();
-    }
-  }
-
-  closeDeliveryDateModal(): void {
-    this.showDeliveryDateModal = false;
-    this.estimatedDeliveryDate = '';
-  }
-
-  getTomorrowDate(): string {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return this.formatDateToLocalString(tomorrow);
-  }
-
-  // Helper function to format date to local YYYY-MM-DD string without timezone issues
-  private formatDateToLocalString(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    dialogRef.afterClosed().subscribe((deliveryDate) => {
+      if (deliveryDate) {
+        this.statusChange.emit({
+          orderId: this.order._id!,
+          status: action.status,
+          estimatedDeliveryDate: deliveryDate,
+        });
+      }
+    });
   }
 }

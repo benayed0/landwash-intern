@@ -94,7 +94,7 @@
     *ngIf="userRole === 'admin' && order.status !== 'completed'"
   >
     <button
-      *ngFor="let action of getAvailableActions()"
+      *ngFor="let action of availableActions()"
       class="action-btn"
       [ngClass]="action.class"
       (click)="onActionClick(action)"
@@ -105,75 +105,5 @@
         action.label.substring(action.label.indexOf(" ") + 1)
       }}</span>
     </button>
-  </div>
-
-  <!-- Confirm Action Dialog -->
-  <div
-    class="modal-overlay"
-    *ngIf="showConfirmDialog"
-    (click)="closeConfirmDialog()"
-  >
-    <div
-      class="modal-content confirm-dialog"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="modal-header">
-        <h3>Confirmer l'action</h3>
-        <button class="close-btn" (click)="closeConfirmDialog()">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="confirm-icon">⚠️</div>
-        <p class="confirm-message">{{ getConfirmMessage() }}</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeConfirmDialog()">
-          Annuler
-        </button>
-        <button class="btn-confirm" (click)="onConfirmAction()">
-          Confirmer
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Delivery Date Modal -->
-  <div
-    class="modal-overlay"
-    *ngIf="showDeliveryDateModal"
-    (click)="closeDeliveryDateModal()"
-  >
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Date de livraison estimée</h3>
-        <button class="close-btn" (click)="closeDeliveryDateModal()">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="input-group">
-          <label for="deliveryDate"
-            >Sélectionnez la date de livraison estimée :</label
-          >
-          <input
-            id="deliveryDate"
-            type="date"
-            [(ngModel)]="estimatedDeliveryDate"
-            [min]="getTomorrowDate()"
-            class="date-input"
-            required
-          />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeDeliveryDateModal()">
-          Annuler
-        </button>
-        <button
-          class="btn-confirm"
-          (click)="onConfirmWithDeliveryDate()"
-          [disabled]="!estimatedDeliveryDate"
-        >
-          Confirmer la commande
-        </button>
-      </div>
-    </div>
   </div>
 </div>

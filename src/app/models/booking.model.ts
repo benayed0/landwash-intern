@@ -1,4 +1,4 @@
-export type BookingType = 'small' | 'big' | 'salon';
+export type BookingType = 'small' | 'big' | 'salon' | 'pickup';
 export type BookingStatus =
   | 'pending'
   | 'rejected'
@@ -54,6 +54,7 @@ export interface Booking {
   };
   teamId?: string | TeamInfo;
   secondaryNumber?: string;
+  transportFee?: number;
   rating?: {
     value: number;
     comment?: string;

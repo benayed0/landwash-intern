@@ -407,7 +407,7 @@ export class BookingListComponent implements OnInit {
     });
 
     dialogRef.componentInstance.confirmAssign.subscribe(
-      (event: { booking: Booking; teamId: string }) => {
+      (event: { booking: Booking; teamId: string; transportFee: number }) => {
         this.onConfirmAssign(event);
         dialogRef.close();
       }
@@ -423,7 +423,7 @@ export class BookingListComponent implements OnInit {
     });
 
     dialogRef.componentInstance.reassignTeam.subscribe(
-      (event: { booking: Booking; teamId: string }) => {
+      (event: { booking: Booking; teamId: string; transportFee: number }) => {
         this.onReassignTeam(event);
         dialogRef.close();
       }
@@ -523,43 +523,67 @@ export class BookingListComponent implements OnInit {
       });
   }
 
-  onConfirmAssign(event: { booking: Booking; teamId: string }) {
+  onConfirmAssign(event: { booking: Booking; teamId: string; transportFee: number }) {
     this.operationLoading[`assign-${event.booking._id}`] = true;
-    // First assign the team, then update status to confirmed
-    this.bookingService.assignTeam(event.booking._id!, event.teamId).subscribe({
+
+    // First update transport fee if provided, then assign team, then update status to confirmed
+    const updateData: Partial<Booking> = { transportFee: event.transportFee };
+
+    this.bookingService.updateBooking(event.booking._id!, updateData).subscribe({
       next: () => {
-        // Now update status to confirmed
-        this.bookingService
-          .updateBookingStatus(event.booking._id!, 'confirmed')
-          .subscribe({
-            next: () => {
-              this.loadBookings();
-              this.operationLoading[`assign-${event.booking._id}`] = false;
-            },
-            error: (err: any) => {
-              console.error('Error updating booking status:', err);
-              this.operationLoading[`assign-${event.booking._id}`] = false;
-            },
-          });
+        // Now assign the team
+        this.bookingService.assignTeam(event.booking._id!, event.teamId).subscribe({
+          next: () => {
+            // Finally update status to confirmed
+            this.bookingService
+              .updateBookingStatus(event.booking._id!, 'confirmed')
+              .subscribe({
+                next: () => {
+                  this.loadBookings();
+                  this.operationLoading[`assign-${event.booking._id}`] = false;
+                },
+                error: (err: any) => {
+                  console.error('Error updating booking status:', err);
+                  this.operationLoading[`assign-${event.booking._id}`] = false;
+                },
+              });
+          },
+          error: (err: any) => {
+            console.error('Error assigning team:', err);
+            this.operationLoading[`assign-${event.booking._id}`] = false;
+          },
+        });
       },
       error: (err: any) => {
-        console.error('Error assigning team:', err);
+        console.error('Error updating transport fee:', err);
         this.operationLoading[`assign-${event.booking._id}`] = false;
       },
     });
   }
 
-  onReassignTeam(event: { booking: Booking; teamId: string }) {
+  onReassignTeam(event: { booking: Booking; teamId: string; transportFee: number }) {
     this.operationLoading[`reassign-${event.booking._id}`] = true;
-    // Only assign the team, don't change the status
-    this.bookingService.assignTeam(event.booking._id!, event.teamId).subscribe({
+
+    // First update transport fee if provided, then assign team
+    const updateData: Partial<Booking> = { transportFee: event.transportFee };
+
+    this.bookingService.updateBooking(event.booking._id!, updateData).subscribe({
       next: () => {
-        this.loadBookings();
-        this.operationLoading[`reassign-${event.booking._id}`] = false;
-        console.log('Team reassigned successfully');
+        // Now assign the team (don't change the status)
+        this.bookingService.assignTeam(event.booking._id!, event.teamId).subscribe({
+          next: () => {
+            this.loadBookings();
+            this.operationLoading[`reassign-${event.booking._id}`] = false;
+            console.log('Team reassigned successfully with transport fee');
+          },
+          error: (err: any) => {
+            console.error('Error reassigning team:', err);
+            this.operationLoading[`reassign-${event.booking._id}`] = false;
+          },
+        });
       },
       error: (err: any) => {
-        console.error('Error reassigning team:', err);
+        console.error('Error updating transport fee:', err);
         this.operationLoading[`reassign-${event.booking._id}`] = false;
       },
     });
@@ -690,7 +714,7 @@ export class BookingListComponent implements OnInit {
     if (this.bookingTypeFilter() !== 'all') {
       if (this.bookingTypeFilter() === 'detailing') {
         filteredBookings = filteredBookings.filter(
-          (booking) => booking.type === 'small' || booking.type === 'big'
+          (booking) => booking.type === 'small' || booking.type === 'big' || booking.type === 'pickup'
         );
       } else if (this.bookingTypeFilter() === 'salon') {
         filteredBookings = filteredBookings.filter(

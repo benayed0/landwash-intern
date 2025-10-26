@@ -1,29 +1,34 @@
-<h2 mat-dialog-title>✏️ Modifier l'équipe</h2>
+<h2 mat-dialog-title>
+  <mat-icon>edit</mat-icon>
+  Modifier l'équipe
+</h2>
 
 <mat-dialog-content>
   <form (ngSubmit)="onSubmit()" #teamForm="ngForm">
     <!-- Name Field -->
-    <div class="form-group">
-      <label for="teamName">Nom de l'équipe *</label>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nom de l'équipe</mat-label>
       <input
-        type="text"
-        id="teamName"
+        matInput
         [(ngModel)]="editedTeam.name"
         name="teamName"
-        class="form-input"
-        [class.error]="nameError"
         placeholder="Ex: Équipe Nord"
         required
         [disabled]="isSubmitting"
       />
-      <span class="error-message" *ngIf="nameError">{{ nameError }}</span>
-    </div>
+      <mat-icon matPrefix>label</mat-icon>
+      <mat-error *ngIf="nameError">{{ nameError }}</mat-error>
+    </mat-form-field>
 
     <!-- Members Selection -->
-    <div class="form-group">
-      <label>Membres de l'équipe</label>
+    <div class="form-section">
+      <div class="section-header">
+        <mat-icon>people</mat-icon>
+        <h3>Membres de l'équipe</h3>
+      </div>
       <p class="helper-text">
-        👥 Cliquez pour sélectionner les membres • 🔄 Activez le toggle "Chef" pour désigner le chef d'équipe
+        <mat-icon inline>info</mat-icon>
+        Cliquez pour sélectionner les membres • Activez le toggle "Chef" pour désigner le chef d'équipe
       </p>
       <div class="members-list" *ngIf="availablePersonals.length > 0">
         <div
@@ -32,71 +37,92 @@
           [class.selected]="isPersonalSelected(personal._id!)"
           [class.chief]="isChief(personal._id!)"
         >
-          <div class="member-checkbox" (click)="onPersonalToggle(personal._id!)">
-            <span *ngIf="isPersonalSelected(personal._id!)">✓</span>
-          </div>
+          <mat-checkbox
+            [checked]="isPersonalSelected(personal._id!)"
+            (change)="onPersonalToggle(personal._id!)"
+            color="primary"
+          ></mat-checkbox>
           <div class="member-avatar">
             {{ personal.name.charAt(0).toUpperCase() }}
           </div>
           <div class="member-info" (click)="onPersonalToggle(personal._id!)">
-            <div class="member-name">{{ personal.name }}</div>
+            <div class="member-name">
+              {{ personal.name }}
+              <mat-icon *ngIf="isChief(personal._id!)" class="chief-badge">star</mat-icon>
+            </div>
             <div class="member-details">{{ personal.email }}</div>
           </div>
           <div class="chief-toggle-container">
-            <label class="chief-label">Chef</label>
-            <p-inputSwitch
-              [ngModel]="isChief(personal._id!)"
-              (ngModelChange)="onChiefToggle(personal._id!, $event)"
-              [ngModelOptions]="{standalone: true}"
+            <span class="chief-label">Chef</span>
+            <mat-slide-toggle
+              [checked]="isChief(personal._id!)"
+              (change)="onChiefToggle(personal._id!, $event.checked)"
               [disabled]="!isPersonalSelected(personal._id!)"
-              styleClass="chief-switch"
-            ></p-inputSwitch>
+              color="warn"
+            ></mat-slide-toggle>
           </div>
         </div>
       </div>
       <div class="empty-state" *ngIf="availablePersonals.length === 0">
+        <mat-icon>person_off</mat-icon>
         <p>Aucun personnel disponible</p>
       </div>
     </div>
 
     <!-- Location Selection -->
-    <div class="form-group">
-      <label>Localisation de l'équipe</label>
+    <div class="form-section">
+      <div class="section-header">
+        <mat-icon>location_on</mat-icon>
+        <h3>Localisation de l'équipe</h3>
+      </div>
       <div class="location-info" *ngIf="editedTeam.coordinates">
-        <p>📍 Latitude: {{ editedTeam.coordinates[1].toFixed(6) }}</p>
-        <p>📍 Longitude: {{ editedTeam.coordinates[0].toFixed(6) }}</p>
+        <div class="coordinate-item">
+          <mat-icon>my_location</mat-icon>
+          <span>Latitude: {{ editedTeam.coordinates[1].toFixed(6) }}</span>
+        </div>
+        <div class="coordinate-item">
+          <mat-icon>place</mat-icon>
+          <span>Longitude: {{ editedTeam.coordinates[0].toFixed(6) }}</span>
+        </div>
       </div>
       <div class="map-container">
         <div #mapContainer class="map"></div>
         <p class="map-hint">
-          👆 Cliquez sur la carte pour modifier la localisation de l'équipe
+          <mat-icon inline>touch_app</mat-icon>
+          Cliquez sur la carte pour modifier la localisation de l'équipe
         </p>
       </div>
     </div>
 
     <!-- Radius Selection -->
-    <div class="form-group">
-      <label for="radius">Rayon d'action (kilomètres)</label>
+    <div class="form-section">
+      <div class="section-header">
+        <mat-icon>radio_button_unchecked</mat-icon>
+        <h3>Rayon d'action</h3>
+      </div>
       <div class="radius-container">
-        <input
-          type="range"
-          id="radius"
-          [(ngModel)]="editedTeam.radius"
-          name="radius"
+        <mat-slider
+          [min]="1000"
+          [max]="100000"
+          [step]="1000"
           class="radius-slider"
-          min="1000"
-          max="100000"
-          step="1000"
-          (input)="onRadiusChange()"
           [disabled]="isSubmitting"
-        />
+        >
+          <input
+            matSliderThumb
+            [(ngModel)]="editedTeam.radius"
+            name="radius"
+            (input)="onRadiusChange()"
+          />
+        </mat-slider>
         <div class="radius-value">
-          {{ editedTeam.radius! / 1000 | number : "1.0-0" }}km
+          <mat-icon>straighten</mat-icon>
+          {{ editedTeam.radius! / 1000 | number : "1.0-0" }} km
         </div>
       </div>
       <div class="radius-labels">
-        <span>1km</span>
-        <span>100km</span>
+        <span>1 km</span>
+        <span>100 km</span>
       </div>
     </div>
   </form>
@@ -104,11 +130,12 @@
 
 <mat-dialog-actions align="end">
   <button
-    mat-button
+    mat-stroked-button
     type="button"
     (click)="onCancel()"
     [disabled]="isSubmitting"
   >
+    <mat-icon>close</mat-icon>
     Annuler
   </button>
   <button
@@ -118,7 +145,9 @@
     (click)="onSubmit()"
     [disabled]="isSubmitting"
   >
-    <span *ngIf="!isSubmitting">✓ Mettre à jour</span>
-    <span *ngIf="isSubmitting">⏳ Mise à jour...</span>
+    <mat-icon *ngIf="!isSubmitting">check</mat-icon>
+    <mat-icon *ngIf="isSubmitting" class="spinning">hourglass_empty</mat-icon>
+    <span *ngIf="!isSubmitting">Mettre à jour</span>
+    <span *ngIf="isSubmitting">Mise à jour...</span>
   </button>
 </mat-dialog-actions>

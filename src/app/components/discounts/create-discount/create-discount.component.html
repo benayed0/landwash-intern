@@ -1,263 +1,264 @@
 <div class="modal-content create-discount-modal">
   <!-- Modal Header -->
   <div class="modal-header">
-    <h2>Créer un Code de Réduction</h2>
-    <button class="close-btn" (click)="onCancel()" type="button">
-      <i class="pi pi-times"></i>
+    <h2 mat-dialog-title>Créer un Code de Réduction</h2>
+    <button mat-icon-button class="close-btn" (click)="onCancel()" type="button">
+      <mat-icon>close</mat-icon>
     </button>
   </div>
 
-    <!-- Modal Body -->
-    <div class="modal-body">
-      <form [formGroup]="discountForm" (ngSubmit)="onSubmit()">
-        <!-- Discount Code Section -->
-        <div class="form-section">
-          <h3>Code de Réduction</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="code">Code *</label>
-              <div class="code-input-group">
-                <input
-                  id="code"
-                  type="text"
-                  pInputText
-                  formControlName="code"
-                  placeholder="Ex: SAVE20"
-                  [class.error]="isFieldInvalid('code')"
-                  style="text-transform: uppercase"
-                />
-                <button
-                  type="button"
-                  class="generate-btn"
-                  (click)="generateRandomCode()"
-                  title="Générer un code aléatoire"
-                >
-                  <i class="pi pi-refresh"></i>
-                </button>
-              </div>
-              <small class="error-text" *ngIf="isFieldInvalid('code')">
-                {{ getFieldError("code") }}
-              </small>
-            </div>
-          </div>
+  <!-- Modal Body -->
+  <div mat-dialog-content class="modal-body">
+    <form [formGroup]="discountForm" (ngSubmit)="onSubmit()">
+      <!-- Discount Code Section -->
+      <div class="form-section">
+        <h3>Code de Réduction</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Code *</mat-label>
+            <input
+              matInput
+              formControlName="code"
+              placeholder="Ex: SAVE20"
+              style="text-transform: uppercase"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="generateRandomCode()"
+              title="Générer un code aléatoire"
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
+            <mat-error *ngIf="isFieldInvalid('code')">
+              {{ getFieldError("code") }}
+            </mat-error>
+          </mat-form-field>
         </div>
+      </div>
 
-        <!-- Discount Value Section -->
-        <div class="form-section">
-          <h3>Valeur de la Réduction</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="type">Type *</label>
-              <p-dropdown
-                id="type"
-                [options]="discountTypeOptions"
-                formControlName="type"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Type de réduction"
-                [class.error]="isFieldInvalid('type')"
-              ></p-dropdown>
-            </div>
-            <div class="form-group">
-              <label for="value">
-                Valeur *
-                <span class="value-hint">
-                  ({{
-                    discountForm.get("type")?.value === "percentage"
-                      ? "en %"
-                      : "en DT"
-                  }})
-                </span>
-              </label>
-              <p-inputNumber
-                id="value"
-                formControlName="value"
-                [suffix]="
-                  discountForm.get('type')?.value === 'percentage' ? '%' : ' DT'
-                "
-                [min]="0.01"
-                [max]="
-                  discountForm.get('type')?.value === 'percentage'
-                    ? 100
-                    : undefined
-                "
-                placeholder="Valeur de la réduction"
-                [class.error]="isFieldInvalid('value')"
-              ></p-inputNumber>
-              <small class="error-text" *ngIf="isFieldInvalid('value')">
-                {{ getFieldError("value") }}
-              </small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Usage Limits Section -->
-        <div class="form-section">
-          <h3>Limites d'Utilisation</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="maxUses">Nombre maximum d'utilisations *</label>
-              <p-inputNumber
-                id="maxUses"
-                formControlName="maxUses"
-                [min]="1"
-                placeholder="Ex: 100"
-                [class.error]="isFieldInvalid('maxUses')"
-              ></p-inputNumber>
-              <small class="error-text" *ngIf="isFieldInvalid('maxUses')">
-                {{ getFieldError("maxUses") }}
-              </small>
-            </div>
-            <div class="form-group">
-              <label for="expiresAt">Date d'expiration</label>
-              <div class="expiry-controls">
-                <input
-                  id="expiresAt"
-                  type="date"
-                  class="date-input"
-                  [value]="formatDateForInput(discountForm.get('expiresAt')?.value)"
-                  (change)="onDateChange($event)"
-                  [min]="formatDateForInput(minDate)"
-                  placeholder="Aucune expiration"
-                />
-                <div class="quick-expiry">
-                  <button
-                    type="button"
-                    class="quick-btn"
-                    (click)="setQuickExpiry(7)"
-                  >
-                    7j
-                  </button>
-                  <button
-                    type="button"
-                    class="quick-btn"
-                    (click)="setQuickExpiry(30)"
-                  >
-                    30j
-                  </button>
-                  <button
-                    type="button"
-                    class="quick-btn"
-                    (click)="setQuickExpiry(90)"
-                  >
-                    90j
-                  </button>
-                  <button
-                    type="button"
-                    class="clear-btn"
-                    (click)="clearExpiry()"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-              <small class="help-text"
-                >Laissez vide pour aucune expiration</small
+      <!-- Discount Value Section -->
+      <div class="form-section">
+        <h3>Valeur de la Réduction</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Type *</mat-label>
+            <mat-select formControlName="type">
+              <mat-option
+                *ngFor="let option of discountTypeOptions"
+                [value]="option.value"
               >
-            </div>
-          </div>
+                {{ option.label }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="isFieldInvalid('type')">
+              {{ getFieldError("type") }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>
+              Valeur *
+              <span class="value-hint">
+                ({{
+                  discountForm.get("type")?.value === "percentage"
+                    ? "en %"
+                    : "en DT"
+                }})
+              </span>
+            </mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="value"
+              [min]="0.01"
+              [max]="discountForm.get('type')?.value === 'percentage' ? 100 : 999999"
+              placeholder="Valeur de la réduction"
+            />
+            <span matSuffix class="suffix-text">
+              {{
+                discountForm.get("type")?.value === "percentage" ? "%" : " DT"
+              }}
+            </span>
+            <mat-error *ngIf="isFieldInvalid('value')">
+              {{ getFieldError("value") }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Usage Limits Section -->
+      <div class="form-section">
+        <h3>Limites d'Utilisation</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre maximum d'utilisations *</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="maxUses"
+              [min]="1"
+              placeholder="Ex: 100"
+            />
+            <mat-error *ngIf="isFieldInvalid('maxUses')">
+              {{ getFieldError("maxUses") }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date d'expiration</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              formControlName="expiresAt"
+              [min]="minDate"
+              placeholder="Aucune expiration"
+            />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-hint>Laissez vide pour aucune expiration</mat-hint>
+          </mat-form-field>
         </div>
 
-        <!-- Product Applicability Section -->
-        <div class="form-section">
-          <h3>Produits Applicables</h3>
-          <div class="form-row">
-            <div class="form-group full-width">
-              <label for="applicableProducts">Produits concernés</label>
-              <p-multiSelect
-                id="applicableProducts"
-                [options]="products()"
-                formControlName="applicableProducts"
-                optionLabel="name"
-                optionValue="_id"
-                placeholder="Tous les produits (laisser vide)"
-                [filter]="true"
-                [loading]="isLoadingProducts()"
-              ></p-multiSelect>
-              <small class="help-text">
-                Si aucun produit n'est sélectionné, le code s'appliquera à tous
-                les produits
-              </small>
-            </div>
+        <div class="quick-expiry-buttons">
+          <button
+            mat-stroked-button
+            type="button"
+            class="quick-btn"
+            (click)="setQuickExpiry(7)"
+          >
+            7 jours
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            class="quick-btn"
+            (click)="setQuickExpiry(30)"
+          >
+            30 jours
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            class="quick-btn"
+            (click)="setQuickExpiry(90)"
+          >
+            90 jours
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            class="clear-btn"
+            (click)="clearExpiry()"
+            color="warn"
+          >
+            <mat-icon>clear</mat-icon>
+            Effacer
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Applicability Section -->
+      <div class="form-section">
+        <h3>Produits Applicables</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Produits concernés</mat-label>
+            <mat-select formControlName="applicableProducts" multiple>
+              <mat-option
+                *ngFor="let product of products()"
+                [value]="product._id"
+              >
+                {{ product.name }}
+              </mat-option>
+            </mat-select>
+            <mat-hint>
+              Si aucun produit n'est sélectionné, le code s'appliquera à tous
+              les produits
+            </mat-hint>
+            <mat-icon matSuffix *ngIf="isLoadingProducts()">
+              <mat-spinner diameter="20"></mat-spinner>
+            </mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Service Types Section -->
+      <div class="form-section">
+        <h3>Types de Services</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Services concernés</mat-label>
+            <mat-select formControlName="services" multiple>
+              <mat-option
+                *ngFor="let service of serviceTypeOptions"
+                [value]="service.value"
+              >
+                {{ service.label }}
+              </mat-option>
+            </mat-select>
+            <mat-hint>
+              Si aucun service n'est sélectionné, le code s'appliquera à tous
+              les types de services
+            </mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Options Section -->
+      <div class="form-section">
+        <h3>Options</h3>
+        <div class="form-row toggle-row">
+          <div class="toggle-group">
+            <mat-slide-toggle formControlName="firstOrderOnly">
+              Première commande uniquement
+            </mat-slide-toggle>
+            <small class="help-text">
+              Restreindre ce code aux nouveaux clients
+            </small>
+          </div>
+
+          <div class="toggle-group">
+            <mat-slide-toggle formControlName="active">
+              Code actif
+            </mat-slide-toggle>
+            <small class="help-text">
+              Le code peut être utilisé immédiatement
+            </small>
           </div>
         </div>
+      </div>
+    </form>
+  </div>
 
-        <!-- Service Types Section -->
-        <div class="form-section">
-          <h3>Types de Services</h3>
-          <div class="form-row">
-            <div class="form-group full-width">
-              <label for="services">Services concernés</label>
-              <p-multiSelect
-                id="services"
-                [options]="serviceTypeOptions"
-                formControlName="services"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Tous les services (laisser vide)"
-                [filter]="false"
-                [showToggleAll]="false"
-              ></p-multiSelect>
-              <small class="help-text">
-                Si aucun service n'est sélectionné, le code s'appliquera à tous
-                les types de services
-              </small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Options Section -->
-        <div class="form-section">
-          <h3>Options</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <div class="switch-control">
-                <label for="firstOrderOnly">Première commande uniquement</label>
-                <p-inputSwitch
-                  id="firstOrderOnly"
-                  formControlName="firstOrderOnly"
-                ></p-inputSwitch>
-              </div>
-              <small class="help-text">
-                Restreindre ce code aux nouveaux clients
-              </small>
-            </div>
-            <div class="form-group">
-              <div class="switch-control">
-                <label for="active">Code actif</label>
-                <p-inputSwitch
-                  id="active"
-                  formControlName="active"
-                ></p-inputSwitch>
-              </div>
-              <small class="help-text">
-                Le code peut être utilisé immédiatement
-              </small>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
-
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button
-        type="button"
-        class="cancel-btn"
-        (click)="onCancel()"
-        [disabled]="isSubmitting()"
-      >
-        Annuler
-      </button>
-      <button
-        type="submit"
-        class="submit-btn"
-        (click)="onSubmit()"
-        [disabled]="isSubmitting() || discountForm.invalid"
-      >
-        <i class="pi pi-spin pi-spinner" *ngIf="isSubmitting()"></i>
-        <i class="pi pi-check" *ngIf="!isSubmitting()"></i>
-        {{ isSubmitting() ? "Création..." : "Créer le Code" }}
-      </button>
-    </div>
+  <!-- Modal Footer -->
+  <div mat-dialog-actions class="modal-footer">
+    <button
+      mat-stroked-button
+      type="button"
+      class="cancel-btn"
+      (click)="onCancel()"
+      [disabled]="isSubmitting()"
+    >
+      Annuler
+    </button>
+    <button
+      mat-raised-button
+      type="submit"
+      class="submit-btn"
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="isSubmitting() || discountForm.invalid"
+    >
+      <mat-icon *ngIf="isSubmitting()">
+        <mat-spinner diameter="20"></mat-spinner>
+      </mat-icon>
+      <mat-icon *ngIf="!isSubmitting()">check</mat-icon>
+      {{ isSubmitting() ? "Création..." : "Créer le Code" }}
+    </button>
+  </div>
 </div>

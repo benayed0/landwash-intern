@@ -35,4 +35,8 @@ export class TeamService {
   deleteTeam(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/teams/${id}`);
   }
+
+  updatePersonal(id: string, personal: Partial<Personal>): Observable<Personal> {
+    return this.http.patch<Personal>(`${this.apiUrl}/personals/${id}`, personal);
+  }
 }

@@ -55,7 +55,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   // Edit mode properties
   isEditing = false;
   editForm = {
-    type: 'small' as 'small' | 'big' | 'salon',
+    type: 'small' as 'small' | 'big' | 'salon' | 'pickup',
     price: 0,
     date: '',
     status: 'pending' as BookingStatus,
@@ -63,8 +63,9 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     salonsSeats: 0,
     address: '',
     secondaryNumber: '',
+    transportFee: 0,
   };
-  previousServiceType: 'small' | 'big' | 'salon' = 'small';
+  previousServiceType: 'small' | 'big' | 'salon' | 'pickup' = 'small';
 
   // Slot management for edit mode
   bookedSlots = signal<BookingSlots | null>(null);
@@ -85,6 +86,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       small: 'Citadines / Petites Voitures',
       big: 'SUV / Grandes Voitures',
       salon: 'Salon',
+      pickup: 'Pick-up',
     };
     return labels[type] || type;
   }
@@ -242,6 +244,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       salonsSeats: this.booking.salonsSeats || 0,
       address: this.booking.address || '',
       secondaryNumber: this.booking.secondaryNumber || '',
+      transportFee: this.booking.transportFee || 0,
     };
 
     // Initialize previous service type
@@ -355,8 +358,12 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   private generateAllTimeSlots(): string[] {
     const serviceType = this.editForm.type;
 
-    // For non-salon services (small and big cars), only allow specific time slots
-    if (serviceType === 'small' || serviceType === 'big') {
+    // For detailing services (small, big, and pickup cars), only allow specific time slots
+    if (
+      serviceType === 'small' ||
+      serviceType === 'big' ||
+      serviceType === 'pickup'
+    ) {
       return ['08:00', '11:00', '14:00'];
     }
 
@@ -377,8 +384,12 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     const bookedTimes: string[] = [];
 
     bookedSlots.forEach(([start, end]) => {
-      if (serviceType === 'small' || serviceType === 'big') {
-        // For car wash services, check if any of the specific slots (8h, 11h, 14h) overlap
+      if (
+        serviceType === 'small' ||
+        serviceType === 'big' ||
+        serviceType === 'pickup'
+      ) {
+        // For detailing services, check if any of the specific slots (8h, 11h, 14h) overlap
         const carWashSlots = ['08:00', '11:00', '14:00'];
 
         const [startHourStr, startMinStr] = start.split(':');
@@ -447,6 +458,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       withSub: this.editForm.withSub,
       address: this.editForm.address,
       secondaryNumber: this.editForm.secondaryNumber,
+      transportFee: this.editForm.transportFee,
     };
 
     // Only include salonsSeats if it's a salon booking

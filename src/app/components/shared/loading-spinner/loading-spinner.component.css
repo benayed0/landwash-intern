@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100px;
 }
 
 .loading-container.overlay {
@@ -20,62 +21,42 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.spinner {
-  display: inline-block;
-  position: relative;
+/* Pulsing effect for the wrapper */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
-.spinner-circle {
-  border-radius: 50%;
-  border-style: solid;
-  animation: spin 1s linear infinite;
-}
-
-::ng-deep .custom-spinner .p-progress-spinner-circle {
-  stroke: #b1e500 !important;
-}
-/* Size variants */
-.small .spinner-circle {
-  width: 20px;
-  height: 20px;
-  border-width: 2px;
-}
-
-.medium .spinner-circle {
-  width: 40px;
-  height: 40px;
-  border-width: 3px;
-}
-
-.large .spinner-circle {
-  width: 60px;
-  height: 60px;
-  border-width: 4px;
-}
-
-/* Color variants */
-.primary .spinner-circle {
-  border-color: #c3ff00 transparent #c3ff00 transparent;
-}
-
-.white .spinner-circle {
-  border-color: #ffffff transparent #ffffff transparent;
-}
-
-.dark .spinner-circle {
-  border-color: #333333 transparent #333333 transparent;
-}
-
+/* Loading message */
 .loading-message {
   margin: 0;
   font-size: 14px;
   text-align: center;
-  color: #e5e5e5;
   font-weight: 500;
 }
 
+/* Color variants for spinner */
+.primary ::ng-deep .custom-spinner circle {
+  stroke: #c3ff00 !important;
+}
+
+.white ::ng-deep .custom-spinner circle {
+  stroke: #ffffff !important;
+}
+
+.dark ::ng-deep .custom-spinner circle {
+  stroke: #333333 !important;
+}
+
+/* Color variants for message */
 .primary .loading-message {
   color: #e5e5e5;
 }
@@ -88,52 +69,30 @@
   color: #333333;
 }
 
-/* Spinner animation */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+/* Size adjustments for message */
+.small .loading-message {
+  font-size: 12px;
 }
 
-/* Pulsing effect for the wrapper */
-.spinner-wrapper {
-  animation: pulse 2s ease-in-out infinite;
+.medium .loading-message {
+  font-size: 14px;
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
+.large .loading-message {
+  font-size: 16px;
 }
 
 /* Responsive sizing */
 @media (max-width: 480px) {
-  .large .spinner-circle {
-    width: 50px;
-    height: 50px;
-    border-width: 3px;
-  }
-
-  .medium .spinner-circle {
-    width: 35px;
-    height: 35px;
-    border-width: 3px;
-  }
-
-  .small .spinner-circle {
-    width: 18px;
-    height: 18px;
-    border-width: 2px;
-  }
-
   .loading-message {
     font-size: 13px;
+  }
+
+  .small .loading-message {
+    font-size: 11px;
+  }
+
+  .large .loading-message {
+    font-size: 15px;
   }
 }

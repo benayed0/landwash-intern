@@ -25,10 +25,12 @@ export class TeamAssignModalComponent implements OnInit {
   @Output() confirmAssign = new EventEmitter<{
     booking: Booking;
     teamId: string;
+    transportFee: number;
   }>();
   @Output() reassignTeam = new EventEmitter<{
     booking: Booking;
     teamId: string;
+    transportFee: number;
   }>();
 
   private teamService = inject(TeamService);
@@ -37,6 +39,7 @@ export class TeamAssignModalComponent implements OnInit {
   isReassignment: boolean;
   teams: Team[] = [];
   selectedTeamId = '';
+  transportFee: number = 0;
   loadingTeams = false;
 
   constructor(
@@ -50,6 +53,10 @@ export class TeamAssignModalComponent implements OnInit {
 
   ngOnInit() {
     this.loadTeams();
+    // Initialize transport fee if already set
+    if (this.booking?.transportFee) {
+      this.transportFee = this.booking.transportFee;
+    }
   }
 
   loadTeams() {
@@ -70,6 +77,7 @@ export class TeamAssignModalComponent implements OnInit {
     const labels: any = {
       small: 'Citadines / Petites Voitures',
       big: 'SUV / Grandes Voitures',
+      pickup: 'Pick-up Vehicles',
       salon: 'Salon',
     };
     return labels[type] || type;
@@ -100,12 +108,14 @@ export class TeamAssignModalComponent implements OnInit {
         this.reassignTeam.emit({
           booking: this.booking,
           teamId: this.selectedTeamId,
+          transportFee: this.transportFee || 0,
         });
       } else {
         // For new assignment, assign team and confirm booking
         this.confirmAssign.emit({
           booking: this.booking,
           teamId: this.selectedTeamId,
+          transportFee: this.transportFee || 0,
         });
       }
     }

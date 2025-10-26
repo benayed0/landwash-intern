@@ -7,6 +7,7 @@ import { TeamService } from '../../../services/team.service';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
 import { AddPersonalModalComponent } from '../add-personal-modal/add-personal-modal.component';
+import { EditPersonalModalComponent } from '../edit-personal-modal/edit-personal-modal.component';
 import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../edit-team-modal/edit-team-modal.component';
 import { DeleteConfirmModalComponent } from '../delete-confirm-modal/delete-confirm-modal.component';
@@ -363,6 +364,33 @@ export class TeamsComponent implements OnInit {
       this.personals.push(data);
       this.updateFilteredLists();
       dialogRef.close();
+    });
+  }
+
+  openEditPersonal(personal: Personal) {
+    const dialogRef = this.dialog.open(EditPersonalModalComponent, {
+      width: '600px',
+      disableClose: false,
+    });
+
+    // Pass the personal data to the modal
+    dialogRef.componentInstance.personal = personal;
+
+    // Subscribe to the personalUpdated event
+    const subscription = dialogRef.componentInstance.personalUpdated.subscribe(
+      (updatedPersonal: Personal) => {
+        console.log('Personal updated:', updatedPersonal);
+        const index = this.personals.findIndex((p) => p._id === updatedPersonal._id);
+        if (index !== -1) {
+          this.personals[index] = updatedPersonal;
+        }
+        this.updateFilteredLists();
+      }
+    );
+
+    // Clean up subscription when dialog closes
+    dialogRef.afterClosed().subscribe(() => {
+      subscription.unsubscribe();
     });
   }
 

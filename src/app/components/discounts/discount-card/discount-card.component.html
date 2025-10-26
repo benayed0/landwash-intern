@@ -4,36 +4,35 @@
     <div class="discount-code">
       <span class="code-label">Code:</span>
       <span class="code-value" *ngIf="!isEditing()">{{ discount.code }}</span>
-      <input
-        *ngIf="isEditing()"
-        type="text"
-        [(ngModel)]="editForm().code"
-        class="code-input"
-        placeholder="Code de réduction"
-      />
+      <mat-form-field *ngIf="isEditing()" appearance="outline" class="code-form-field">
+        <input
+          matInput
+          [(ngModel)]="editForm().code"
+          placeholder="Code de réduction"
+          style="text-transform: uppercase"
+        />
+      </mat-form-field>
     </div>
     <div class="card-actions">
-      <p-tag
-        [value]="statusText()"
-        [severity]="statusColor()"
-        class="status-tag"
-      ></p-tag>
+      <mat-chip [class]="'status-chip ' + statusColor()">
+        {{ statusText() }}
+      </mat-chip>
       <div class="action-buttons" *ngIf="!isEditing()">
         <button
-          type="button"
+          mat-icon-button
           class="edit-btn"
           (click)="startEdit()"
           title="Modifier"
         >
-          <i class="pi pi-pencil"></i>
+          <mat-icon>edit</mat-icon>
         </button>
         <button
-          type="button"
+          mat-icon-button
           class="delete-btn"
           (click)="confirmDelete()"
           title="Supprimer"
         >
-          <i class="pi pi-trash"></i>
+          <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
@@ -51,30 +50,35 @@
               discount.type === "percentage" ? "Pourcentage" : "Montant Fixe"
             }}
           </span>
-          <p-dropdown
-            *ngIf="isEditing()"
-            [options]="discountTypeOptions"
-            [(ngModel)]="editForm().type"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Type de réduction"
-            class="type-dropdown"
-          ></p-dropdown>
+          <mat-form-field *ngIf="isEditing()" appearance="outline" class="compact-field">
+            <mat-select [(ngModel)]="editForm().type" placeholder="Type de réduction">
+              <mat-option
+                *ngFor="let option of discountTypeOptions"
+                [value]="option.value"
+              >
+                {{ option.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
         <div class="info-item">
           <span class="label">Valeur:</span>
           <span *ngIf="!isEditing()" class="value highlight">
             {{ formatValue(discount.type, discount.value) }}
           </span>
-          <p-inputNumber
-            *ngIf="isEditing()"
-            [(ngModel)]="editForm().value"
-            [suffix]="editForm().type === 'percentage' ? '%' : ' DT'"
-            [min]="0"
-            [max]="editForm().type === 'percentage' ? 100 : undefined"
-            placeholder="Valeur"
-            class="value-input"
-          ></p-inputNumber>
+          <mat-form-field *ngIf="isEditing()" appearance="outline" class="compact-field">
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="editForm().value"
+              [min]="0"
+              [max]="editForm().type === 'percentage' ? 100 : 999999"
+              placeholder="Valeur"
+            />
+            <span matSuffix class="suffix-text">
+              {{ editForm().type === "percentage" ? "%" : " DT" }}
+            </span>
+          </mat-form-field>
         </div>
       </div>
 
@@ -89,24 +93,25 @@
         <div class="info-item" *ngIf="!isEditing()">
           <span class="label">Progression:</span>
           <div class="progress-container">
-            <div class="progress-bar">
-              <div
-                class="progress-fill"
-                [style.width.%]="usagePercentage()"
-                [class.full]="usagePercentage() >= 100"
-              ></div>
-            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="usagePercentage()"
+              [class.full]="usagePercentage() >= 100"
+            ></mat-progress-bar>
             <span class="progress-text">{{ usagePercentage() }}%</span>
           </div>
         </div>
         <div class="info-item" *ngIf="isEditing()">
           <span class="label">Max. utilisations:</span>
-          <p-inputNumber
-            [(ngModel)]="editForm().maxUses"
-            [min]="discount.usedCount"
-            placeholder="Maximum d'utilisations"
-            class="max-uses-input"
-          ></p-inputNumber>
+          <mat-form-field appearance="outline" class="compact-field">
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="editForm().maxUses"
+              [min]="discount.usedCount"
+              placeholder="Maximum d'utilisations"
+            />
+          </mat-form-field>
         </div>
       </div>
 
@@ -121,14 +126,16 @@
           >
             {{ formatDate(discount.expiresAt) }}
           </span>
-          <input
-            *ngIf="isEditing()"
-            type="date"
-            [value]="formatDateForInput(editForm().expiresAt)"
-            (change)="onDateChange($event)"
-            class="date-input"
-            placeholder="Date d'expiration"
-          />
+          <mat-form-field *ngIf="isEditing()" appearance="outline" class="compact-field">
+            <input
+              matInput
+              [matDatepicker]="picker"
+              [(ngModel)]="editForm().expiresAt"
+              placeholder="Date d'expiration"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
         </div>
       </div>
 
@@ -139,18 +146,20 @@
           <span *ngIf="!isEditing()" class="value">
             {{ getProductNames(discount.applicableProducts || []) }}
           </span>
-          <p-multiSelect
-            *ngIf="isEditing()"
-            [options]="products()"
-            [(ngModel)]="editForm().applicableProducts"
-            optionLabel="name"
-            optionValue="_id"
-            placeholder="Sélectionner les produits (vide = tous)"
-            [filter]="false"
-            [showToggleAll]="false"
-            [ngModelOptions]="{ standalone: true }"
-            class="products-dropdown"
-          ></p-multiSelect>
+          <mat-form-field *ngIf="isEditing()" appearance="outline" class="compact-field full-width">
+            <mat-select
+              [(ngModel)]="editForm().applicableProducts"
+              placeholder="Sélectionner les produits (vide = tous)"
+              multiple
+            >
+              <mat-option
+                *ngFor="let product of products()"
+                [value]="product._id"
+              >
+                {{ product.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
@@ -161,18 +170,20 @@
           <span *ngIf="!isEditing()" class="value">
             {{ getServiceNames(discount.services || []) }}
           </span>
-          <p-multiSelect
-            *ngIf="isEditing()"
-            [options]="serviceTypeOptions"
-            [(ngModel)]="editForm().services"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Sélectionner les services (vide = tous)"
-            [filter]="false"
-            [showToggleAll]="false"
-            [ngModelOptions]="{ standalone: true }"
-            class="services-dropdown"
-          ></p-multiSelect>
+          <mat-form-field *ngIf="isEditing()" appearance="outline" class="compact-field full-width">
+            <mat-select
+              [(ngModel)]="editForm().services"
+              placeholder="Sélectionner les services (vide = tous)"
+              multiple
+            >
+              <mat-option
+                *ngFor="let service of serviceTypeOptions"
+                [value]="service.value"
+              >
+                {{ service.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
@@ -183,22 +194,22 @@
           <span *ngIf="!isEditing()" class="value">
             {{ discount.firstOrderOnly ? "Oui" : "Non" }}
           </span>
-          <p-inputSwitch
+          <mat-slide-toggle
             *ngIf="isEditing()"
             [(ngModel)]="editForm().firstOrderOnly"
-            class="first-order-switch"
-          ></p-inputSwitch>
+            color="primary"
+          ></mat-slide-toggle>
         </div>
         <div class="info-item">
           <span class="label">Statut:</span>
           <span *ngIf="!isEditing()" class="value">
             {{ discount.active ? "Actif" : "Inactif" }}
           </span>
-          <p-inputSwitch
+          <mat-slide-toggle
             *ngIf="isEditing()"
             [(ngModel)]="editForm().active"
-            class="active-switch"
-          ></p-inputSwitch>
+            color="primary"
+          ></mat-slide-toggle>
         </div>
       </div>
     </div>
@@ -206,12 +217,12 @@
 
   <!-- Edit Actions -->
   <div class="edit-actions" *ngIf="isEditing()">
-    <button type="button" class="cancel-btn" (click)="cancelEdit()">
-      <i class="pi pi-times"></i>
+    <button mat-stroked-button class="cancel-btn" (click)="cancelEdit()">
+      <mat-icon>close</mat-icon>
       Annuler
     </button>
-    <button type="button" class="save-btn" (click)="saveChanges()">
-      <i class="pi pi-check"></i>
+    <button mat-raised-button color="primary" class="save-btn" (click)="saveChanges()">
+      <mat-icon>check</mat-icon>
       Sauvegarder
     </button>
   </div>
@@ -219,16 +230,12 @@
   <!-- Quick Toggle (when not editing) -->
   <div class="quick-actions" *ngIf="!isEditing()">
     <button
-      type="button"
+      mat-stroked-button
       class="toggle-btn"
       [class.active]="discount.active"
       (click)="toggleActive()"
     >
-      <i
-        class="pi"
-        [class.pi-eye]="discount.active"
-        [class.pi-eye-slash]="!discount.active"
-      ></i>
+      <mat-icon>{{ discount.active ? "visibility" : "visibility_off" }}</mat-icon>
       {{ discount.active ? "Désactiver" : "Activer" }}
     </button>
   </div>

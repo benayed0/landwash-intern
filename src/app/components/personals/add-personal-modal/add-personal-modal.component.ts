@@ -100,14 +100,7 @@ export class AddPersonalModalComponent implements OnInit {
   copyPassword() {
     if (navigator.clipboard && this.newPersonal.password) {
       navigator.clipboard.writeText(this.newPersonal.password).then(() => {
-        // Show a temporary success message
-        const button = document.querySelector('.copy-btn');
-        if (button) {
-          button.textContent = '✓ Copié!';
-          setTimeout(() => {
-            button.textContent = '📋 Copier';
-          }, 2000);
-        }
+        this.toast.success('Mot de passe copié dans le presse-papiers!');
       });
     }
   }

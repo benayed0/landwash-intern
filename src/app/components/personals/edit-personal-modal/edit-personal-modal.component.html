@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>
-  <mat-icon>person_add</mat-icon>
-  Ajouter un nouveau personnel
+  <mat-icon>edit</mat-icon>
+  Modifier le personnel
 </h2>
 
 <mat-dialog-content>
@@ -10,12 +10,12 @@
       <mat-label>Nom complet</mat-label>
       <input
         matInput
-        [(ngModel)]="newPersonal.name"
+        [(ngModel)]="editedPersonal.name"
         name="name"
         placeholder="Ex: Jean Dupont"
         required
         [disabled]="isSubmitting"
-      >
+      />
       <mat-icon matPrefix>person</mat-icon>
       <mat-error *ngIf="nameError">{{ nameError }}</mat-error>
     </mat-form-field>
@@ -26,12 +26,12 @@
       <input
         matInput
         type="email"
-        [(ngModel)]="newPersonal.email"
+        [(ngModel)]="editedPersonal.email"
         name="email"
         placeholder="Ex: jean.dupont@example.com"
         required
         [disabled]="isSubmitting"
-      >
+      />
       <mat-icon matPrefix>email</mat-icon>
       <mat-error *ngIf="emailError">{{ emailError }}</mat-error>
     </mat-form-field>
@@ -42,19 +42,20 @@
       <input
         matInput
         type="tel"
-        [(ngModel)]="newPersonal.phone"
+        [(ngModel)]="editedPersonal.phone"
         name="phone"
         placeholder="Ex: +216 XX XXX XXX"
         [disabled]="isSubmitting"
-      >
+      />
       <mat-icon matPrefix>phone</mat-icon>
+      <mat-error *ngIf="phoneError">{{ phoneError }}</mat-error>
     </mat-form-field>
 
     <!-- Role Field -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Rôle</mat-label>
       <mat-select
-        [(ngModel)]="newPersonal.role"
+        [(ngModel)]="editedPersonal.role"
         name="role"
         required
         [disabled]="isSubmitting"
@@ -63,72 +64,80 @@
           <mat-icon>engineering</mat-icon>
           Travailleur
         </mat-option>
-        <!-- Admin option can be enabled later -->
-        <!-- <mat-option value="admin">
+        <mat-option value="admin">
           <mat-icon>admin_panel_settings</mat-icon>
           Administrateur
-        </mat-option> -->
+        </mat-option>
       </mat-select>
       <mat-icon matPrefix>badge</mat-icon>
     </mat-form-field>
 
-    <!-- Password Field with Generator -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Mot de passe généré</mat-label>
-      <input
-        matInput
-        [type]="passwordVisible ? 'text' : 'password'"
-        [(ngModel)]="newPersonal.password"
-        name="password"
-        readonly
-        [disabled]="isSubmitting"
-      >
-      <mat-icon matPrefix>lock</mat-icon>
-      <button
-        mat-icon-button
-        matSuffix
-        type="button"
-        (click)="togglePasswordVisibility()"
-        [disabled]="isSubmitting"
-        [attr.aria-label]="'Toggle password visibility'"
-      >
-        <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
-      </button>
-    </mat-form-field>
+    <!-- Password Reset Section -->
+    <div class="password-section">
+      <!-- Password Field with Generator -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nouveau mot de passe</mat-label>
+        <input
+          matInput
+          [type]="passwordVisible ? 'text' : 'password'"
+          [(ngModel)]="newPassword"
+          name="password"
+          readonly
+          [disabled]="isSubmitting"
+        />
+        <mat-icon matPrefix>lock</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="togglePasswordVisibility()"
+          [disabled]="isSubmitting"
+          [attr.aria-label]="'Toggle password visibility'"
+        >
+          <mat-icon>{{
+            passwordVisible ? "visibility_off" : "visibility"
+          }}</mat-icon>
+        </button>
+      </mat-form-field>
 
-    <!-- Password Actions -->
-    <div class="password-actions">
-      <button
-        mat-stroked-button
-        type="button"
-        class="action-btn copy-btn"
-        (click)="copyPassword()"
-        [disabled]="isSubmitting"
-      >
-        <mat-icon>content_copy</mat-icon>
-        Copier
-      </button>
-      <button
-        mat-stroked-button
-        type="button"
-        class="action-btn"
-        (click)="regeneratePassword()"
-        [disabled]="isSubmitting"
-      >
-        <mat-icon>refresh</mat-icon>
-        Régénérer
-      </button>
+      <!-- Password Actions -->
+      <div class="password-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          class="action-btn copy-btn"
+          (click)="copyPassword()"
+          [disabled]="isSubmitting"
+        >
+          <mat-icon>content_copy</mat-icon>
+          Copier
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          class="action-btn"
+          (click)="regeneratePassword()"
+          [disabled]="isSubmitting"
+        >
+          <mat-icon>refresh</mat-icon>
+          Régénérer
+        </button>
+      </div>
+
+      <mat-hint class="password-hint">
+        <mat-icon inline>info</mat-icon>
+        Copiez ce mot de passe et communiquez-le au personnel de manière
+        sécurisée.
+      </mat-hint>
     </div>
 
-    <mat-hint class="password-hint">
-      <mat-icon inline>info</mat-icon>
-      Copiez ce mot de passe et communiquez-le au nouveau personnel de manière sécurisée.
-    </mat-hint>
-
     <!-- Info Message -->
-    <div class="info-message">
+    <div class="info-message" *ngIf="resetPassword">
       <mat-icon>email</mat-icon>
-      <p>Un email de bienvenue sera envoyé à l'adresse indiquée avec les instructions de connexion.</p>
+      <p>
+        Un email de notification sera envoyé pour informer du changement de mot
+        de passe.
+      </p>
     </div>
   </form>
 </mat-dialog-content>
@@ -152,7 +161,7 @@
   >
     <mat-icon *ngIf="!isSubmitting">check</mat-icon>
     <mat-icon *ngIf="isSubmitting" class="spinning">hourglass_empty</mat-icon>
-    <span *ngIf="!isSubmitting">Créer le compte</span>
-    <span *ngIf="isSubmitting">Création...</span>
+    <span *ngIf="!isSubmitting">Mettre à jour</span>
+    <span *ngIf="isSubmitting">Mise à jour...</span>
   </button>
 </mat-dialog-actions>

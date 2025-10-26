@@ -1,38 +1,44 @@
 <div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Créer une Commande</h2>
-      <button class="close-btn" (click)="onCancel()" type="button">×</button>
+      <h2>
+        <mat-icon>shopping_cart</mat-icon>
+        Créer une Commande
+      </h2>
+      <button mat-icon-button class="close-btn" (click)="onCancel()" type="button">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
 
     <div class="modal-body">
       <!-- Product Selection Section -->
       <div class="section">
-        <h3>Sélection des Produits</h3>
+        <h3>
+          <mat-icon>inventory</mat-icon>
+          Sélection des Produits
+        </h3>
 
         <!-- Product Search -->
-        <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Rechercher un produit</mat-label>
           <input
-            type="text"
-            pInputText
+            matInput
             placeholder="Rechercher un produit..."
             [value]="productSearchQuery()"
             (input)="onProductSearch($event)"
-            class="search-input"
           />
-          <i class="pi pi-search search-icon"></i>
-        </div>
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
 
         <!-- Product List -->
         <div class="products-grid">
           <div *ngIf="isLoadingProducts()" class="loading-state">
-            <p-skeleton
-              height="100px"
-              *ngFor="let item of [1, 2, 3, 4]"
-            ></p-skeleton>
+            <mat-card *ngFor="let item of [1, 2, 3, 4]" class="skeleton-card">
+              <mat-spinner diameter="40"></mat-spinner>
+            </mat-card>
           </div>
 
-          <div
+          <mat-card
             *ngFor="let product of filteredProducts()"
             class="product-card"
             (click)="addProduct(product)"
@@ -48,25 +54,28 @@
               />
               <ng-template #noImage>
                 <div class="no-image">
-                  <i class="pi pi-image"></i>
+                  <mat-icon>image</mat-icon>
                 </div>
               </ng-template>
             </div>
-            <div class="product-info">
+            <mat-card-content class="product-info">
               <h4>{{ product.name }}</h4>
-              <p class="product-type">{{ product.type }}</p>
+              <span class="product-type">{{ product.type }}</span>
               <p class="product-price">{{ product.price }} DT</p>
-            </div>
-            <button class="add-btn" type="button">
-              <i class="pi pi-plus">+</i>
+            </mat-card-content>
+            <button mat-mini-fab class="add-btn" type="button" color="primary">
+              <mat-icon>add</mat-icon>
             </button>
-          </div>
+          </mat-card>
         </div>
       </div>
 
       <!-- Selected Products Section -->
       <div class="section" *ngIf="selectedProducts().length > 0">
-        <h3>Produits Sélectionnés</h3>
+        <h3>
+          <mat-icon>shopping_basket</mat-icon>
+          Produits Sélectionnés
+        </h3>
         <div class="selected-products">
           <div
             *ngFor="let item of selectedProducts()"
@@ -80,13 +89,13 @@
             </div>
             <div class="quantity-controls">
               <button
+                mat-icon-button
                 type="button"
-                class="quantity-btn"
                 (click)="
                   updateProductQuantity(item.product._id, item.quantity - 1)
                 "
               >
-                <i class="pi pi-minus">−</i>
+                <mat-icon>remove</mat-icon>
               </button>
               <input
                 type="number"
@@ -101,22 +110,24 @@
                 class="quantity-input"
               />
               <button
+                mat-icon-button
                 type="button"
-                class="quantity-btn"
                 (click)="
                   updateProductQuantity(item.product._id, item.quantity + 1)
                 "
               >
-                <i class="pi pi-plus">+</i>
+                <mat-icon>add</mat-icon>
               </button>
             </div>
             <div class="item-total">{{ item.totalPrice }} DT</div>
             <button
+              mat-icon-button
               type="button"
               class="remove-btn"
               (click)="removeProduct(item.product._id)"
+              color="warn"
             >
-              <i class="pi pi-trash">🗑</i>
+              <mat-icon>delete</mat-icon>
             </button>
           </div>
         </div>
@@ -126,26 +137,28 @@
           <div class="calculated-price">
             <span>Prix calculé: {{ calculatedTotalPrice() }} DT</span>
           </div>
-          <div class="manual-price">
-            <label>Prix manuel (optionnel):</label>
-            <p-inputNumber
+          <mat-form-field appearance="outline" class="manual-price-field">
+            <mat-label>Prix manuel (optionnel)</mat-label>
+            <input
+              matInput
+              type="number"
               [ngModel]="manualTotalPrice()"
               (ngModelChange)="manualTotalPrice.set($event)"
-              mode="decimal"
-              suffix=" DT"
               [min]="0"
               placeholder="Laisser vide pour utiliser le prix calculé"
-              [ngModelOptions]="{ standalone: true }"
-            ></p-inputNumber>
+            />
+            <span matSuffix> DT</span>
             <button
               *ngIf="manualTotalPrice() !== null"
+              mat-icon-button
+              matSuffix
               type="button"
-              class="reset-price-btn"
               (click)="resetManualPrice()"
+              matTooltip="Réinitialiser"
             >
-              <i class="pi pi-refresh"></i> Réinitialiser
+              <mat-icon>refresh</mat-icon>
             </button>
-          </div>
+          </mat-form-field>
           <div class="final-price">
             <strong>Prix final: {{ finalTotalPrice() }} DT</strong>
           </div>
@@ -154,36 +167,39 @@
 
       <!-- User Selection Section -->
       <div class="section">
-        <h3>Sélection du Client</h3>
-        <p-dropdown
-          [options]="users()"
-          [ngModel]="selectedUser()"
-          (ngModelChange)="selectedUser.set($event)"
-          optionLabel="name"
-          placeholder="Sélectionner un client"
-          [filter]="true"
-          filterBy="name,email"
-          class="user-dropdown"
-          [loading]="isLoadingUsers()"
-          [ngModelOptions]="{ standalone: true }"
-        >
-          <ng-template pTemplate="selectedItem" let-user>
-            <div *ngIf="user" class="selected-user">
-              <span>{{ getUserDisplayName(user) }}</span>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="item" let-user>
-            <div class="user-option">
-              <div class="user-name">{{ user.name }}</div>
-              <div class="user-email">{{ user.phoneNumber }}</div>
-            </div>
-          </ng-template>
-        </p-dropdown>
+        <h3>
+          <mat-icon>person</mat-icon>
+          Sélection du Client
+        </h3>
+        <mat-form-field appearance="outline" class="user-field">
+          <mat-label>Sélectionner un client</mat-label>
+          <mat-select
+            [ngModel]="selectedUser()"
+            (ngModelChange)="selectedUser.set($event)"
+            [disabled]="isLoadingUsers()"
+          >
+            <mat-option *ngFor="let user of users()" [value]="user">
+              <div class="user-option">
+                <div class="user-name">{{ user.name }}</div>
+                <div class="user-email">{{ user.phoneNumber }}</div>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-spinner
+            *ngIf="isLoadingUsers()"
+            matSuffix
+            diameter="20"
+          ></mat-spinner>
+        </mat-form-field>
       </div>
 
       <!-- Location Selection Section -->
       <div class="section">
-        <h3>Adresse de Livraison</h3>
+        <h3>
+          <mat-icon>location_on</mat-icon>
+          Adresse de Livraison
+        </h3>
         <app-location-picker
           (locationSelected)="onLocationSelected($event)"
           placeholder="Rechercher une adresse de livraison..."
@@ -192,68 +208,68 @@
 
       <!-- Payment Method Section -->
       <div class="section">
-        <h3>Mode de Paiement</h3>
-        <div class="payment-methods">
-          <div class="payment-option">
-            <p-radioButton
-              name="paymentMethod"
-              value="cash"
-              [ngModel]="paymentMethod()"
-              (ngModelChange)="paymentMethod.set($event)"
-              inputId="cash"
-            ></p-radioButton>
-            <label for="cash" class="payment-label">
-              <i class="pi pi-money-bill"></i>
+        <h3>
+          <mat-icon>payment</mat-icon>
+          Mode de Paiement
+        </h3>
+        <mat-radio-group
+          [ngModel]="paymentMethod()"
+          (ngModelChange)="paymentMethod.set($event)"
+          class="payment-methods"
+        >
+          <mat-radio-button value="cash" class="payment-option">
+            <div class="payment-label">
+              <mat-icon>payments</mat-icon>
               Espèces
-            </label>
-          </div>
-          <div class="payment-option">
-            <p-radioButton
-              name="paymentMethod"
-              value="card"
-              [ngModel]="paymentMethod()"
-              (ngModelChange)="paymentMethod.set($event)"
-              inputId="card"
-            ></p-radioButton>
-            <label for="card" class="payment-label">
-              <i class="pi pi-credit-card"></i>
+            </div>
+          </mat-radio-button>
+          <mat-radio-button value="card" class="payment-option">
+            <div class="payment-label">
+              <mat-icon>credit_card</mat-icon>
               Carte
-            </label>
-          </div>
-        </div>
+            </div>
+          </mat-radio-button>
+        </mat-radio-group>
       </div>
 
       <!-- Notes Section -->
       <div class="section">
-        <h3>Notes (Optionnel)</h3>
-        <textarea
-          pTextarea
-          [value]="notes()"
-          (input)="notes.set($any($event.target).value)"
-          placeholder="Ajouter des notes pour cette commande..."
-          rows="3"
-          class="notes-textarea"
-        ></textarea>
+        <h3>
+          <mat-icon>note</mat-icon>
+          Notes (Optionnel)
+        </h3>
+        <mat-form-field appearance="outline" class="notes-field">
+          <mat-label>Ajouter des notes</mat-label>
+          <textarea
+            matInput
+            [value]="notes()"
+            (input)="notes.set($any($event.target).value)"
+            placeholder="Ajouter des notes pour cette commande..."
+            rows="3"
+          ></textarea>
+        </mat-form-field>
       </div>
     </div>
 
     <div class="modal-footer">
       <button
+        mat-stroked-button
         type="button"
-        class="cancel-btn"
         (click)="onCancel()"
         [disabled]="isSubmitting()"
       >
+        <mat-icon>close</mat-icon>
         Annuler
       </button>
       <button
+        mat-raised-button
+        color="primary"
         type="button"
-        class="submit-btn"
         (click)="onSubmit()"
         [disabled]="isSubmitting() || selectedProducts().length === 0"
       >
-        <i class="pi pi-spin pi-spinner" *ngIf="isSubmitting()"></i>
-        <i class="pi pi-check" *ngIf="!isSubmitting()"></i>
+        <mat-icon *ngIf="isSubmitting()" class="spinning">hourglass_empty</mat-icon>
+        <mat-icon *ngIf="!isSubmitting()">check</mat-icon>
         {{ isSubmitting() ? "Création..." : "Créer la Commande" }}
       </button>
     </div>

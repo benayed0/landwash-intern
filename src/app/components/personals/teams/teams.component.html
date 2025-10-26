@@ -354,6 +354,7 @@
                 <th class="hide-mobile">Email</th>
                 <th class="hide-mobile">Téléphone</th>
                 <th>Rôle</th>
+                <th>Actions</th>
                 <th class="add-column">
                   <button
                     class="add-btn-icon"
@@ -384,6 +385,17 @@
                   >
                     {{ personal.role === "admin" ? "Admin" : "Employé" }}
                   </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button
+                      class="action-btn edit-btn"
+                      (click)="openEditPersonal(personal)"
+                      title="Modifier"
+                    >
+                      ✏️
+                    </button>
+                  </div>
                 </td>
                 <td class="add-column"></td>
               </tr>

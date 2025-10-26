@@ -6,6 +6,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { provideHotToastConfig } from '@ngneat/hot-toast';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,5 +21,6 @@ export const appConfig: ApplicationConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     provideAnimationsAsync(),
+    provideNativeDateAdapter(),
   ],
 };

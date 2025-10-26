@@ -83,6 +83,7 @@ export class CreateBookingComponent implements OnInit {
   bookingTypes: { value: BookingType; label: string; icon: string }[] = [
     { value: 'small', label: 'Citadines / Petites Voitures', icon: '🚗' },
     { value: 'big', label: 'SUV / Grandes Voitures', icon: '🚙' },
+    { value: 'pickup', label: 'Pick-up', icon: '🚗' },
     { value: 'salon', label: 'Salon', icon: '🛌' },
   ];
   ngAfterViewInit() {
@@ -175,7 +176,8 @@ export class CreateBookingComponent implements OnInit {
           // Find and select the nearest available date (without time)
           const nearestAvailableDate = this.findNearestAvailableSlot(slots);
           if (nearestAvailableDate) {
-            this.selectedDateString = this.formatDateToLocalString(nearestAvailableDate);
+            this.selectedDateString =
+              this.formatDateToLocalString(nearestAvailableDate);
             // Trigger the date change to load available time slots
             this.onDateInputChange({
               target: { value: this.selectedDateString },
@@ -283,8 +285,12 @@ export class CreateBookingComponent implements OnInit {
   private generateAllTimeSlots(): string[] {
     const serviceType = this.bookingForm.get('type')?.value;
 
-    // For non-salon services (small and big cars), only allow specific time slots
-    if (serviceType === 'small' || serviceType === 'big') {
+    // For detailing services (small, big, and pickup cars), only allow specific time slots
+    if (
+      serviceType === 'small' ||
+      serviceType === 'big' ||
+      serviceType === 'pickup'
+    ) {
       return ['08:00', '11:00', '14:00'];
     }
 
@@ -305,9 +311,13 @@ export class CreateBookingComponent implements OnInit {
     const bookedTimes: string[] = [];
 
     bookedSlots.forEach(([start, end]) => {
-      if (serviceType === 'small' || serviceType === 'big') {
-        // For car wash services, check if any of the specific slots (8h, 11h, 14h) overlap
-        // Car wash takes 2 hours, so we need to check for overlaps
+      if (
+        serviceType === 'small' ||
+        serviceType === 'big' ||
+        serviceType === 'pickup'
+      ) {
+        // For detailing services, check if any of the specific slots (8h, 11h, 14h) overlap
+        // Detailing takes 2 hours, so we need to check for overlaps
         const carWashSlots = ['08:00', '11:00', '14:00'];
 
         const [startHourStr, startMinStr] = start.split(':');
@@ -438,6 +448,7 @@ export class CreateBookingComponent implements OnInit {
     const defaultPrices = {
       small: 160,
       big: 220,
+      pickup: 200,
       salon: 18,
     };
 
@@ -559,6 +570,7 @@ export class CreateBookingComponent implements OnInit {
     const basePrices = {
       small: 160,
       big: 220,
+      pickup: 200,
       salon: 18,
     };
 

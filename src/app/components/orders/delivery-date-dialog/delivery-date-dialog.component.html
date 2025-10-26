@@ -1,0 +1,33 @@
+<div class="delivery-date-dialog">
+  <div class="dialog-header">
+    <h3>Date de livraison estimée</h3>
+    <button class="close-btn" (click)="onCancel()">×</button>
+  </div>
+
+  <div class="dialog-content">
+    <div class="input-group">
+      <label for="deliveryDate">Sélectionnez la date de livraison estimée :</label>
+      <input
+        id="deliveryDate"
+        type="date"
+        [(ngModel)]="estimatedDeliveryDate"
+        [min]="getTomorrowDate()"
+        class="date-input"
+        required
+      />
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn btn-cancel" (click)="onCancel()">
+      Annuler
+    </button>
+    <button
+      class="btn btn-confirm"
+      (click)="onConfirm()"
+      [disabled]="!estimatedDeliveryDate"
+    >
+      Confirmer la commande
+    </button>
+  </div>
+</div>

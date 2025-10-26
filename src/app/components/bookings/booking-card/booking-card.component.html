@@ -5,7 +5,9 @@
     <div class="vehicle-type">
       <div class="vehicle-icon">{{ getVehicleIcon(booking.type) }}</div>
       <div class="vehicle-info">
-        <span class="vehicle-label">{{ getVehicleTypeLabel(booking.type) }}</span>
+        <span class="vehicle-label">{{
+          getVehicleTypeLabel(booking.type)
+        }}</span>
         @if (booking.type === 'salon' && booking.salonsSeats) {
         <span class="salon-seats">{{ booking.salonsSeats }} sièges</span>
         }
@@ -13,7 +15,12 @@
       </div>
     </div>
     <div class="header-right">
-      <span class="booking-price-compact">{{ booking.price }} DT</span>
+      <div class="price-info">
+        <span class="booking-price-compact">{{ booking.price }} DT</span>
+        <span *ngIf="booking.transportFee && booking.transportFee > 0" class="transport-fee-badge">
+          +{{ booking.transportFee }} DT (Transport)
+        </span>
+      </div>
       <span class="status-badge" [ngClass]="'status-' + booking.status">
         {{
           booking.status === "pending"
@@ -38,10 +45,17 @@
   <div class="edit-header">
     <h3>✏️ Modifier</h3>
     <div class="edit-actions">
-      <button class="save-btn" (click)="saveEdit()" [disabled]="!isValidEdit()" title="Sauvegarder">
+      <button
+        class="save-btn"
+        (click)="saveEdit()"
+        [disabled]="!isValidEdit()"
+        title="Sauvegarder"
+      >
         💾
       </button>
-      <button class="cancel-btn" (click)="cancelEdit()" title="Annuler">✖️</button>
+      <button class="cancel-btn" (click)="cancelEdit()" title="Annuler">
+        ✖️
+      </button>
     </div>
   </div>
 
@@ -55,6 +69,7 @@
       >
         <option value="small">Citadines / Petites Voitures</option>
         <option value="big">SUV / Grandes Voitures</option>
+        <option value="pickup">Pick-up</option>
         <option value="salon">Salon</option>
       </select>
     </div>
@@ -152,6 +167,18 @@
       />
     </div>
 
+    <div class="form-group">
+      <label>Frais de transport (DT)</label>
+      <input
+        type="number"
+        [(ngModel)]="editForm.transportFee"
+        class="form-input"
+        min="0"
+        step="0.5"
+        placeholder="0.00"
+      />
+    </div>
+
     <div class="form-group checkbox-group">
       <label class="checkbox-label">
         <input
@@ -177,7 +204,9 @@
       title="{{ booking.address || 'Adresse non spécifiée' }}"
     >
       <span class="location-icon">📍</span>
-      <span class="location-text">{{ booking.address || "Adresse non spécifiée" }}</span>
+      <span class="location-text">{{
+        booking.address || "Adresse non spécifiée"
+      }}</span>
       <span class="location-arrow">→</span>
     </a>
   </div>
@@ -187,7 +216,7 @@
   <details class="collapsible-section">
     <summary class="section-header">
       <span class="section-icon">👤</span>
-      <span class="section-title">{{ booking.userId.name || 'Client' }}</span>
+      <span class="section-title">{{ booking.userId.name || "Client" }}</span>
       <span class="expand-icon">▼</span>
     </summary>
     <div class="section-content">
@@ -196,8 +225,7 @@
         <span class="contact-icon">📱</span>
         <span class="contact-text">{{ booking.userId.phoneNumber }}</span>
       </a>
-      }
-      @if (booking.secondaryNumber) {
+      } @if (booking.secondaryNumber) {
       <a href="tel:{{ booking.secondaryNumber }}" class="contact-item">
         <span class="contact-icon">📱</span>
         <span class="contact-text">{{ booking.secondaryNumber }} (Sec.)</span>
@@ -245,11 +273,19 @@
   </details>
   } @if (booking.status === 'pending') {
   <div class="booking-actions compact">
-    <button class="action-btn confirm-btn" (click)="confirmBooking()" title="Confirmer">
+    <button
+      class="action-btn confirm-btn"
+      (click)="confirmBooking()"
+      title="Confirmer"
+    >
       <span class="btn-icon">✓</span>
       <span class="btn-text">Confirmer</span>
     </button>
-    <button class="action-btn reject-btn" (click)="rejectBooking()" title="Rejeter">
+    <button
+      class="action-btn reject-btn"
+      (click)="rejectBooking()"
+      title="Rejeter"
+    >
       <span class="btn-icon">✗</span>
       <span class="btn-text">Rejeter</span>
     </button>
@@ -264,18 +300,36 @@
   }
 
   <div class="booking-actions compact">
-    <button class="action-btn delay-btn icon-mode" (click)="openDelayModal()" title="{{ booking.delayedOf ? 'Modifier le retard' : 'Signaler un retard' }}">
+    <button
+      class="action-btn delay-btn icon-mode"
+      (click)="openDelayModal()"
+      title="{{
+        booking.delayedOf ? 'Modifier le retard' : 'Signaler un retard'
+      }}"
+    >
       <span class="btn-icon">⏰</span>
     </button>
-    <button class="action-btn start-progress-btn" (click)="startProgress()" title="Commencer">
+    <button
+      class="action-btn start-progress-btn"
+      (click)="startProgress()"
+      title="Commencer"
+    >
       <span class="btn-icon">▶️</span>
       <span class="btn-text">Démarrer</span>
     </button>
-    <button class="action-btn complete-btn" (click)="completeBooking()" title="Marquer comme terminé">
+    <button
+      class="action-btn complete-btn"
+      (click)="completeBooking()"
+      title="Marquer comme terminé"
+    >
       <span class="btn-icon">✓</span>
       <span class="btn-text">Terminer</span>
     </button>
-    <button class="action-btn reject-btn icon-mode" (click)="rejectBooking()" title="Rejeter">
+    <button
+      class="action-btn reject-btn icon-mode"
+      (click)="rejectBooking()"
+      title="Rejeter"
+    >
       <span class="btn-icon">✗</span>
     </button>
   </div>
@@ -295,14 +349,22 @@
   </div>
 
   <div class="booking-actions compact">
-    <button class="action-btn complete-btn" (click)="completeBooking()" title="Marquer comme terminé">
+    <button
+      class="action-btn complete-btn"
+      (click)="completeBooking()"
+      title="Marquer comme terminé"
+    >
       <span class="btn-icon">✓</span>
       <span class="btn-text">Terminer</span>
     </button>
   </div>
   } @if (booking.status === 'rejected') {
   <div class="booking-actions compact">
-    <button class="action-btn confirm-btn" (click)="reconfirmBooking()" title="Reconfirmer">
+    <button
+      class="action-btn confirm-btn"
+      (click)="reconfirmBooking()"
+      title="Reconfirmer"
+    >
       <span class="btn-icon">🔄</span>
       <span class="btn-text">Reconfirmer</span>
     </button>
@@ -311,15 +373,10 @@
 
   <!-- Edit Button - Floating -->
   @if (canEdit()) {
-  <button
-    class="edit-btn-floating"
-    (click)="startEdit()"
-    title="Modifier"
-  >
+  <button class="edit-btn-floating" (click)="startEdit()" title="Modifier">
     ✏️
   </button>
-  }
-  }
+  } }
 </div>
 
 <!-- Delay Modal is now handled by MatDialog in the component -->

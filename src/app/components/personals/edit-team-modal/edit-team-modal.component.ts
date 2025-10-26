@@ -14,7 +14,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -23,6 +22,10 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSliderModule } from '@angular/material/slider';
 import { TeamService } from '../../../services/team.service';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
@@ -35,11 +38,14 @@ import * as L from 'leaflet';
   imports: [
     CommonModule,
     FormsModule,
-    InputSwitchModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSlideToggleModule,
+    MatIconModule,
+    MatCheckboxModule,
+    MatSliderModule,
   ],
   templateUrl: './edit-team-modal.component.html',
   styleUrl: './edit-team-modal.component.css',
