@@ -38,51 +38,98 @@
 }
 .booking-card {
   background: #1a1a1a;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 15px;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
   color: #e5e5e5;
   position: relative;
   border: 1px solid #2a2a2a;
+  transition: all 0.3s ease;
+}
+
+.booking-card:active {
+  transform: scale(0.99);
 }
 
 .booking-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  gap: 10px;
 }
 
 .vehicle-type {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.salon-seats {
-  font-size: 14px;
-  color: #c3ff00;
-  font-weight: normal;
-  margin-left: 5px;
+  flex: 1;
+  min-width: 0;
 }
 
 .vehicle-icon {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   background: #c3ff00;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.vehicle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vehicle-label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #e5e5e5;
+}
+
+.salon-seats {
+  font-size: 11px;
+  color: #c3ff00;
+  font-weight: 500;
+}
+
+.booking-date-compact {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.booking-price-compact {
+  font-size: 18px;
+  font-weight: 700;
+  color: #c3ff00;
+  line-height: 1;
 }
 
 .status-badge {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .status-pending {
@@ -122,50 +169,238 @@
   }
 }
 
-.booking-date {
-  color: #aaa;
-  font-size: 14px;
+/* Compact Location Link */
+.booking-location {
   margin-bottom: 10px;
 }
 
-.booking-address {
+.location-link {
   display: flex;
-  align-items: start;
-  gap: 8px;
-  color: #ccc;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.price-section {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  gap: 15px;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(195, 255, 0, 0.05);
+  border: 1px solid rgba(195, 255, 0, 0.15);
+  border-radius: 8px;
+  color: #e5e5e5;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  overflow: hidden;
 }
 
-.booking-price {
-  font-size: 24px;
-  font-weight: bold;
+.location-link:hover, .location-link:active {
+  background: rgba(195, 255, 0, 0.1);
+  border-color: rgba(195, 255, 0, 0.3);
+}
+
+.location-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.location-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ccc;
+}
+
+.location-arrow {
   color: #c3ff00;
+  font-size: 14px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* Collapsible Sections */
+.collapsible-section {
+  margin-bottom: 8px;
+}
+
+.collapsible-section[open] {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  list-style: none;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.section-header::-webkit-details-marker {
+  display: none;
+}
+
+.section-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #3a3a3a;
+}
+
+.collapsible-section[open] .section-header {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-bottom: 8px;
+  background: rgba(195, 255, 0, 0.05);
+  border-color: rgba(195, 255, 0, 0.15);
+}
+
+.section-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.section-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e5e5e5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expand-icon {
+  font-size: 10px;
+  color: #888;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.collapsible-section[open] .expand-icon {
+  transform: rotate(180deg);
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 10px 4px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #0a0a0a;
+  border-radius: 6px;
+  color: #c3ff00;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.contact-item:hover, .contact-item:active {
+  background: #1a1a1a;
+  transform: translateX(2px);
+}
+
+.contact-icon {
+  font-size: 14px;
+}
+
+.contact-text {
   flex: 1;
 }
 
+.team-chief-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.info-label {
+  color: #888;
+}
+
+.info-value {
+  color: #c3ff00;
+  font-weight: 600;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 152, 0, 0.2);
+  transform: scale(1.1);
+}
+
+.change-team-icon {
+  margin-left: auto;
+  margin-right: 4px;
+}
+
+/* Compact Action Buttons */
 .booking-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.booking-actions.compact {
+  gap: 6px;
 }
 
 .action-btn {
   flex: 1;
-  padding: 10px;
+  padding: 10px 12px;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  min-height: 40px;
+}
+
+.action-btn .btn-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.action-btn .btn-text {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.action-btn.icon-mode {
+  flex: 0 0 auto;
+  min-width: 40px;
+  padding: 10px;
+}
+
+.action-btn.icon-mode .btn-text {
+  display: none;
 }
 
 .confirm-btn {
@@ -188,9 +423,15 @@
   color: white;
 }
 
-.action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+@media (hover: hover) {
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
 }
 
 /* Google Maps Button */
@@ -227,169 +468,78 @@
   font-size: 18px;
 }
 
-/* User/Client Information */
-.user-info {
-  font-size: 12px;
-  color: #888;
-  margin-top: 10px;
+/* Rating Compact */
+.rating-compact {
+  margin: 10px 0;
 }
 
-.user-info.worker-view {
-  background: #0a0a0a;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #2a2a2a;
-}
-
-.client-name {
-  font-size: 16px;
-  color: #fff;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.client-phone {
-  font-size: 14px;
-  color: #c3ff00;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.phone-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-size: 18px;
-  margin-left: 8px;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  background: rgba(76, 175, 80, 0.1);
-}
-
-.phone-link:hover {
-  background: rgba(76, 175, 80, 0.2);
-  transform: scale(1.1);
-}
-
-.phone-link:active {
-  transform: scale(0.95);
-}
-
-.team-info {
-  background: rgba(195, 255, 0, 0.1);
-  border-radius: 8px;
-  padding: 10px;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 14px;
-  border: 1px solid rgba(195, 255, 0, 0.2);
-}
-
-.team-details {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.change-team-btn {
-  background: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.change-team-btn:hover {
-  background: #f57c00;
-  transform: translateY(-1px);
-}
-
-.team-icon {
-  font-size: 16px;
-}
-
-.team-label {
-  color: #888;
-  font-size: 12px;
-}
-
-.team-name {
-  color: #c3ff00;
-  font-weight: 600;
-}
-
-.team-chief {
-  color: #aaa;
-  font-size: 12px;
-  margin-left: 5px;
-}
-
-/* Edit Mode Styles */
-.edit-btn {
+/* Floating Edit Button */
+.edit-btn-floating {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
   background: #c3ff00;
   color: #0a0a0a;
   border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 50%;
+  font-size: 18px;
   cursor: pointer;
-  transition: all 0.3s;
-  white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(195, 255, 0, 0.3);
+  transition: all 0.2s ease;
+  z-index: 10;
 }
 
-.edit-btn:hover {
-  background: #a8d400;
-  transform: translateY(-1px);
+.edit-btn-floating:active {
+  transform: scale(0.9);
+}
+
+@media (hover: hover) {
+  .edit-btn-floating:hover {
+    background: #a8d400;
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(195, 255, 0, 0.4);
+  }
 }
 
 .edit-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #333;
 }
 
 .edit-header h3 {
   margin: 0;
   color: #e5e5e5;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .edit-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .save-btn,
 .cancel-btn {
-  padding: 8px 16px;
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 50%;
+  font-size: 18px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .save-btn {
@@ -397,14 +547,15 @@
   color: #0a0a0a;
 }
 
-.save-btn:hover:not(:disabled) {
-  background: #a8d400;
+.save-btn:active:not(:disabled) {
+  transform: scale(0.9);
 }
 
 .save-btn:disabled {
   background: #666;
   color: #999;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .cancel-btn {
@@ -412,25 +563,39 @@
   color: white;
 }
 
-.cancel-btn:hover {
-  background: #d32f2f;
+.cancel-btn:active {
+  transform: scale(0.9);
+}
+
+@media (hover: hover) {
+  .save-btn:hover:not(:disabled) {
+    background: #a8d400;
+    transform: scale(1.05);
+  }
+
+  .cancel-btn:hover {
+    background: #d32f2f;
+    transform: scale(1.05);
+  }
 }
 
 .edit-form {
   display: grid;
-  gap: 15px;
+  gap: 12px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .form-group label {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: #e5e5e5;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .form-input {
@@ -477,157 +642,130 @@
 
 @media (max-width: 480px) {
   .booking-card {
-    padding: 15px;
+    padding: 12px;
+    border-radius: 10px;
   }
 
-  .booking-actions {
-    flex-direction: column;
+  .booking-header {
+    margin-bottom: 10px;
   }
 
-  .edit-header {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
+  .vehicle-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
   }
 
-  .edit-actions {
-    width: 100%;
-    justify-content: space-between;
+  .vehicle-label {
+    font-size: 14px;
   }
 
-  .save-btn,
-  .cancel-btn {
-    flex: 1;
+  .booking-price-compact {
+    font-size: 16px;
   }
 
-  .price-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+  .status-badge {
+    font-size: 9px;
+    padding: 3px 8px;
   }
 
-  .booking-price {
-    font-size: 20px;
+  .action-btn {
+    padding: 8px 10px;
+    min-height: 36px;
   }
 
-  .edit-btn {
-    font-size: 11px;
-    padding: 6px 10px;
+  .action-btn .btn-text {
+    font-size: 12px;
+  }
+
+  .action-btn .btn-icon {
+    font-size: 14px;
+  }
+
+  .edit-btn-floating {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    bottom: 10px;
+    right: 10px;
   }
 }
 
 /* Progress Section Styles */
 .progress-section {
-  background: rgba(255, 152, 0, 0.1);
-  border: 1px solid rgba(255, 152, 0, 0.3);
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.25);
   border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
+.progress-section.compact {
+  padding: 8px 10px;
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .progress-label {
   font-size: 14px;
-  font-weight: 600;
-  color: #e5e5e5;
-}
-
-.time-remaining {
-  font-size: 16px;
-  font-weight: bold;
+  font-weight: 700;
   color: #ff9800;
   font-family: 'Courier New', monospace;
 }
 
+.duration-info {
+  font-size: 11px;
+  color: #888;
+  font-weight: 600;
+}
+
 .progress-bar-container {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: #333;
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #4caf50, #ff9800);
-  border-radius: 4px;
+  border-radius: 3px;
   transition: width 1s ease-in-out;
-  animation: progressGlow 2s infinite alternate;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.6);
 }
 
-@keyframes progressGlow {
-  0% {
-    box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
-  }
-  100% {
-    box-shadow: 0 0 10px rgba(255, 152, 0, 0.8);
-  }
-}
-
-.progress-info {
-  display: flex;
-  justify-content: center;
-}
-
-.duration-info {
-  font-size: 12px;
-  color: #aaa;
-  text-align: center;
-}
-
-@media (max-width: 480px) {
-  .progress-section {
-    padding: 12px;
-  }
-
-  .progress-header {
-    flex-direction: column;
-    gap: 5px;
-    align-items: center;
-  }
-
-  .time-remaining {
-    font-size: 14px;
-  }
-}
 
 /* Delay Info Display */
 .delay-info {
-  background: rgba(255, 152, 0, 0.15);
-  border: 1px solid rgba(255, 152, 0, 0.4);
-  border-radius: 8px;
-  padding: 10px 15px;
-  margin-bottom: 12px;
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  animation: delayPulse 2s infinite;
+  justify-content: center;
+  gap: 6px;
 }
 
-@keyframes delayPulse {
-  0%, 100% {
-    background: rgba(255, 152, 0, 0.15);
-  }
-  50% {
-    background: rgba(255, 152, 0, 0.25);
-  }
+.delay-info.compact {
+  padding: 4px 8px;
 }
 
 .delay-icon {
-  font-size: 20px;
+  font-size: 14px;
 }
 
 .delay-text {
   color: #ff9800;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 12px;
 }
 
 /* Delay Button */

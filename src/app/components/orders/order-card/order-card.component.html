@@ -1,83 +1,96 @@
 <div class="order-card">
+  <!-- Compact Header with Total Price -->
   <div class="order-header">
     <div class="order-info">
       <div class="order-icon">📦</div>
-      <div>
-        <div>Commande #{{ order._id?.slice(-6) }}</div>
-        <div class="detail-value">{{ order.userId.name }}</div>
+      <div class="order-meta">
+        <div class="order-id">#{{ order._id?.slice(-6) }}</div>
+        <div class="order-date">{{ formatDate(order.createdAt) }}</div>
       </div>
     </div>
-    <div class="status-badge" [ngClass]="getStatusClass(order.status)">
-      {{ order.status }}
+    <div class="header-right">
+      <div class="total-price-compact">
+        {{ order.totalPrice | currency : "TND" : "symbol" : "1.0-0" }}
+      </div>
+      <div class="status-badge" [ngClass]="getStatusClass(order.status)">
+        {{ order.status }}
+      </div>
     </div>
   </div>
 
-  <div class="order-details">
-    <div class="detail-item">
-      <div class="detail-label">Date de commande</div>
-      <div class="detail-value">{{ formatDate(order.createdAt) }}</div>
-    </div>
-    <div class="detail-item">
-      <div class="detail-label">Adresse de livraison</div>
-      <div class="detail-value">
-        <a
-          href="https://www.google.com/maps/search/?api=1&query={{
-            order.coordinates[1]
-          }},{{ order.coordinates[0] }}"
-          target="_blank"
-          >{{ order.shippingAddress }}</a
-        >
+  <!-- Collapsible Customer Details -->
+  <details class="collapsible-section">
+    <summary class="section-header">
+      <span class="section-icon">👤</span>
+      <span class="section-title">{{ order.userId.name }}</span>
+      <span class="expand-icon">▼</span>
+    </summary>
+    <div class="section-content">
+      <a href="tel:{{ order.userId.phoneNumber }}" class="contact-item">
+        <span class="contact-icon">📱</span>
+        <span class="contact-text">{{ order.userId.phoneNumber }}</span>
+      </a>
+      <a
+        href="https://www.google.com/maps/search/?api=1&query={{
+          order.coordinates[1]
+        }},{{ order.coordinates[0] }}"
+        target="_blank"
+        class="contact-item"
+      >
+        <span class="contact-icon">📍</span>
+        <span class="contact-text">{{ order.shippingAddress }}</span>
+      </a>
+      <div class="info-item">
+        <span class="info-icon">💳</span>
+        <span class="info-text">{{ order.paymentMethod }}</span>
+      </div>
+      <div class="info-item" *ngIf="order.notes">
+        <span class="info-icon">📝</span>
+        <span class="info-text">{{ order.notes }}</span>
       </div>
     </div>
-    <div class="detail-item">
-      <div class="detail-label">Téléphone</div>
-      <div class="detail-value">{{ order.userId.phoneNumber }}</div>
-    </div>
-    <div class="detail-item">
-      <div class="detail-label">Méthode de paiement</div>
-      <div class="detail-value">{{ order.paymentMethod }}</div>
-    </div>
-    <div class="detail-item" *ngIf="order.notes">
-      <div class="detail-label">Notes</div>
-      <div class="detail-value">{{ order.notes }}</div>
-    </div>
-  </div>
+  </details>
 
-  <div class="products-list">
-    <div class="detail-label" style="margin-bottom: 10px">
-      Produits commandés
-    </div>
-    <div class="product-item" *ngFor="let product of order.products">
-      <div class="product-info">
-        <img
-          *ngIf="
-            product.productId.pictures && product.productId.pictures.length > 0
-          "
-          [src]="product.productId.pictures[0]"
-          [alt]="product.productId.name"
-          class="product-image"
-        />
-        <div class="product-details">
-          <div class="product-name">{{ product.productId.name }}</div>
-          <div class="product-type">{{ product.productId.type }}</div>
-          <div class="product-quantity">Quantité: {{ product.quantity }}</div>
+  <!-- Collapsible Products List -->
+  <details class="collapsible-section products-section">
+    <summary class="section-header">
+      <span class="section-icon">📦</span>
+      <span class="section-title">Produits ({{ order.products.length }})</span>
+      <span class="expand-icon">▼</span>
+    </summary>
+    <div class="section-content">
+      <div class="product-item" *ngFor="let product of order.products">
+        <div class="product-info">
+          <img
+            *ngIf="
+              product.productId.pictures &&
+              product.productId.pictures.length > 0
+            "
+            [src]="product.productId.pictures[0]"
+            [alt]="product.productId.name"
+            class="product-image"
+          />
+          <div class="product-details">
+            <div class="product-name">{{ product.productId.name }}</div>
+            <div class="product-meta">
+              <span class="product-type">{{ product.productId.type }}</span>
+              <span class="product-quantity">×{{ product.quantity }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="product-price">
+          {{
+            product.price * product.quantity
+              | currency : "TND" : "symbol" : "1.0-0"
+          }}
         </div>
       </div>
-      <div class="product-price">
-        {{
-          product.price * product.quantity
-            | currency : "TND" : "symbol" : "1.0-0"
-        }}
-      </div>
     </div>
-  </div>
+  </details>
 
-  <div class="total-price">
-    Total: {{ order.totalPrice | currency : "TND" : "symbol" : "1.0-0" }}
-  </div>
-
+  <!-- Compact Action Buttons -->
   <div
-    class="order-actions"
+    class="order-actions compact"
     *ngIf="userRole === 'admin' && order.status !== 'completed'"
   >
     <button
@@ -85,14 +98,25 @@
       class="action-btn"
       [ngClass]="action.class"
       (click)="onActionClick(action)"
+      [title]="action.label"
     >
-      {{ action.label }}
+      <span class="btn-icon">{{ action.label.split(" ")[0] }}</span>
+      <span class="btn-text">{{
+        action.label.substring(action.label.indexOf(" ") + 1)
+      }}</span>
     </button>
   </div>
 
   <!-- Confirm Action Dialog -->
-  <div class="modal-overlay" *ngIf="showConfirmDialog" (click)="closeConfirmDialog()">
-    <div class="modal-content confirm-dialog" (click)="$event.stopPropagation()">
+  <div
+    class="modal-overlay"
+    *ngIf="showConfirmDialog"
+    (click)="closeConfirmDialog()"
+  >
+    <div
+      class="modal-content confirm-dialog"
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-header">
         <h3>Confirmer l'action</h3>
         <button class="close-btn" (click)="closeConfirmDialog()">×</button>
@@ -113,7 +137,11 @@
   </div>
 
   <!-- Delivery Date Modal -->
-  <div class="modal-overlay" *ngIf="showDeliveryDateModal" (click)="closeDeliveryDateModal()">
+  <div
+    class="modal-overlay"
+    *ngIf="showDeliveryDateModal"
+    (click)="closeDeliveryDateModal()"
+  >
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Date de livraison estimée</h3>
@@ -121,7 +149,9 @@
       </div>
       <div class="modal-body">
         <div class="input-group">
-          <label for="deliveryDate">Sélectionnez la date de livraison estimée :</label>
+          <label for="deliveryDate"
+            >Sélectionnez la date de livraison estimée :</label
+          >
           <input
             id="deliveryDate"
             type="date"

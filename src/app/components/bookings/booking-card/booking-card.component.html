@@ -4,40 +4,44 @@
   <div class="booking-header">
     <div class="vehicle-type">
       <div class="vehicle-icon">{{ getVehicleIcon(booking.type) }}</div>
-      <span>
-        {{ getVehicleTypeLabel(booking.type) }}
+      <div class="vehicle-info">
+        <span class="vehicle-label">{{ getVehicleTypeLabel(booking.type) }}</span>
         @if (booking.type === 'salon' && booking.salonsSeats) {
-        <span class="salon-seats"> ({{ booking.salonsSeats }} sièges) </span>
+        <span class="salon-seats">{{ booking.salonsSeats }} sièges</span>
         }
+        <span class="booking-date-compact">{{ formatDate(booking.date) }}</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="booking-price-compact">{{ booking.price }} DT</span>
+      <span class="status-badge" [ngClass]="'status-' + booking.status">
+        {{
+          booking.status === "pending"
+            ? "En attente"
+            : booking.status === "confirmed"
+            ? "Confirmé"
+            : booking.status === "in-progress"
+            ? "En cours"
+            : booking.status === "completed"
+            ? "Terminé"
+            : booking.status === "rejected"
+            ? "Rejeté"
+            : booking.status === "canceled"
+            ? "Annulé"
+            : booking.status
+        }}
       </span>
     </div>
-    <span class="status-badge" [ngClass]="'status-' + booking.status">
-      {{
-        booking.status === "pending"
-          ? "En attente"
-          : booking.status === "confirmed"
-          ? "Confirmé"
-          : booking.status === "in-progress"
-          ? "En cours"
-          : booking.status === "completed"
-          ? "Terminé"
-          : booking.status === "rejected"
-          ? "Rejeté"
-          : booking.status === "canceled"
-          ? "Annulé"
-          : booking.status
-      }}
-    </span>
   </div>
   } @else {
   <!-- Edit Mode -->
   <div class="edit-header">
-    <h3>Modifier la réservation</h3>
+    <h3>✏️ Modifier</h3>
     <div class="edit-actions">
-      <button class="save-btn" (click)="saveEdit()" [disabled]="!isValidEdit()">
-        💾 Sauvegarder
+      <button class="save-btn" (click)="saveEdit()" [disabled]="!isValidEdit()" title="Sauvegarder">
+        💾
       </button>
-      <button class="cancel-btn" (click)="cancelEdit()">✖️ Annuler</button>
+      <button class="cancel-btn" (click)="cancelEdit()" title="Annuler">✖️</button>
     </div>
   </div>
 
@@ -161,125 +165,126 @@
     </div>
   </div>
   } @if (!isEditing) {
-  <div class="booking-date">📅 {{ formatDate(booking.date) }}</div>
-
-  <div class="booking-address">
-    <span>📍</span>
-    <span>
-      <a
-        href="https://www.google.com/maps/search/?api=1&query={{
-          booking.coordinates[1]
-        }},{{ booking.coordinates[0] }}"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {{ booking.address || "Adresse non spécifiée" }}
-      </a></span
+  <!-- Compact Location -->
+  <div class="booking-location">
+    <a
+      href="https://www.google.com/maps/search/?api=1&query={{
+        booking.coordinates[1]
+      }},{{ booking.coordinates[0] }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="location-link"
+      title="{{ booking.address || 'Adresse non spécifiée' }}"
     >
+      <span class="location-icon">📍</span>
+      <span class="location-text">{{ booking.address || "Adresse non spécifiée" }}</span>
+      <span class="location-arrow">→</span>
+    </a>
   </div>
 
-  <!-- Client Information (enhanced for workers) -->
+  <!-- Client Information (enhanced for workers) - COLLAPSIBLE -->
   @if (booking.userId) {
-  <div class="user-info" [class.worker-view]="userRole === 'worker'">
-    @if (booking.userId.name) {
-    <div class="client-name">Client: {{ booking.userId.name }}</div>
-    } @if (booking.userId.phoneNumber) {
-    <div class="client-phone">
-      📱
-      <a href="tel:{{ booking.userId.phoneNumber }}" class="client-phone">{{
-        booking.userId.phoneNumber
-      }}</a>
+  <details class="collapsible-section">
+    <summary class="section-header">
+      <span class="section-icon">👤</span>
+      <span class="section-title">{{ booking.userId.name || 'Client' }}</span>
+      <span class="expand-icon">▼</span>
+    </summary>
+    <div class="section-content">
+      @if (booking.userId.phoneNumber) {
+      <a href="tel:{{ booking.userId.phoneNumber }}" class="contact-item">
+        <span class="contact-icon">📱</span>
+        <span class="contact-text">{{ booking.userId.phoneNumber }}</span>
+      </a>
+      }
+      @if (booking.secondaryNumber) {
+      <a href="tel:{{ booking.secondaryNumber }}" class="contact-item">
+        <span class="contact-icon">📱</span>
+        <span class="contact-text">{{ booking.secondaryNumber }} (Sec.)</span>
+      </a>
+      }
     </div>
-    } @if (booking.secondaryNumber) {
-    <div class="client-phone">
-      📱 Secondaire:
-      <a href="tel:{{ booking.secondaryNumber }}" class="client-phone">{{
-        booking.secondaryNumber
-      }}</a>
-    </div>
-    }
-  </div>
+  </details>
   }
-
-  <div class="price-section">
-    <div class="booking-price">{{ booking.price }} DT</div>
-    @if (canEdit()) {
-    <button
-      class="edit-btn"
-      (click)="startEdit()"
-      title="Modifier la réservation"
-    >
-      ✏️ Modifier
-    </button>
-    }
-  </div>
 
   <!-- Rating Section (only for completed bookings) -->
   @if (booking.status === 'completed' && booking.rating) {
-  <app-rating-display
-    [rating]="booking.rating"
-    variant="compact"
-  ></app-rating-display>
-  } @if (booking.teamId ) {
-  <div class="team-info">
-    <div class="team-details">
-      <span class="team-icon">👥</span>
-      <span class="team-label">Équipe assignée:</span>
-      <span class="team-name">{{ getTeamName(booking.teamId) }}</span>
+  <div class="rating-compact">
+    <app-rating-display
+      [rating]="booking.rating"
+      variant="compact"
+    ></app-rating-display>
+  </div>
+  }
+
+  <!-- Team Info - COLLAPSIBLE -->
+  @if (booking.teamId) {
+  <details class="collapsible-section">
+    <summary class="section-header">
+      <span class="section-icon">👥</span>
+      <span class="section-title">{{ getTeamName(booking.teamId) }}</span>
+      @if (userRole === 'admin') {
+      <button
+        class="icon-btn change-team-icon"
+        (click)="triggerRequestReassignTeam(); $event.stopPropagation()"
+        title="Changer l'équipe"
+      >
+        🔄
+      </button>
+      }
+      <span class="expand-icon">▼</span>
+    </summary>
+    <div class="section-content">
       @if (booking.teamId && getChiefName(booking.teamId)) {
-      <span class="team-chief">
-        (Chef: {{ getChiefName(booking.teamId) }})
-      </span>
+      <div class="team-chief-info">
+        <span class="info-label">Chef:</span>
+        <span class="info-value">{{ getChiefName(booking.teamId) }}</span>
+      </div>
       }
     </div>
-    @if (userRole === 'admin') {
-    <button
-      class="change-team-btn"
-      (click)="triggerRequestReassignTeam()"
-      title="Changer l'équipe"
-    >
-      🔄 Changer
-    </button>
-    }
-  </div>
+  </details>
   } @if (booking.status === 'pending') {
-  <div class="booking-actions">
-    <button class="action-btn confirm-btn" (click)="confirmBooking()">
-      ✓ Confirmer
+  <div class="booking-actions compact">
+    <button class="action-btn confirm-btn" (click)="confirmBooking()" title="Confirmer">
+      <span class="btn-icon">✓</span>
+      <span class="btn-text">Confirmer</span>
     </button>
-    <button class="action-btn reject-btn" (click)="rejectBooking()">
-      ✗ Rejeter
+    <button class="action-btn reject-btn" (click)="rejectBooking()" title="Rejeter">
+      <span class="btn-icon">✗</span>
+      <span class="btn-text">Rejeter</span>
     </button>
   </div>
   } @if (booking.status === 'confirmed') {
   <!-- Delay Information Display -->
   @if (booking.delayedOf && booking.delayedOf > 0) {
-  <div class="delay-info">
+  <div class="delay-info compact">
     <span class="delay-icon">⏰</span>
-    <span class="delay-text">Retard: {{ booking.delayedOf }} minutes</span>
+    <span class="delay-text">{{ booking.delayedOf }} min</span>
   </div>
   }
 
-  <div class="booking-actions">
-    <button class="action-btn delay-btn" (click)="openDelayModal()">
-      ⏰ {{ booking.delayedOf ? "Modifier le retard" : "Signaler un retard" }}
+  <div class="booking-actions compact">
+    <button class="action-btn delay-btn icon-mode" (click)="openDelayModal()" title="{{ booking.delayedOf ? 'Modifier le retard' : 'Signaler un retard' }}">
+      <span class="btn-icon">⏰</span>
     </button>
-    <button class="action-btn start-progress-btn" (click)="startProgress()">
-      ▶️ Commencer
+    <button class="action-btn start-progress-btn" (click)="startProgress()" title="Commencer">
+      <span class="btn-icon">▶️</span>
+      <span class="btn-text">Démarrer</span>
     </button>
-    <button class="action-btn complete-btn" (click)="completeBooking()">
-      ✓ Marquer comme terminé
+    <button class="action-btn complete-btn" (click)="completeBooking()" title="Marquer comme terminé">
+      <span class="btn-icon">✓</span>
+      <span class="btn-text">Terminer</span>
     </button>
-    <button class="action-btn reject-btn" (click)="rejectBooking()">
-      ✗ Rejeter
+    <button class="action-btn reject-btn icon-mode" (click)="rejectBooking()" title="Rejeter">
+      <span class="btn-icon">✗</span>
     </button>
   </div>
   } @if (booking.status === 'in-progress') {
   <!-- Progress Section -->
-  <div class="progress-section">
+  <div class="progress-section compact">
     <div class="progress-header">
-      <span class="progress-label">Progression</span>
-      <span class="time-remaining">{{ formatTimeRemaining() }}</span>
+      <span class="progress-label">⏱️ {{ formatTimeRemaining() }}</span>
+      <span class="duration-info">{{ getBookingDuration() }} min</span>
     </div>
     <div class="progress-bar-container">
       <div
@@ -287,26 +292,34 @@
         [style.width.%]="getTimeRemaining().percentage"
       ></div>
     </div>
-    <div class="progress-info">
-      <span class="duration-info">
-        Durée: {{ getBookingDuration() }} min @if (booking.type === 'salon' &&
-        booking.salonsSeats) { ({{ booking.salonsSeats }} sièges × 20min) }
-      </span>
-    </div>
   </div>
 
-  <div class="booking-actions">
-    <button class="action-btn complete-btn" (click)="completeBooking()">
-      ✓ Marquer comme terminé
+  <div class="booking-actions compact">
+    <button class="action-btn complete-btn" (click)="completeBooking()" title="Marquer comme terminé">
+      <span class="btn-icon">✓</span>
+      <span class="btn-text">Terminer</span>
     </button>
   </div>
   } @if (booking.status === 'rejected') {
-  <div class="booking-actions">
-    <button class="action-btn confirm-btn" (click)="reconfirmBooking()">
-      🔄 Reconfirmer
+  <div class="booking-actions compact">
+    <button class="action-btn confirm-btn" (click)="reconfirmBooking()" title="Reconfirmer">
+      <span class="btn-icon">🔄</span>
+      <span class="btn-text">Reconfirmer</span>
     </button>
   </div>
-  } }
+  }
+
+  <!-- Edit Button - Floating -->
+  @if (canEdit()) {
+  <button
+    class="edit-btn-floating"
+    (click)="startEdit()"
+    title="Modifier"
+  >
+    ✏️
+  </button>
+  }
+  }
 </div>
 
 <!-- Delay Modal is now handled by MatDialog in the component -->
