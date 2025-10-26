@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Personal } from '../../models/personal.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -12,19 +13,25 @@ import { Personal } from '../../models/personal.model';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
 
   currentUser: Personal | null = null;
   isEditing = false;
   editedUser: Partial<Personal> = {};
+  private userSubscription?: Subscription;
 
   ngOnInit() {
     this.loadUserProfile();
   }
 
+  ngOnDestroy() {
+    // Clean up subscription to prevent memory leaks
+    this.userSubscription?.unsubscribe();
+  }
+
   loadUserProfile() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.userSubscription = this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
       if (user) {
         this.editedUser = { ...user };
