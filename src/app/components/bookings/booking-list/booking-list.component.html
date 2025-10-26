@@ -8,55 +8,44 @@
   </div>
   <!-- Filter and Sort Controls -->
   <div class="filter-section">
+    <div class="booking-type-tabs">
+      <button
+        class="type-tab"
+        [class.active]="bookingTypeFilter() === 'all'"
+        (click)="bookingTypeFilter.set('all'); onBookingTypeFilterChange()"
+      >
+        Tous
+      </button>
+      <button
+        class="type-tab"
+        [class.active]="bookingTypeFilter() === 'detailing'"
+        (click)="bookingTypeFilter.set('detailing'); onBookingTypeFilterChange()"
+      >
+        Detailing
+      </button>
+      <button
+        class="type-tab"
+        [class.active]="bookingTypeFilter() === 'salon'"
+        (click)="bookingTypeFilter.set('salon'); onBookingTypeFilterChange()"
+      >
+        Salon
+      </button>
+    </div>
     <div class="filter-row">
-      <div class="status-selector">
-        <label for="status-select">Filtrer par statut:</label>
-        <select
-          id="status-select"
-          [(ngModel)]="activeTab"
-          (change)="onStatusFilterChange()"
-          class="status-select"
-        >
-          <option value="all">
-            Tous les statuts ({{ getTotalBookings() }})
-          </option>
-          <option value="pending">
-            En attente ({{ filteredPendingBookings().length }})
-          </option>
-          <option value="confirmed">
-            Confirmées ({{ filteredConfirmedBookings().length }})
-          </option>
-          <option value="in-progress">
-            En cours ({{ filteredInProgressBookings().length }})
-          </option>
-          <option value="completed">
-            Terminées ({{ filteredCompletedBookings().length }})
-          </option>
-          <option value="rejected">
-            Rejetées ({{ filteredRejectedBookings().length }})
-          </option>
-          <option value="canceled">
-            Annulées ({{ filteredCanceledBookings().length }})
-          </option>
-        </select>
-      </div>
+      <app-filter-select
+        [options]="statusFilterOptions()"
+        [selectedValue]="activeTab"
+        [label]="'Filtrer par statut'"
+        [showCount]="true"
+        (selectionChange)="activeTab = $event; onStatusFilterChange()"
+      ></app-filter-select>
 
-      <div class="sort-selector">
-        <label for="sort-select">Trier par:</label>
-        <select
-          id="sort-select"
-          [(ngModel)]="sortBy"
-          (change)="onSortChange()"
-          class="sort-select"
-        >
-          <option value="date-desc">Date (récent d'abord)</option>
-          <option value="date-asc">Date (ancien d'abord)</option>
-          <option value="price-desc">Prix (élevé d'abord)</option>
-          <option value="price-asc">Prix (bas d'abord)</option>
-          <option value="client-name">Client (A-Z)</option>
-          <option value="status">Statut</option>
-        </select>
-      </div>
+      <app-sort-select
+        [options]="sortOptions"
+        [selectedValue]="sortBy"
+        [label]="'Trier par'"
+        (selectionChange)="sortBy = $event; onSortChange()"
+      ></app-sort-select>
 
       <div class="user-selector">
         <app-user-filter-select

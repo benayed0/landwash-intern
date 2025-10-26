@@ -1,0 +1,13 @@
+<div class="sort-selector">
+  <mat-form-field appearance="outline" class="sort-field">
+    <mat-label>{{ label }}</mat-label>
+    <mat-select
+      [value]="selectedValue"
+      (selectionChange)="onSelectionChange($event.value)"
+    >
+      <mat-option *ngFor="let option of options" [value]="option.value">
+        {{ option.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

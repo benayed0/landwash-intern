@@ -11,6 +11,14 @@ import { HotToastService } from '@ngneat/hot-toast';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewOrderModalComponent } from '../view-order-modal/view-order-modal.component';
 import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-filter-select.component';
+import {
+  FilterSelectComponent,
+  FilterOption,
+} from '../../shared/filter-select/filter-select.component';
+import {
+  SortSelectComponent,
+  SortOption,
+} from '../../shared/sort-select/sort-select.component';
 
 @Component({
   selector: 'app-order-list',
@@ -22,6 +30,8 @@ import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-
     LoadingSpinnerComponent,
     CreateOrderModalComponent,
     UserFilterSelectComponent,
+    FilterSelectComponent,
+    SortSelectComponent,
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.css'],
@@ -33,7 +43,7 @@ export class OrderListComponent implements OnInit {
   private router = inject(Router);
   dialog = inject(MatDialog);
 
-  activeTab = 'all';
+  activeTab = 'pending';
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
   sortBy: string = 'date-asc';
@@ -81,6 +91,50 @@ export class OrderListComponent implements OnInit {
   filteredCancelledOrders = computed(() =>
     this.filterOrders(this.cancelledOrders())
   );
+
+  // Computed properties for filter and sort options
+  statusFilterOptions = computed<FilterOption[]>(() => [
+    { value: 'all', label: 'Tous les statuts', count: this.getTotalOrders() },
+    {
+      value: 'pending',
+      label: 'En attente',
+      count: this.filteredPendingOrders().length,
+    },
+    {
+      value: 'confirmed',
+      label: 'Confirmées',
+      count: this.filteredConfirmedOrders().length,
+    },
+    {
+      value: 'shipped',
+      label: 'Expédiées',
+      count: this.filteredShippedOrders().length,
+    },
+    {
+      value: 'delivered',
+      label: 'Livrées',
+      count: this.filteredDeliveredOrders().length,
+    },
+    {
+      value: 'completed',
+      label: 'Terminées',
+      count: this.filteredCompletedOrders().length,
+    },
+    {
+      value: 'cancelled',
+      label: 'Annulées',
+      count: this.filteredCancelledOrders().length,
+    },
+  ]);
+
+  sortOptions: SortOption[] = [
+    { value: 'date-desc', label: 'Date (récent d\'abord)' },
+    { value: 'date-asc', label: 'Date (ancien d\'abord)' },
+    { value: 'total-desc', label: 'Montant (élevé d\'abord)' },
+    { value: 'total-asc', label: 'Montant (bas d\'abord)' },
+    { value: 'client-name', label: 'Client (A-Z)' },
+    { value: 'status', label: 'Statut' },
+  ];
 
   get currentOrders() {
     let orders: Order[];

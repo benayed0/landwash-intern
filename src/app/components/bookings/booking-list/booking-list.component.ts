@@ -25,6 +25,14 @@ import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { ViewBookingModalComponent } from '../view-booking-modal/view-booking-modal.component';
 import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-filter-select.component';
+import {
+  FilterSelectComponent,
+  FilterOption,
+} from '../../shared/filter-select/filter-select.component';
+import {
+  SortSelectComponent,
+  SortOption,
+} from '../../shared/sort-select/sort-select.component';
 
 @Component({
   selector: 'app-booking-list',
@@ -36,6 +44,8 @@ import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-
     BookingCardComponent,
     LoadingSpinnerComponent,
     UserFilterSelectComponent,
+    FilterSelectComponent,
+    SortSelectComponent,
   ],
   templateUrl: './booking-list.component.html',
   styleUrl: './booking-list.component.css',
@@ -48,13 +58,14 @@ export class BookingListComponent implements OnInit {
   private router = inject(Router);
   dialog = inject(MatDialog);
 
-  activeTab = 'all';
+  activeTab = 'pending';
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
   filtersExpanded = false;
   sortBy: string = 'date-asc';
   currentUser: Personal | null = null;
   userRole: 'admin' | 'worker' | null = null;
+  bookingTypeFilter = signal<'all' | 'detailing' | 'salon'>('all');
 
   // Date filtering properties
   selectedPreset = signal<'all' | 'today' | '7days' | '30days' | 'custom'>(
@@ -237,6 +248,50 @@ export class BookingListComponent implements OnInit {
         person.email.toLowerCase().includes(searchTerm)
     );
   });
+
+  // Computed properties for filter and sort options
+  statusFilterOptions = computed<FilterOption[]>(() => [
+    { value: 'all', label: 'Tous les statuts', count: this.getTotalBookings() },
+    {
+      value: 'pending',
+      label: 'En attente',
+      count: this.filteredPendingBookings().length,
+    },
+    {
+      value: 'confirmed',
+      label: 'Confirmées',
+      count: this.filteredConfirmedBookings().length,
+    },
+    {
+      value: 'in-progress',
+      label: 'En cours',
+      count: this.filteredInProgressBookings().length,
+    },
+    {
+      value: 'completed',
+      label: 'Terminées',
+      count: this.filteredCompletedBookings().length,
+    },
+    {
+      value: 'rejected',
+      label: 'Rejetées',
+      count: this.filteredRejectedBookings().length,
+    },
+    {
+      value: 'canceled',
+      label: 'Annulées',
+      count: this.filteredCanceledBookings().length,
+    },
+  ]);
+
+  sortOptions: SortOption[] = [
+    { value: 'date-desc', label: 'Date (récent d\'abord)' },
+    { value: 'date-asc', label: 'Date (ancien d\'abord)' },
+    { value: 'price-desc', label: 'Prix (élevé d\'abord)' },
+    { value: 'price-asc', label: 'Prix (bas d\'abord)' },
+    { value: 'client-name', label: 'Client (A-Z)' },
+    { value: 'status', label: 'Statut' },
+  ];
 
   get currentBookings() {
     let bookings: Booking[];
@@ -630,6 +685,19 @@ export class BookingListComponent implements OnInit {
 
     let filteredBookings = bookings;
 
+    // Apply booking type filtering
+    if (this.bookingTypeFilter() !== 'all') {
+      if (this.bookingTypeFilter() === 'detailing') {
+        filteredBookings = filteredBookings.filter(
+          (booking) => booking.type === 'small' || booking.type === 'big'
+        );
+      } else if (this.bookingTypeFilter() === 'salon') {
+        filteredBookings = filteredBookings.filter(
+          (booking) => booking.type === 'salon'
+        );
+      }
+    }
+
     // Apply date filtering
     if (
       this.selectedPreset() !== 'all' &&
@@ -758,6 +826,11 @@ export class BookingListComponent implements OnInit {
 
   onStatusFilterChange() {
     // Trigger change detection when status filter changes
+    // The currentBookings getter will automatically apply the new filter
+  }
+
+  onBookingTypeFilterChange() {
+    // Trigger change detection when booking type filter changes
     // The currentBookings getter will automatically apply the new filter
   }
 

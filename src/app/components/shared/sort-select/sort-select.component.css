@@ -1,0 +1,109 @@
+.sort-selector {
+  flex: 1;
+  min-width: 0;
+}
+
+.sort-field {
+  width: 100%;
+}
+
+/* Material Form Field Styling */
+::ng-deep .sort-selector .mat-mdc-form-field {
+  width: 100%;
+}
+
+::ng-deep .sort-selector .mat-mdc-text-field-wrapper {
+  background: #2a2a2a;
+  border-radius: 6px;
+}
+
+::ng-deep .sort-selector .mat-mdc-form-field-focus-overlay {
+  background-color: transparent;
+}
+
+::ng-deep .sort-selector .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+/* Outline styling */
+::ng-deep .sort-selector .mdc-text-field--outlined .mdc-notched-outline__leading,
+::ng-deep .sort-selector .mdc-text-field--outlined .mdc-notched-outline__notch,
+::ng-deep
+  .sort-selector
+  .mdc-text-field--outlined
+  .mdc-notched-outline__trailing {
+  border-color: #444;
+}
+
+::ng-deep
+  .sort-selector
+  .mdc-text-field--outlined:hover
+  .mdc-notched-outline__leading,
+::ng-deep
+  .sort-selector
+  .mdc-text-field--outlined:hover
+  .mdc-notched-outline__notch,
+::ng-deep
+  .sort-selector
+  .mdc-text-field--outlined:hover
+  .mdc-notched-outline__trailing {
+  border-color: #c3ff00;
+}
+
+::ng-deep
+  .sort-selector
+  .mdc-text-field--focused
+  .mdc-notched-outline__leading,
+::ng-deep .sort-selector .mdc-text-field--focused .mdc-notched-outline__notch,
+::ng-deep
+  .sort-selector
+  .mdc-text-field--focused
+  .mdc-notched-outline__trailing {
+  border-color: #c3ff00 !important;
+  border-width: 2px;
+}
+
+/* Label styling */
+::ng-deep .sort-selector .mat-mdc-form-field-label {
+  color: #999 !important;
+  font-size: 13px;
+}
+
+::ng-deep .sort-selector .mat-mdc-form-field-focus-overlay {
+  background-color: transparent;
+}
+
+::ng-deep .sort-selector .mdc-text-field--focused .mat-mdc-form-field-label {
+  color: #c3ff00 !important;
+}
+
+/* Select value styling */
+::ng-deep .sort-selector .mat-mdc-select-value {
+  color: #e5e5e5;
+  font-size: 14px;
+}
+
+::ng-deep .sort-selector .mat-mdc-select-arrow {
+  color: #c3ff00;
+}
+
+/* Reduce padding for compact appearance */
+::ng-deep .sort-selector .mat-mdc-form-field-infix {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  min-height: auto;
+}
+
+::ng-deep .sort-selector .mat-mdc-select {
+  font-size: 14px;
+}
+
+@media (max-width: 828px) {
+  .sort-selector {
+    width: 100%;
+  }
+
+  ::ng-deep .sort-selector .mat-mdc-select-value {
+    font-size: 13px;
+  }
+}
