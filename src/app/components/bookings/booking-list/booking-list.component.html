@@ -33,10 +33,10 @@
     </div>
     <div class="filter-row">
       <app-filter-select
-        [options]="statusFilterOptions()"
+        [options]="statusFilterOptions"
         [selectedValue]="activeTab"
         [label]="'Filtrer par statut'"
-        [showCount]="true"
+        [showCount]="false"
         (selectionChange)="activeTab = $event; onStatusFilterChange()"
       ></app-filter-select>
 
