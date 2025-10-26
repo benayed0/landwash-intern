@@ -92,40 +92,16 @@ export class OrderListComponent implements OnInit {
     this.filterOrders(this.cancelledOrders())
   );
 
-  // Computed properties for filter and sort options
-  statusFilterOptions = computed<FilterOption[]>(() => [
-    { value: 'all', label: 'Tous les statuts', count: this.getTotalOrders() },
-    {
-      value: 'pending',
-      label: 'En attente',
-      count: this.filteredPendingOrders().length,
-    },
-    {
-      value: 'confirmed',
-      label: 'Confirmées',
-      count: this.filteredConfirmedOrders().length,
-    },
-    {
-      value: 'shipped',
-      label: 'Expédiées',
-      count: this.filteredShippedOrders().length,
-    },
-    {
-      value: 'delivered',
-      label: 'Livrées',
-      count: this.filteredDeliveredOrders().length,
-    },
-    {
-      value: 'completed',
-      label: 'Terminées',
-      count: this.filteredCompletedOrders().length,
-    },
-    {
-      value: 'cancelled',
-      label: 'Annulées',
-      count: this.filteredCancelledOrders().length,
-    },
-  ]);
+  // Filter options - static to avoid performance issues
+  statusFilterOptions: FilterOption[] = [
+    { value: 'all', label: 'Tous les statuts' },
+    { value: 'pending', label: 'En attente' },
+    { value: 'confirmed', label: 'Confirmées' },
+    { value: 'shipped', label: 'Expédiées' },
+    { value: 'delivered', label: 'Livrées' },
+    { value: 'completed', label: 'Terminées' },
+    { value: 'cancelled', label: 'Annulées' },
+  ];
 
   sortOptions: SortOption[] = [
     { value: 'date-desc', label: 'Date (récent d\'abord)' },

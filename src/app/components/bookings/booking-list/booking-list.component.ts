@@ -249,40 +249,16 @@ export class BookingListComponent implements OnInit {
     );
   });
 
-  // Computed properties for filter and sort options
-  statusFilterOptions = computed<FilterOption[]>(() => [
-    { value: 'all', label: 'Tous les statuts', count: this.getTotalBookings() },
-    {
-      value: 'pending',
-      label: 'En attente',
-      count: this.filteredPendingBookings().length,
-    },
-    {
-      value: 'confirmed',
-      label: 'Confirmées',
-      count: this.filteredConfirmedBookings().length,
-    },
-    {
-      value: 'in-progress',
-      label: 'En cours',
-      count: this.filteredInProgressBookings().length,
-    },
-    {
-      value: 'completed',
-      label: 'Terminées',
-      count: this.filteredCompletedBookings().length,
-    },
-    {
-      value: 'rejected',
-      label: 'Rejetées',
-      count: this.filteredRejectedBookings().length,
-    },
-    {
-      value: 'canceled',
-      label: 'Annulées',
-      count: this.filteredCanceledBookings().length,
-    },
-  ]);
+  // Filter options - static to avoid performance issues
+  statusFilterOptions: FilterOption[] = [
+    { value: 'all', label: 'Tous les statuts' },
+    { value: 'pending', label: 'En attente' },
+    { value: 'confirmed', label: 'Confirmées' },
+    { value: 'in-progress', label: 'En cours' },
+    { value: 'completed', label: 'Terminées' },
+    { value: 'rejected', label: 'Rejetées' },
+    { value: 'canceled', label: 'Annulées' },
+  ];
 
   sortOptions: SortOption[] = [
     { value: 'date-desc', label: 'Date (récent d\'abord)' },
