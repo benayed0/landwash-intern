@@ -7,6 +7,10 @@ import { SubscriptionCardComponent } from '../subscription-card/subscription-car
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { CreateSubscriptionComponent } from '../create-subscription/create-subscription.component';
 import { UserFilterSelectComponent } from '../../shared/user-filter-select/user-filter-select.component';
+import {
+  FilterSelectComponent,
+  FilterOption,
+} from '../../shared/filter-select/filter-select.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -19,6 +23,7 @@ import { FormsModule } from '@angular/forms';
     SubscriptionCardComponent,
     MatDialogModule,
     UserFilterSelectComponent,
+    FilterSelectComponent,
   ],
   templateUrl: './subscription-list.component.html',
   styleUrls: ['./subscription-list.component.css'],
@@ -29,7 +34,7 @@ export class SubscriptionListComponent implements OnInit {
 
   subscriptions = signal<Subscription[]>([]);
   loading = signal<boolean>(false);
-  activeTab = signal<string>('pending');
+  activeTab = signal<string>('all');
 
   // User filtering properties
   clients = signal<any[]>([]);
@@ -65,8 +70,54 @@ export class SubscriptionListComponent implements OnInit {
     )
   );
 
+  statusFilterOptions = computed<FilterOption[]>(() => [
+    {
+      value: 'all',
+      label: 'Tous',
+      count:
+        this.pendingSubscriptions().length +
+        this.activeSubscriptions().length +
+        this.inactiveSubscriptions().length +
+        this.canceledSubscriptions().length +
+        this.expiredSubscriptions().length,
+    },
+    {
+      value: 'pending',
+      label: '📋 En attente',
+      count: this.pendingSubscriptions().length,
+    },
+    {
+      value: 'active',
+      label: '✅ Actives',
+      count: this.activeSubscriptions().length,
+    },
+    {
+      value: 'inactive',
+      label: '⏸️ Inactives',
+      count: this.inactiveSubscriptions().length,
+    },
+    {
+      value: 'canceled',
+      label: '❌ Annulées',
+      count: this.canceledSubscriptions().length,
+    },
+    {
+      value: 'expired',
+      label: '⏰ Expirées',
+      count: this.expiredSubscriptions().length,
+    },
+  ]);
+
   currentSubscriptions = computed(() => {
     switch (this.activeTab()) {
+      case 'all':
+        return [
+          ...this.pendingSubscriptions(),
+          ...this.activeSubscriptions(),
+          ...this.inactiveSubscriptions(),
+          ...this.canceledSubscriptions(),
+          ...this.expiredSubscriptions(),
+        ];
       case 'pending':
         return this.pendingSubscriptions();
       case 'active':
@@ -84,6 +135,8 @@ export class SubscriptionListComponent implements OnInit {
 
   sectionTitle = computed(() => {
     switch (this.activeTab()) {
+      case 'all':
+        return 'Tous les abonnements';
       case 'pending':
         return 'Abonnements en attente';
       case 'active':
@@ -98,6 +151,11 @@ export class SubscriptionListComponent implements OnInit {
         return 'Abonnements';
     }
   });
+
+  onStatusFilterChange() {
+    // Trigger change detection when status filter changes
+    // The currentSubscriptions computed will automatically apply the new filter
+  }
 
   ngOnInit() {
     this.loadSubscriptions();
@@ -145,7 +203,10 @@ export class SubscriptionListComponent implements OnInit {
     // Apply user filtering
     if (this.selectedClient() !== 'all') {
       return subscriptions.filter((subscription) => {
-        return subscription.userId && subscription.userId._id === this.selectedClient();
+        return (
+          subscription.userId &&
+          subscription.userId._id === this.selectedClient()
+        );
       });
     }
 

@@ -13,28 +13,13 @@
     </div>
     <div style="display: grid; gap: 10px">
       <div class="filter-select-wrapper">
-        <select
-          class="filter-select"
-          [value]="activeTab()"
-          (change)="activeTab.set($any($event.target).value)"
-        >
-          <option value="pending">
-            📋 En attente ({{ pendingSubscriptions().length }})
-          </option>
-          <option value="active">
-            ✅ Actives ({{ activeSubscriptions().length }})
-          </option>
-          <option value="inactive">
-            ⏸️ Inactives ({{ inactiveSubscriptions().length }})
-          </option>
-          <option value="canceled">
-            ❌ Annulées ({{ canceledSubscriptions().length }})
-          </option>
-          <option value="expired">
-            ⏰ Expirées ({{ expiredSubscriptions().length }})
-          </option>
-        </select>
-        <span class="select-icon">▼</span>
+        <app-filter-select
+          [options]="statusFilterOptions()"
+          [selectedValue]="activeTab()"
+          [label]="'Filtrer par statut'"
+          [showCount]="true"
+          (selectionChange)="activeTab.set($event); onStatusFilterChange()"
+        ></app-filter-select>
       </div>
 
       <div class="user-filter-wrapper">
