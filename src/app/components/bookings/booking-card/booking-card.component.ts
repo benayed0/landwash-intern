@@ -62,7 +62,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     withSub: false,
     salonsSeats: 0,
     address: '',
-    secondaryNumber: '',
+    phoneNumber: '',
     transportFee: 0,
   };
   previousServiceType: 'small' | 'big' | 'salon' | 'pickup' = 'small';
@@ -243,7 +243,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       withSub: this.booking.withSub,
       salonsSeats: this.booking.salonsSeats || 0,
       address: this.booking.address || '',
-      secondaryNumber: this.booking.secondaryNumber || '',
+      phoneNumber: this.booking.phoneNumber || '',
       transportFee: this.booking.transportFee || 0,
     };
 
@@ -457,7 +457,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       status: this.editForm.status,
       withSub: this.editForm.withSub,
       address: this.editForm.address,
-      secondaryNumber: this.editForm.secondaryNumber,
+      phoneNumber: this.editForm.phoneNumber,
       transportFee: this.editForm.transportFee,
     };
 

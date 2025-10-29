@@ -17,7 +17,10 @@
     <div class="header-right">
       <div class="price-info">
         <span class="booking-price-compact">{{ booking.price }} DT</span>
-        <span *ngIf="booking.transportFee && booking.transportFee > 0" class="transport-fee-badge">
+        <span
+          *ngIf="booking.transportFee && booking.transportFee > 0"
+          class="transport-fee-badge"
+        >
           +{{ booking.transportFee }} DT (Transport)
         </span>
       </div>
@@ -159,15 +162,6 @@
     </div>
 
     <div class="form-group">
-      <label>Numéro secondaire</label>
-      <input
-        type="tel"
-        [(ngModel)]="editForm.secondaryNumber"
-        class="form-input"
-      />
-    </div>
-
-    <div class="form-group">
       <label>Frais de transport (DT)</label>
       <input
         type="number"
@@ -220,15 +214,10 @@
       <span class="expand-icon">▼</span>
     </summary>
     <div class="section-content">
-      @if (booking.userId.phoneNumber) {
-      <a href="tel:{{ booking.userId.phoneNumber }}" class="contact-item">
+      @if (booking.phoneNumber) {
+      <a href="tel:{{ booking.phoneNumber }}" class="contact-item">
         <span class="contact-icon">📱</span>
-        <span class="contact-text">{{ booking.userId.phoneNumber }}</span>
-      </a>
-      } @if (booking.secondaryNumber) {
-      <a href="tel:{{ booking.secondaryNumber }}" class="contact-item">
-        <span class="contact-icon">📱</span>
-        <span class="contact-text">{{ booking.secondaryNumber }} (Sec.)</span>
+        <span class="contact-text">{{ booking.phoneNumber }}</span>
       </a>
       }
     </div>

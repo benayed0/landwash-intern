@@ -53,6 +53,7 @@ export interface Booking {
     _id: string;
   };
   teamId?: string | TeamInfo;
+  phoneNumber: string;
   secondaryNumber?: string;
   transportFee?: number;
   rating?: {
