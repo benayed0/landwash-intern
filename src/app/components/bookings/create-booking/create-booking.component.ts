@@ -124,7 +124,7 @@ export class CreateBookingComponent implements OnInit {
       withSub: [false],
       salonsSeats: [1, [Validators.min(1), Validators.max(20)]],
       address: ['', Validators.required],
-      secondaryNumber: [''],
+      phoneNumber: [''],
       teamId: [''],
       userId: ['', Validators.required],
     });
@@ -291,7 +291,7 @@ export class CreateBookingComponent implements OnInit {
       serviceType === 'big' ||
       serviceType === 'pickup'
     ) {
-      return ['08:00', '11:00', '14:00'];
+      return ['09:00', '12:00', '15:00'];
     }
 
     // For salon services, generate 30-minute interval slots from 8am to 6pm
@@ -318,7 +318,7 @@ export class CreateBookingComponent implements OnInit {
       ) {
         // For detailing services, check if any of the specific slots (8h, 11h, 14h) overlap
         // Detailing takes 2 hours, so we need to check for overlaps
-        const carWashSlots = ['08:00', '11:00', '14:00'];
+        const carWashSlots = ['09:00', '12:00', '15:00'];
 
         const [startHourStr, startMinStr] = start.split(':');
         const [endHourStr, endMinStr] = end.split(':');
@@ -465,7 +465,13 @@ export class CreateBookingComponent implements OnInit {
     // The nearest available date will be selected in the getSlots callback
     this.getSlots();
   }
-
+  onUserChange(e: any) {
+    const selectedUserId = e.target.value;
+    const selectedUser = this.users().find((u) => u._id === selectedUserId);
+    if (selectedUser && selectedUser.phoneNumber) {
+      this.bookingForm.patchValue({ phoneNumber: selectedUser.phoneNumber });
+    }
+  }
   onSubmit() {
     console.log('Submitting form with value:', this.bookingForm.value);
 
@@ -498,7 +504,7 @@ export class CreateBookingComponent implements OnInit {
           formValue.type === 'salon' ? formValue.salonsSeats : undefined,
         address: formValue.address,
         coordinates: [location.lng, location.lat],
-        secondaryNumber: formValue.secondaryNumber || undefined,
+        phoneNumber: formValue.phoneNumber || undefined,
         teamId: formValue.teamId || undefined,
       };
       console.log(booking);

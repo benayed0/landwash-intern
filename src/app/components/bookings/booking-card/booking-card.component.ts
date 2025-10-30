@@ -364,7 +364,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       serviceType === 'big' ||
       serviceType === 'pickup'
     ) {
-      return ['08:00', '11:00', '14:00'];
+      return ['09:00', '12:00', '15:00'];
     }
 
     // For salon services, generate 30-minute interval slots from 8am to 6pm
@@ -389,8 +389,8 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
         serviceType === 'big' ||
         serviceType === 'pickup'
       ) {
-        // For detailing services, check if any of the specific slots (8h, 11h, 14h) overlap
-        const carWashSlots = ['08:00', '11:00', '14:00'];
+        // For detailing services, check if any of the specific slots (9h, 12h, 15h) overlap
+        const carWashSlots = ['09:00', '12:00', '15:00'];
 
         const [startHourStr, startMinStr] = start.split(':');
         const [endHourStr, endMinStr] = end.split(':');
