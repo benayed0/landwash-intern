@@ -10,12 +10,13 @@
       <h2><span class="step-number">1</span> Sélection du client</h2>
       <div class="form-group">
         <app-user-filter-select
-          [users]="getUserFilterOptions()"
+          [users]="userFilterOptions()"
           [selectedUserId]="selectedUserId()"
           [label]="'Choisir un utilisateur *'"
           [placeholder]="'Rechercher par nom ou téléphone...'"
-          [showEmail]="false"
+          [showEmail]="true"
           [showPhoneNumber]="true"
+          [allUsers]="false"
           (selectionChange)="onUserChange($event)"
         ></app-user-filter-select>
         <div class="error-message" *ngIf="isFieldInvalid('userId')">
@@ -101,7 +102,9 @@
                 min="0"
                 step="1"
               />
-              <span class="price-hint">Prix par défaut: {{ calculateEstimatedPrice() }} DT</span>
+              <span class="price-hint"
+                >Prix par défaut: {{ calculateEstimatedPrice() }} DT</span
+              >
             </div>
             <div class="error-message" *ngIf="isFieldInvalid('price')">
               {{ getFieldError("price") }}
@@ -117,10 +120,13 @@
         </div>
       </div>
     </div>
+    @if(isAdmin()){
 
     <!-- Step 4: Team Assignment (Optional) -->
     <div class="form-section">
-      <h2><span class="step-number">4</span> Assignation d'équipe (optionnel)</h2>
+      <h2>
+        <span class="step-number">4</span> Assignation d'équipe (optionnel)
+      </h2>
       <div class="form-group">
         <label for="teamId">Équipe</label>
         <select id="teamId" formControlName="teamId" class="form-input">
@@ -131,6 +137,7 @@
         </select>
       </div>
     </div>
+    }
 
     <!-- Step 5: Location -->
     <div class="form-section">
@@ -233,7 +240,10 @@
         </div>
 
         <!-- Bulk Weekly Booking Button -->
-        <div class="bulk-booking-trigger" *ngIf="selectedTimeSlot && !bulkBookingInProgress()">
+        <div
+          class="bulk-booking-trigger"
+          *ngIf="selectedTimeSlot && !bulkBookingInProgress()"
+        >
           <button
             type="button"
             class="btn-bulk-booking"
@@ -243,7 +253,8 @@
             <span class="text">Réserver les 4 prochaines semaines</span>
           </button>
           <p class="bulk-booking-hint">
-            Créez automatiquement des réservations pour les 4 prochaines semaines au même créneau horaire ({{ selectedTimeSlot }})
+            Créez automatiquement des réservations pour les 4 prochaines
+            semaines au même créneau horaire ({{ selectedTimeSlot }})
           </p>
         </div>
 
@@ -252,7 +263,8 @@
           <div class="bulk-dialog-header">
             <h3>📅 Réservations hebdomadaires</h3>
             <p class="bulk-dialog-subtitle">
-              Sélectionnez les semaines à réserver pour le créneau <strong>{{ selectedTimeSlot }}</strong>
+              Sélectionnez les semaines à réserver pour le créneau
+              <strong>{{ selectedTimeSlot }}</strong>
             </p>
           </div>
 
@@ -270,27 +282,43 @@
                   type="checkbox"
                   [id]="'week-' + i"
                   [checked]="week.confirmed"
-                  [disabled]="(!week.available && week.alternativeSlots.length === 0) || week.created"
+                  [disabled]="
+                    (!week.available && week.alternativeSlots.length === 0) ||
+                    week.created
+                  "
                   (change)="toggleWeekConfirmation(i)"
                 />
               </div>
               <div class="week-info">
                 <div class="week-date">
                   <span class="week-label">Semaine {{ i + 1 }}</span>
-                  <span class="week-date-value">{{ week.date | date: 'dd/MM/yyyy' }}</span>
+                  <span class="week-date-value">{{
+                    week.date | date : "dd/MM/yyyy"
+                  }}</span>
                 </div>
-                <div class="week-time" *ngIf="week.available">{{ week.timeSlot }}</div>
-                <div class="week-time unavailable-time" *ngIf="!week.available && week.alternativeSlots.length === 0">
-                  {{ week.timeSlot }} <span class="unavailable-label">(Non disponible)</span>
+                <div class="week-time" *ngIf="week.available">
+                  {{ week.timeSlot }}
+                </div>
+                <div
+                  class="week-time unavailable-time"
+                  *ngIf="!week.available && week.alternativeSlots.length === 0"
+                >
+                  {{ week.timeSlot }}
+                  <span class="unavailable-label">(Non disponible)</span>
                 </div>
 
                 <!-- Alternative slots selector -->
-                <div class="alternatives-section" *ngIf="!week.available && week.alternativeSlots.length > 0">
+                <div
+                  class="alternatives-section"
+                  *ngIf="!week.available && week.alternativeSlots.length > 0"
+                >
                   <div class="original-slot-unavailable">
                     <span class="crossed-out">{{ week.timeSlot }}</span>
                     <span class="unavailable-text">Non disponible</span>
                   </div>
-                  <div class="alternatives-label">Créneaux alternatifs disponibles:</div>
+                  <div class="alternatives-label">
+                    Créneaux alternatifs disponibles:
+                  </div>
                   <div class="alternatives-slots">
                     <button
                       type="button"
@@ -305,12 +333,48 @@
                 </div>
               </div>
               <div class="week-status">
-                <span *ngIf="week.created" class="status-badge status-created">✓ Créé</span>
-                <span *ngIf="!week.created && week.available && week.confirmed" class="status-badge status-confirmed">✓ Sélectionné</span>
-                <span *ngIf="!week.created && week.available && !week.confirmed" class="status-badge status-available">Disponible</span>
-                <span *ngIf="!week.created && !week.available && week.alternativeSlots.length > 0 && week.confirmed" class="status-badge status-confirmed">✓ Alternative</span>
-                <span *ngIf="!week.created && !week.available && week.alternativeSlots.length > 0 && !week.confirmed" class="status-badge status-alternative">Alternatives</span>
-                <span *ngIf="!week.created && !week.available && week.alternativeSlots.length === 0" class="status-badge status-unavailable">Complet</span>
+                <span *ngIf="week.created" class="status-badge status-created"
+                  >✓ Créé</span
+                >
+                <span
+                  *ngIf="!week.created && week.available && week.confirmed"
+                  class="status-badge status-confirmed"
+                  >✓ Sélectionné</span
+                >
+                <span
+                  *ngIf="!week.created && week.available && !week.confirmed"
+                  class="status-badge status-available"
+                  >Disponible</span
+                >
+                <span
+                  *ngIf="
+                    !week.created &&
+                    !week.available &&
+                    week.alternativeSlots.length > 0 &&
+                    week.confirmed
+                  "
+                  class="status-badge status-confirmed"
+                  >✓ Alternative</span
+                >
+                <span
+                  *ngIf="
+                    !week.created &&
+                    !week.available &&
+                    week.alternativeSlots.length > 0 &&
+                    !week.confirmed
+                  "
+                  class="status-badge status-alternative"
+                  >Alternatives</span
+                >
+                <span
+                  *ngIf="
+                    !week.created &&
+                    !week.available &&
+                    week.alternativeSlots.length === 0
+                  "
+                  class="status-badge status-unavailable"
+                  >Complet</span
+                >
               </div>
             </div>
           </div>
@@ -318,10 +382,17 @@
           <div class="bulk-dialog-summary" *ngIf="getConfirmedCount() > 0">
             <div class="summary-icon">📊</div>
             <div class="summary-text">
-              <strong>{{ getConfirmedCount() }}</strong> semaine(s) sélectionnée(s)
+              <strong>{{ getConfirmedCount() }}</strong> semaine(s)
+              sélectionnée(s)
             </div>
             <div class="summary-price">
-              Total estimé: <strong>{{ calculateEstimatedPrice() * getConfirmedCount() }} DT</strong>
+              Total estimé:
+              <strong
+                >{{
+                  calculateEstimatedPrice() * getConfirmedCount()
+                }}
+                DT</strong
+              >
             </div>
           </div>
         </div>
@@ -354,11 +425,21 @@
       <button
         type="button"
         class="btn-submit"
-        [disabled]="loading() || (bulkBookingInProgress() && getConfirmedCount() === 0) || (!bulkBookingInProgress() && !bookingForm.valid)"
+        [disabled]="
+          loading() ||
+          (bulkBookingInProgress() && getConfirmedCount() === 0) ||
+          (!bulkBookingInProgress() && !bookingForm.valid)
+        "
         (click)="handleCreateBooking()"
       >
-        <span *ngIf="!loading() && !bulkBookingInProgress()">Créer la réservation</span>
-        <span *ngIf="!loading() && bulkBookingInProgress()">Créer {{ getConfirmedCount() > 0 ? getConfirmedCount() : '' }} réservation(s)</span>
+        <span *ngIf="!loading() && !bulkBookingInProgress()"
+          >Créer la réservation</span
+        >
+        <span *ngIf="!loading() && bulkBookingInProgress()"
+          >Créer
+          {{ getConfirmedCount() > 0 ? getConfirmedCount() : "" }}
+          réservation(s)</span
+        >
         <span *ngIf="loading()">Création en cours...</span>
       </button>
     </div>

@@ -3,6 +3,7 @@ import {
   OnInit,
   inject,
   signal,
+  computed,
   ChangeDetectorRef,
   Input,
   Output,
@@ -511,14 +512,14 @@ export class CreateBookingComponent implements OnInit {
     }
   }
 
-  getUserFilterOptions(): UserFilterOption[] {
-    return this.users().map(user => ({
+  userFilterOptions = computed<UserFilterOption[]>(() =>
+    this.users().map(user => ({
       _id: user._id,
       name: user.name,
       email: user.email,
       phoneNumber: user.phoneNumber
-    }));
-  }
+    }))
+  );
   onSubmit() {
     console.log('Submitting form with value:', this.bookingForm.value);
 

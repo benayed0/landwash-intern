@@ -1,4 +1,4 @@
-<mat-form-field appearance="outline" class="user-filter-select">
+<mat-form-field appearance="outline" class="user-field">
   <mat-label>{{ label }}</mat-label>
   <mat-select
     [value]="selectedUserId"
@@ -19,15 +19,15 @@
         (keydown)="$event.stopPropagation()"
       />
     </mat-option>
-
-    <mat-option value="all">
+    @if(allUsers) {<mat-option value="all">
       Tous les clients ({{ users.length }})
     </mat-option>
-    <mat-option
-      *ngFor="let user of filteredUsers()"
-      [value]="user._id"
-    >
-      {{ getUserDisplayText(user) }}
+    }<mat-option *ngFor="let user of filteredUsers()" [value]="user._id">
+      <div class="user-option">
+        <div class="user-name">{{ user.name || 'Pas de nom' }}</div>
+        <div class="user-email">{{ user.phoneNumber || user.email }}</div>
+      </div>
     </mat-option>
   </mat-select>
+  <mat-icon matPrefix>person</mat-icon>
 </mat-form-field>

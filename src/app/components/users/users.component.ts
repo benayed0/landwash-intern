@@ -16,9 +16,9 @@ interface Subscription {
 
 export interface User {
   _id: string;
-  email?: string | null;
+  email: string;
   memberSince: Date;
-  phoneNumber: string;
+  phoneNumber?: string;
   name?: string;
   bookings: any[];
   orders: any[];
@@ -52,7 +52,7 @@ export class UsersComponent implements OnInit {
     active: false,
     pending: false,
     cancelled: false,
-    noSubscription: false
+    noSubscription: false,
   };
 
   constructor(private userService: UserService) {}
@@ -153,10 +153,26 @@ export class UsersComponent implements OnInit {
 
     if (activeStatusFilters.length > 0) {
       result = result.filter((user) => {
-        if (activeStatusFilters.includes('active') && user.subscription?.status === 'active') return true;
-        if (activeStatusFilters.includes('pending') && user.subscription?.status === 'pending') return true;
-        if (activeStatusFilters.includes('cancelled') && user.subscription?.status === 'cancelled') return true;
-        if (activeStatusFilters.includes('noSubscription') && !user.subscription) return true;
+        if (
+          activeStatusFilters.includes('active') &&
+          user.subscription?.status === 'active'
+        )
+          return true;
+        if (
+          activeStatusFilters.includes('pending') &&
+          user.subscription?.status === 'pending'
+        )
+          return true;
+        if (
+          activeStatusFilters.includes('cancelled') &&
+          user.subscription?.status === 'cancelled'
+        )
+          return true;
+        if (
+          activeStatusFilters.includes('noSubscription') &&
+          !user.subscription
+        )
+          return true;
         return false;
       });
     }
@@ -165,7 +181,9 @@ export class UsersComponent implements OnInit {
     if (this.searchTerm.trim()) {
       const searchLower = this.searchTerm.toLowerCase().trim();
       result = result.filter((user) => {
-        const phoneMatch = user.phoneNumber?.toLowerCase().includes(searchLower);
+        const phoneMatch = user.phoneNumber
+          ?.toLowerCase()
+          .includes(searchLower);
         const emailMatch = user.email?.toLowerCase().includes(searchLower);
         const nameMatch = user.name?.toLowerCase().includes(searchLower);
         return phoneMatch || emailMatch || nameMatch;
@@ -189,7 +207,9 @@ export class UsersComponent implements OnInit {
           compareValue = nameA.localeCompare(nameB);
           break;
         case 'date':
-          compareValue = new Date(a.memberSince).getTime() - new Date(b.memberSince).getTime();
+          compareValue =
+            new Date(a.memberSince).getTime() -
+            new Date(b.memberSince).getTime();
           break;
         case 'bookings':
           compareValue = (a.bookings?.length || 0) - (b.bookings?.length || 0);
@@ -249,7 +269,7 @@ export class UsersComponent implements OnInit {
       active: false,
       pending: false,
       cancelled: false,
-      noSubscription: false
+      noSubscription: false,
     };
     this.activeFilter = 'all';
     this.searchTerm = '';
@@ -257,7 +277,7 @@ export class UsersComponent implements OnInit {
   }
 
   getActiveFiltersCount(): number {
-    return Object.values(this.statusFilters).filter(v => v).length;
+    return Object.values(this.statusFilters).filter((v) => v).length;
   }
 
   withBookings() {

@@ -15,9 +15,9 @@ interface Subscription {
 
 interface User {
   _id: string;
-  email?: string | null;
+  email: string;
   memberSince: Date;
-  phoneNumber: string;
+  phoneNumber?: string;
   name?: string;
   bookings: any[];
   orders: any[];

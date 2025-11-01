@@ -7,6 +7,48 @@
   box-sizing: border-box;
 }
 
+.mat-icon.mat-icon-inline {
+  display: contents !important;
+}
+/* Global Material Select Options - Force White Text */
+.mat-mdc-option {
+  color: white !important;
+}
+
+.mat-mdc-option .mdc-list-item__primary-text {
+  color: white !important;
+}
+
+.mat-mdc-option:hover .mdc-list-item__primary-text {
+  color: white !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  color: white !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled)
+  .mdc-list-item__primary-text {
+  color: white !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active {
+  color: white !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active .mdc-list-item__primary-text {
+  color: white !important;
+}
+
+/* Ensure nested content in mat-options is also white */
+.mat-mdc-option * {
+  color: inherit !important;
+}
+
+/* Material Select Panel Background */
+.mat-mdc-select-panel {
+  background: #2a2a2a !important;
+}
 html,
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -66,7 +108,6 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
-
 
 /* PWA safe areas */
 .safe-area-top {
@@ -133,7 +174,11 @@ body {
   padding: 30px;
   transform: translateY(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.95) 0%,
+    rgba(10, 10, 10, 0) 100%
+  );
 }
 
 .ptr-indicator.pulling {
@@ -148,17 +193,19 @@ body {
   border-radius: 50%;
   animation: ptr-spin 0.8s linear infinite;
   background: rgba(0, 0, 0, 0.7);
-  box-shadow: 0 0 20px rgba(195, 255, 0, 0.8),
-              0 0 40px rgba(195, 255, 0, 0.5),
-              0 0 60px rgba(195, 255, 0, 0.3),
-              inset 0 0 20px rgba(195, 255, 0, 0.2),
-              0 8px 16px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 20px rgba(195, 255, 0, 0.8), 0 0 40px rgba(195, 255, 0, 0.5),
+    0 0 60px rgba(195, 255, 0, 0.3), inset 0 0 20px rgba(195, 255, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.7);
   filter: drop-shadow(0 0 10px rgba(195, 255, 0, 0.9));
 }
 
 @keyframes ptr-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Mobile App Specific Styles */
@@ -383,7 +430,6 @@ select:focus {
   margin-bottom: 12px;
   padding-left: 4px;
 }
-
 
 /* Optimize touch interactions */
 button,
@@ -722,8 +768,14 @@ body {
   }
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 /* Global PrimeNG Dropdown Styling */
 .p-dropdown {

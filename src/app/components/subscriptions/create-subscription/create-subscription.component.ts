@@ -191,7 +191,7 @@ export class CreateSubscriptionComponent implements OnInit {
 
   getSelectedUserPhone(): string {
     const selectedUser = this.users().find((user) => user._id === this.userId);
-    return selectedUser ? selectedUser.phoneNumber : '';
+    return selectedUser ? selectedUser.email : '';
   }
 
   getUsagePercentage(): number {
