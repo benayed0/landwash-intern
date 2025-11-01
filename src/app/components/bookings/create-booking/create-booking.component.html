@@ -168,6 +168,95 @@
             créneaux disponibles.
           </p>
         </div>
+
+        <!-- Bulk Weekly Booking Button -->
+        <div class="bulk-booking-trigger" *ngIf="selectedTimeSlot && !bulkBookingInProgress()">
+          <button
+            type="button"
+            class="btn-bulk-booking"
+            (click)="startBulkWeeklyBooking()"
+          >
+            <span class="icon">📅</span>
+            <span class="text">Réserver les 4 prochaines semaines</span>
+          </button>
+          <p class="bulk-booking-hint">
+            Créez automatiquement des réservations pour les 4 prochaines semaines au même créneau horaire ({{ selectedTimeSlot }})
+          </p>
+        </div>
+
+        <!-- Bulk Booking Confirmation Dialog -->
+        <div class="bulk-booking-dialog" *ngIf="bulkBookingInProgress()">
+          <div class="bulk-dialog-header">
+            <h3>📅 Réservations hebdomadaires</h3>
+            <p class="bulk-dialog-subtitle">
+              Sélectionnez les semaines à réserver pour le créneau <strong>{{ selectedTimeSlot }}</strong>
+            </p>
+          </div>
+
+          <div class="bulk-weeks-list">
+            <div
+              *ngFor="let week of bulkBookingWeeks(); let i = index"
+              class="week-item"
+              [class.available]="week.available"
+              [class.unavailable]="!week.available"
+              [class.confirmed]="week.confirmed"
+              [class.created]="week.created"
+            >
+              <div class="week-checkbox">
+                <input
+                  type="checkbox"
+                  [id]="'week-' + i"
+                  [checked]="week.confirmed"
+                  [disabled]="!week.available || week.created"
+                  (change)="toggleWeekConfirmation(i)"
+                />
+              </div>
+              <div class="week-info">
+                <div class="week-date">
+                  <span class="week-label">Semaine {{ i + 1 }}</span>
+                  <span class="week-date-value">{{ week.date | date: 'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="week-time">{{ week.timeSlot }}</div>
+              </div>
+              <div class="week-status">
+                <span *ngIf="week.created" class="status-badge status-created">✓ Créé</span>
+                <span *ngIf="!week.created && week.available && week.confirmed" class="status-badge status-confirmed">✓ Sélectionné</span>
+                <span *ngIf="!week.created && week.available && !week.confirmed" class="status-badge status-available">Disponible</span>
+                <span *ngIf="!week.available" class="status-badge status-unavailable">Non disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bulk-dialog-summary" *ngIf="getConfirmedCount() > 0">
+            <div class="summary-icon">📊</div>
+            <div class="summary-text">
+              <strong>{{ getConfirmedCount() }}</strong> semaine(s) sélectionnée(s)
+            </div>
+            <div class="summary-price">
+              Total estimé: <strong>{{ calculateEstimatedPrice() * getConfirmedCount() }} DT</strong>
+            </div>
+          </div>
+
+          <div class="bulk-dialog-actions">
+            <button
+              type="button"
+              class="btn-cancel-bulk"
+              (click)="cancelBulkBooking()"
+              [disabled]="loading()"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              class="btn-confirm-bulk"
+              (click)="createBulkBookings()"
+              [disabled]="loading() || getConfirmedCount() === 0"
+            >
+              <span *ngIf="!loading()">Créer {{ getConfirmedCount() }} réservation(s)</span>
+              <span *ngIf="loading()">Création en cours...</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <!-- User Selection -->

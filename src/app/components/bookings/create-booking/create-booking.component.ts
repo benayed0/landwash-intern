@@ -79,6 +79,17 @@ export class CreateBookingComponent implements OnInit {
   locationTooFar = signal<boolean>(false);
   nearestTeamDistance = signal<number>(0);
 
+  // Bulk weekly booking
+  bulkBookingInProgress = signal<boolean>(false);
+  bulkBookingWeeks = signal<{
+    date: Date;
+    dateString: string;
+    timeSlot: string;
+    available: boolean;
+    confirmed: boolean;
+    created: boolean;
+  }[]>([]);
+
   // Form options
   bookingTypes: { value: BookingType; label: string; icon: string }[] = [
     { value: 'small', label: 'Citadines / Petites Voitures', icon: '🚗' },
@@ -585,5 +596,171 @@ export class CreateBookingComponent implements OnInit {
     }
 
     return basePrices[type as keyof typeof basePrices] || 0;
+  }
+
+  // Bulk Weekly Booking Feature
+  startBulkWeeklyBooking() {
+    if (!this.selectedDate || !this.selectedTimeSlot) {
+      return;
+    }
+
+    // Generate the next 4 weeks at the same time
+    const weeks = [];
+    for (let i = 1; i <= 4; i++) {
+      const weekDate = new Date(this.selectedDate);
+      weekDate.setDate(weekDate.getDate() + (i * 7));
+
+      const dateString = this.formatDateToLocalString(weekDate);
+
+      weeks.push({
+        date: weekDate,
+        dateString: dateString,
+        timeSlot: this.selectedTimeSlot,
+        available: false,
+        confirmed: false,
+        created: false,
+      });
+    }
+
+    this.bulkBookingWeeks.set(weeks);
+    this.bulkBookingInProgress.set(true);
+
+    // Check availability for each week
+    this.checkBulkWeekAvailability();
+  }
+
+  checkBulkWeekAvailability() {
+    const weeks = this.bulkBookingWeeks();
+    const bookedSlots = this.bookedSlots();
+
+    if (!bookedSlots) return;
+
+    const updatedWeeks = weeks.map(week => {
+      const daySlot = bookedSlots.daySlots.find(
+        slot => slot.date === week.dateString
+      );
+
+      // Generate all possible time slots
+      const allTimeSlots = this.generateAllTimeSlots();
+
+      let isAvailable = false;
+      if (daySlot) {
+        const bookedTimes = this.getBookedTimesForDay(daySlot.slots);
+        isAvailable = !bookedTimes.includes(week.timeSlot);
+      } else {
+        // No bookings for this date, check if the time slot is valid
+        isAvailable = allTimeSlots.includes(week.timeSlot);
+      }
+
+      return { ...week, available: isAvailable };
+    });
+
+    this.bulkBookingWeeks.set(updatedWeeks);
+  }
+
+  toggleWeekConfirmation(index: number) {
+    const weeks = this.bulkBookingWeeks();
+    if (weeks[index].available && !weeks[index].created) {
+      weeks[index].confirmed = !weeks[index].confirmed;
+      this.bulkBookingWeeks.set([...weeks]);
+    }
+  }
+
+  async createBulkBookings() {
+    const weeks = this.bulkBookingWeeks().filter(w => w.confirmed && w.available && !w.created);
+
+    if (weeks.length === 0) {
+      alert('Veuillez sélectionner au moins une semaine');
+      return;
+    }
+
+    this.loading.set(true);
+
+    const formValue = this.bookingForm.value;
+    const location = this.selectedLocation()!;
+    const selectedUser = this.users().find((u) => u._id === formValue.userId);
+
+    if (!selectedUser) {
+      alert('Veuillez sélectionner un utilisateur');
+      this.loading.set(false);
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    // Create bookings sequentially
+    for (let i = 0; i < weeks.length; i++) {
+      const week = weeks[i];
+
+      const booking: Partial<Booking> = {
+        type: formValue.type,
+        price:
+          formValue.type === 'salon'
+            ? this.bookingForm.get('salonsSeats')?.value * 18 || 1
+            : formValue.price,
+        date: week.date,
+        status: 'pending',
+        withSub: formValue.withSub,
+        salonsSeats:
+          formValue.type === 'salon' ? formValue.salonsSeats : undefined,
+        address: formValue.address,
+        coordinates: [location.lng, location.lat],
+        phoneNumber: formValue.phoneNumber || undefined,
+        teamId: formValue.teamId || undefined,
+      };
+
+      try {
+        await new Promise<void>((resolve, reject) => {
+          this.bookingService
+            .createBooking({ booking, userId: selectedUser._id })
+            .subscribe({
+              next: (booking) => {
+                console.log(`Booking created for ${week.dateString}:`, booking);
+                successCount++;
+
+                // Mark this week as created
+                const allWeeks = this.bulkBookingWeeks();
+                const weekIndex = allWeeks.findIndex(w => w.dateString === week.dateString);
+                if (weekIndex !== -1) {
+                  allWeeks[weekIndex].created = true;
+                  this.bulkBookingWeeks.set([...allWeeks]);
+                }
+
+                resolve();
+              },
+              error: (err) => {
+                console.error(`Error creating booking for ${week.dateString}:`, err);
+                failCount++;
+                reject(err);
+              },
+            });
+        });
+      } catch (error) {
+        // Continue with the next booking even if one fails
+        console.error('Error in booking creation:', error);
+      }
+    }
+
+    this.loading.set(false);
+
+    // Show summary
+    const message = `Réservations créées avec succès: ${successCount}\nÉchecs: ${failCount}`;
+    alert(message);
+
+    if (successCount > 0) {
+      this.bookingCreated.emit();
+      // Optionally close the dialog after bulk creation
+      // this.close.emit();
+    }
+  }
+
+  cancelBulkBooking() {
+    this.bulkBookingInProgress.set(false);
+    this.bulkBookingWeeks.set([]);
+  }
+
+  getConfirmedCount(): number {
+    return this.bulkBookingWeeks().filter(w => w.confirmed && w.available).length;
   }
 }
