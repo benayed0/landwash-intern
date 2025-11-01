@@ -72,6 +72,20 @@
   gap: 10px;
 }
 
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #c3ff00 0%, #a8d400 100%);
+  color: #0a0a0a;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 /* Service Type Cards */
 .service-types {
   display: grid;
@@ -303,6 +317,7 @@
 }
 
 .btn-cancel,
+.btn-cancel-bulk-mode,
 .btn-submit {
   padding: 12px 25px;
   border: none;
@@ -324,6 +339,16 @@
   transform: translateY(-1px);
 }
 
+.btn-cancel-bulk-mode {
+  background: #ff8800;
+  color: #fff;
+}
+
+.btn-cancel-bulk-mode:hover:not(:disabled) {
+  background: #ff9922;
+  transform: translateY(-1px);
+}
+
 .btn-submit {
   background: #c3ff00;
   color: #0a0a0a;
@@ -335,6 +360,7 @@
 }
 
 .btn-cancel:disabled,
+.btn-cancel-bulk-mode:disabled,
 .btn-submit:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -624,6 +650,7 @@
   }
 
   .btn-cancel,
+  .btn-cancel-bulk-mode,
   .btn-submit {
     width: 100%;
   }

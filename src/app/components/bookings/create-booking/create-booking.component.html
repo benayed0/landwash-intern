@@ -5,9 +5,42 @@
   </div>
 
   <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" class="booking-form">
-    <!-- Service Type Selection -->
+    <!-- Step 1: User Selection -->
     <div class="form-section">
-      <h2>Type de service</h2>
+      <h2><span class="step-number">1</span> Sélection du client</h2>
+      <div class="form-group">
+        <label for="userId">Choisir un utilisateur *</label>
+        <select
+          id="userId"
+          formControlName="userId"
+          class="form-input"
+          [class.invalid]="isFieldInvalid('userId')"
+          (change)="onUserChange($event)"
+        >
+          <option value="">Sélectionner un utilisateur</option>
+          <option *ngFor="let user of users()" [value]="user._id">
+            {{ user.name }} - {{ user.phoneNumber }}
+          </option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('userId')">
+          {{ getFieldError("userId") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">Téléphone </label>
+        <input
+          type="tel"
+          id="phoneNumber"
+          formControlName="phoneNumber"
+          class="form-input"
+          placeholder="+216 XX XXX XXX"
+        />
+      </div>
+    </div>
+
+    <!-- Step 2: Service Type Selection -->
+    <div class="form-section">
+      <h2><span class="step-number">2</span> Type de service</h2>
       <div class="service-types">
         <div
           *ngFor="let type of bookingTypes"
@@ -49,9 +82,9 @@
       </div>
     </div>
 
-    <!-- Pricing -->
+    <!-- Step 3: Pricing -->
     <div class="form-section">
-      <h2>Tarification</h2>
+      <h2><span class="step-number">3</span> Tarification</h2>
       <div class="form-row">
         <div class="form-group">
           <div class="estimated-price">
@@ -69,9 +102,23 @@
       </div>
     </div>
 
-    <!-- Location -->
+    <!-- Step 4: Team Assignment (Optional) -->
     <div class="form-section">
-      <h2>Localisation</h2>
+      <h2><span class="step-number">4</span> Assignation d'équipe (optionnel)</h2>
+      <div class="form-group">
+        <label for="teamId">Équipe</label>
+        <select id="teamId" formControlName="teamId" class="form-input">
+          <option value="">Assigner plus tard</option>
+          <option *ngFor="let team of teams()" [value]="team._id">
+            {{ team.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Step 5: Location -->
+    <div class="form-section">
+      <h2><span class="step-number">5</span> Localisation</h2>
       <div class="form-group">
         <app-location-picker
           [initialLocation]="selectedLocation()"
@@ -106,9 +153,9 @@
       </div>
     </div>
 
-    <!-- Date and Time -->
+    <!-- Step 6: Date and Time -->
     <div class="form-section">
-      <h2>Date et heure</h2>
+      <h2><span class="step-number">6</span> Date et heure</h2>
       <div class="form-group">
         <label for="date">Sélectionner une date</label>
         <input
@@ -261,73 +308,7 @@
               Total estimé: <strong>{{ calculateEstimatedPrice() * getConfirmedCount() }} DT</strong>
             </div>
           </div>
-
-          <div class="bulk-dialog-actions">
-            <button
-              type="button"
-              class="btn-cancel-bulk"
-              (click)="cancelBulkBooking()"
-              [disabled]="loading()"
-            >
-              Annuler
-            </button>
-            <button
-              type="button"
-              class="btn-confirm-bulk"
-              (click)="createBulkBookings()"
-              [disabled]="loading() || getConfirmedCount() === 0"
-            >
-              <span *ngIf="!loading()">Créer {{ getConfirmedCount() }} réservation(s)</span>
-              <span *ngIf="loading()">Création en cours...</span>
-            </button>
-          </div>
         </div>
-      </div>
-    </div>
-    <!-- User Selection -->
-    <div class="form-section">
-      <h2>Sélection du client</h2>
-      <div class="form-group">
-        <label for="userId">Choisir un utilisateur *</label>
-        <select
-          id="userId"
-          formControlName="userId"
-          class="form-input"
-          [class.invalid]="isFieldInvalid('userId')"
-          (change)="onUserChange($event)"
-        >
-          <option value="">Sélectionner un utilisateur</option>
-          <option *ngFor="let user of users()" [value]="user._id">
-            {{ user.name }} - {{ user.phoneNumber }}
-          </option>
-        </select>
-        <div class="error-message" *ngIf="isFieldInvalid('userId')">
-          {{ getFieldError("userId") }}
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="phoneNumber">Téléphone </label>
-        <input
-          type="tel"
-          id="phoneNumber"
-          formControlName="phoneNumber"
-          class="form-input"
-          placeholder="+216 XX XXX XXX"
-        />
-      </div>
-    </div>
-
-    <!-- Team Assignment (Optional) -->
-    <div class="form-section">
-      <h2>Assignation d'équipe (optionnel)</h2>
-      <div class="form-group">
-        <label for="teamId">Équipe</label>
-        <select id="teamId" formControlName="teamId" class="form-input">
-          <option value="">Assigner plus tard</option>
-          <option *ngFor="let team of teams()" [value]="team._id">
-            {{ team.name }}
-          </option>
-        </select>
       </div>
     </div>
 
@@ -341,8 +322,27 @@
       >
         Annuler
       </button>
-      <button type="submit" class="btn-submit" [disabled]="loading()">
-        <span *ngIf="!loading()">Créer la réservation</span>
+
+      <!-- Cancel Bulk Booking Button (only shown when bulk mode is active) -->
+      <button
+        type="button"
+        class="btn-cancel-bulk-mode"
+        *ngIf="bulkBookingInProgress()"
+        (click)="cancelBulkBooking()"
+        [disabled]="loading()"
+      >
+        Annuler réservations multiples
+      </button>
+
+      <!-- Unified Create Button -->
+      <button
+        type="button"
+        class="btn-submit"
+        [disabled]="loading() || (bulkBookingInProgress() && getConfirmedCount() === 0) || (!bulkBookingInProgress() && !bookingForm.valid)"
+        (click)="handleCreateBooking()"
+      >
+        <span *ngIf="!loading() && !bulkBookingInProgress()">Créer la réservation</span>
+        <span *ngIf="!loading() && bulkBookingInProgress()">Créer {{ getConfirmedCount() > 0 ? getConfirmedCount() : '' }} réservation(s)</span>
         <span *ngIf="loading()">Création en cours...</span>
       </button>
     </div>

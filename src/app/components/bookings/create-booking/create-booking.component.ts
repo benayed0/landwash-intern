@@ -808,4 +808,14 @@ export class CreateBookingComponent implements OnInit {
   getConfirmedCount(): number {
     return this.bulkBookingWeeks().filter(w => w.confirmed && (w.available || w.alternativeSlots.length > 0)).length;
   }
+
+  handleCreateBooking() {
+    if (this.bulkBookingInProgress()) {
+      // Create bulk bookings
+      this.createBulkBookings();
+    } else {
+      // Create single booking
+      this.onSubmit();
+    }
+  }
 }
