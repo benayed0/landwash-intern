@@ -207,7 +207,7 @@
                   type="checkbox"
                   [id]="'week-' + i"
                   [checked]="week.confirmed"
-                  [disabled]="!week.available || week.created"
+                  [disabled]="(!week.available && week.alternativeSlots.length === 0) || week.created"
                   (change)="toggleWeekConfirmation(i)"
                 />
               </div>
@@ -216,13 +216,38 @@
                   <span class="week-label">Semaine {{ i + 1 }}</span>
                   <span class="week-date-value">{{ week.date | date: 'dd/MM/yyyy' }}</span>
                 </div>
-                <div class="week-time">{{ week.timeSlot }}</div>
+                <div class="week-time" *ngIf="week.available">{{ week.timeSlot }}</div>
+                <div class="week-time unavailable-time" *ngIf="!week.available && week.alternativeSlots.length === 0">
+                  {{ week.timeSlot }} <span class="unavailable-label">(Non disponible)</span>
+                </div>
+
+                <!-- Alternative slots selector -->
+                <div class="alternatives-section" *ngIf="!week.available && week.alternativeSlots.length > 0">
+                  <div class="original-slot-unavailable">
+                    <span class="crossed-out">{{ week.timeSlot }}</span>
+                    <span class="unavailable-text">Non disponible</span>
+                  </div>
+                  <div class="alternatives-label">Créneaux alternatifs disponibles:</div>
+                  <div class="alternatives-slots">
+                    <button
+                      type="button"
+                      *ngFor="let altSlot of week.alternativeSlots"
+                      class="alternative-slot-btn"
+                      [class.selected]="week.selectedAlternative === altSlot"
+                      (click)="selectAlternative(i, altSlot)"
+                    >
+                      {{ altSlot }}
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="week-status">
                 <span *ngIf="week.created" class="status-badge status-created">✓ Créé</span>
                 <span *ngIf="!week.created && week.available && week.confirmed" class="status-badge status-confirmed">✓ Sélectionné</span>
                 <span *ngIf="!week.created && week.available && !week.confirmed" class="status-badge status-available">Disponible</span>
-                <span *ngIf="!week.available" class="status-badge status-unavailable">Non disponible</span>
+                <span *ngIf="!week.created && !week.available && week.alternativeSlots.length > 0 && week.confirmed" class="status-badge status-confirmed">✓ Alternative</span>
+                <span *ngIf="!week.created && !week.available && week.alternativeSlots.length > 0 && !week.confirmed" class="status-badge status-alternative">Alternatives</span>
+                <span *ngIf="!week.created && !week.available && week.alternativeSlots.length === 0" class="status-badge status-unavailable">Complet</span>
               </div>
             </div>
           </div>

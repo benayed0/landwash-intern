@@ -829,6 +829,17 @@
   font-family: 'Courier New', monospace;
 }
 
+.week-time.unavailable-time {
+  color: #ff8a65;
+}
+
+.unavailable-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  margin-left: 6px;
+}
+
 .week-status {
   flex-shrink: 0;
 }
@@ -863,6 +874,12 @@
   background: rgba(255, 87, 34, 0.2);
   color: #ff8a65;
   border: 1px solid #ff5722;
+}
+
+.status-alternative {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffd54f;
+  border: 1px solid #ffc107;
 }
 
 .bulk-dialog-summary {
@@ -979,5 +996,95 @@
   .btn-cancel-bulk,
   .btn-confirm-bulk {
     width: 100%;
+  }
+}
+
+/* Alternative Slots Styles */
+.alternatives-section {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 193, 7, 0.05);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 8px;
+}
+
+.original-slot-unavailable {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.crossed-out {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ff8a65;
+  font-family: 'Courier New', monospace;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.unavailable-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff8a65;
+  padding: 2px 8px;
+  background: rgba(255, 87, 34, 0.15);
+  border-radius: 4px;
+}
+
+.alternatives-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffc107;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alternatives-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.alternative-slot-btn {
+  background: #2a2a2a;
+  color: #ffc107;
+  border: 2px solid #ffc107;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.alternative-slot-btn:hover {
+  background: rgba(255, 193, 7, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
+}
+
+.alternative-slot-btn.selected {
+  background: #ffc107;
+  color: #0a0a0a;
+  border-color: #ffc107;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+}
+
+@media (max-width: 768px) {
+  .alternatives-section {
+    padding: 10px;
+  }
+
+  .alternatives-slots {
+    gap: 5px;
+  }
+
+  .alternative-slot-btn {
+    padding: 5px 10px;
+    font-size: 12px;
   }
 }

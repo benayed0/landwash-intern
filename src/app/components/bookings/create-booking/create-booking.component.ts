@@ -88,6 +88,8 @@ export class CreateBookingComponent implements OnInit {
     available: boolean;
     confirmed: boolean;
     created: boolean;
+    alternativeSlots: string[];
+    selectedAlternative: string | null;
   }[]>([]);
 
   // Form options
@@ -619,6 +621,8 @@ export class CreateBookingComponent implements OnInit {
         available: false,
         confirmed: false,
         created: false,
+        alternativeSlots: [],
+        selectedAlternative: null,
       });
     }
 
@@ -644,15 +648,29 @@ export class CreateBookingComponent implements OnInit {
       const allTimeSlots = this.generateAllTimeSlots();
 
       let isAvailable = false;
+      let availableAlternatives: string[] = [];
+
       if (daySlot) {
         const bookedTimes = this.getBookedTimesForDay(daySlot.slots);
         isAvailable = !bookedTimes.includes(week.timeSlot);
+
+        // If not available, find alternatives
+        if (!isAvailable) {
+          availableAlternatives = allTimeSlots.filter(
+            (time) => !bookedTimes.includes(time)
+          );
+        }
       } else {
         // No bookings for this date, check if the time slot is valid
         isAvailable = allTimeSlots.includes(week.timeSlot);
       }
 
-      return { ...week, available: isAvailable };
+      return {
+        ...week,
+        available: isAvailable,
+        alternativeSlots: availableAlternatives,
+        selectedAlternative: availableAlternatives.length > 0 ? availableAlternatives[0] : null
+      };
     });
 
     this.bulkBookingWeeks.set(updatedWeeks);
@@ -660,14 +678,28 @@ export class CreateBookingComponent implements OnInit {
 
   toggleWeekConfirmation(index: number) {
     const weeks = this.bulkBookingWeeks();
-    if (weeks[index].available && !weeks[index].created) {
+    const week = weeks[index];
+
+    // Can confirm if: original slot is available OR has alternative slots
+    const canConfirm = (week.available || week.alternativeSlots.length > 0) && !week.created;
+
+    if (canConfirm) {
       weeks[index].confirmed = !weeks[index].confirmed;
       this.bulkBookingWeeks.set([...weeks]);
     }
   }
 
+  selectAlternative(weekIndex: number, timeSlot: string) {
+    const weeks = this.bulkBookingWeeks();
+    weeks[weekIndex].selectedAlternative = timeSlot;
+    this.bulkBookingWeeks.set([...weeks]);
+  }
+
   async createBulkBookings() {
-    const weeks = this.bulkBookingWeeks().filter(w => w.confirmed && w.available && !w.created);
+    const weeks = this.bulkBookingWeeks().filter(w => {
+      // Include if confirmed AND (available OR has alternatives)
+      return w.confirmed && (w.available || w.alternativeSlots.length > 0) && !w.created;
+    });
 
     if (weeks.length === 0) {
       alert('Veuillez sélectionner au moins une semaine');
@@ -693,13 +725,26 @@ export class CreateBookingComponent implements OnInit {
     for (let i = 0; i < weeks.length; i++) {
       const week = weeks[i];
 
+      // Use the selected alternative if original slot is not available
+      const timeSlotToUse = week.available ? week.timeSlot : week.selectedAlternative;
+
+      if (!timeSlotToUse) {
+        failCount++;
+        continue;
+      }
+
+      // Create a date with the selected time slot
+      const [hours, minutes] = timeSlotToUse.split(':').map(Number);
+      const bookingDate = new Date(week.date);
+      bookingDate.setHours(hours, minutes, 0, 0);
+
       const booking: Partial<Booking> = {
         type: formValue.type,
         price:
           formValue.type === 'salon'
             ? this.bookingForm.get('salonsSeats')?.value * 18 || 1
             : formValue.price,
-        date: week.date,
+        date: bookingDate,
         status: 'pending',
         withSub: formValue.withSub,
         salonsSeats:
@@ -761,6 +806,6 @@ export class CreateBookingComponent implements OnInit {
   }
 
   getConfirmedCount(): number {
-    return this.bulkBookingWeeks().filter(w => w.confirmed && w.available).length;
+    return this.bulkBookingWeeks().filter(w => w.confirmed && (w.available || w.alternativeSlots.length > 0)).length;
   }
 }
