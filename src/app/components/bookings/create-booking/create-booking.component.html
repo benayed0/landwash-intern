@@ -9,19 +9,15 @@
     <div class="form-section">
       <h2><span class="step-number">1</span> Sélection du client</h2>
       <div class="form-group">
-        <label for="userId">Choisir un utilisateur *</label>
-        <select
-          id="userId"
-          formControlName="userId"
-          class="form-input"
-          [class.invalid]="isFieldInvalid('userId')"
-          (change)="onUserChange($event)"
-        >
-          <option value="">Sélectionner un utilisateur</option>
-          <option *ngFor="let user of users()" [value]="user._id">
-            {{ user.name }} - {{ user.phoneNumber }}
-          </option>
-        </select>
+        <app-user-filter-select
+          [users]="getUserFilterOptions()"
+          [selectedUserId]="selectedUserId()"
+          [label]="'Choisir un utilisateur *'"
+          [placeholder]="'Rechercher par nom ou téléphone...'"
+          [showEmail]="false"
+          [showPhoneNumber]="true"
+          (selectionChange)="onUserChange($event)"
+        ></app-user-filter-select>
         <div class="error-message" *ngIf="isFieldInvalid('userId')">
           {{ getFieldError("userId") }}
         </div>
@@ -87,9 +83,29 @@
       <h2><span class="step-number">3</span> Tarification</h2>
       <div class="form-row">
         <div class="form-group">
-          <div class="estimated-price">
+          <div class="estimated-price" *ngIf="!isAdmin()">
             <span class="price-label">Prix estimé:</span>
             <span class="price-amount">{{ calculateEstimatedPrice() }} DT</span>
+          </div>
+
+          <!-- Admin can edit price -->
+          <div class="price-edit-section" *ngIf="isAdmin()">
+            <label for="price">Prix (DT) *</label>
+            <div class="price-input-group">
+              <input
+                type="number"
+                id="price"
+                formControlName="price"
+                class="form-input price-input"
+                [class.invalid]="isFieldInvalid('price')"
+                min="0"
+                step="1"
+              />
+              <span class="price-hint">Prix par défaut: {{ calculateEstimatedPrice() }} DT</span>
+            </div>
+            <div class="error-message" *ngIf="isFieldInvalid('price')">
+              {{ getFieldError("price") }}
+            </div>
           </div>
         </div>
         <div class="form-group">

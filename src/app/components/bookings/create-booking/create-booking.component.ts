@@ -20,6 +20,7 @@ import { Router } from '@angular/router';
 import { BookingService } from '../../../services/booking.service';
 import { TeamService } from '../../../services/team.service';
 import { UserService } from '../../../services/user.service';
+import { AuthService } from '../../../services/auth.service';
 import {
   Booking,
   BookingType,
@@ -31,6 +32,7 @@ import { LocationPickerComponent } from '../../location-picker/location-picker.c
 import { SelectedLocation } from '../../../services/location.service';
 import { User } from '../../users/users.component';
 import { MatDialogRef } from '@angular/material/dialog';
+import { UserFilterSelectComponent, UserFilterOption } from '../../shared/user-filter-select/user-filter-select.component';
 
 @Component({
   selector: 'app-create-booking',
@@ -40,6 +42,7 @@ import { MatDialogRef } from '@angular/material/dialog';
     FormsModule,
     ReactiveFormsModule,
     LocationPickerComponent,
+    UserFilterSelectComponent,
   ],
   templateUrl: './create-booking.component.html',
   styleUrls: ['./create-booking.component.css'],
@@ -52,6 +55,7 @@ export class CreateBookingComponent implements OnInit {
   private bookingService = inject(BookingService);
   private teamService = inject(TeamService);
   private userService = inject(UserService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -62,6 +66,8 @@ export class CreateBookingComponent implements OnInit {
   users = signal<User[]>([]);
   loading = signal<boolean>(false);
   submitted = false;
+  isAdmin = signal<boolean>(false);
+  selectedUserId = signal<string>('');
   selectedDate: Date | null = null;
   selectedDateString: string = '';
   selectedTimeSlot: string = '';
@@ -113,6 +119,22 @@ export class CreateBookingComponent implements OnInit {
     this.loadPersonnel();
     this.loadUsers();
     this.setMinDate();
+    this.checkAdminRole();
+  }
+
+  checkAdminRole() {
+    this.authService.checkIsAdmin().subscribe((isAdmin) => {
+      this.isAdmin.set(isAdmin);
+      // Update price field validators based on admin status
+      const priceControl = this.bookingForm.get('price');
+      if (isAdmin) {
+        // Admin can edit price
+        priceControl?.enable();
+      } else {
+        // Non-admin cannot edit price
+        priceControl?.disable();
+      }
+    });
   }
 
   setMinDate() {
@@ -479,11 +501,23 @@ export class CreateBookingComponent implements OnInit {
     this.getSlots();
   }
   onUserChange(e: any) {
-    const selectedUserId = e.target.value;
+    const selectedUserId = e.target ? e.target.value : e;
+    this.selectedUserId.set(selectedUserId);
+    this.bookingForm.patchValue({ userId: selectedUserId });
+
     const selectedUser = this.users().find((u) => u._id === selectedUserId);
     if (selectedUser && selectedUser.phoneNumber) {
       this.bookingForm.patchValue({ phoneNumber: selectedUser.phoneNumber });
     }
+  }
+
+  getUserFilterOptions(): UserFilterOption[] {
+    return this.users().map(user => ({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber
+    }));
   }
   onSubmit() {
     console.log('Submitting form with value:', this.bookingForm.value);

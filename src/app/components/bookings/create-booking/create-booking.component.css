@@ -298,6 +298,36 @@
   color: #c3ff00;
 }
 
+/* Price Edit Section (Admin Only) */
+.price-edit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.price-edit-section label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e5e5;
+}
+
+.price-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.price-input {
+  width: 100%;
+}
+
+.price-hint {
+  font-size: 12px;
+  color: #888;
+  font-style: italic;
+  padding-left: 4px;
+}
+
 /* Error Messages */
 .error-message {
   color: #f44336;
@@ -394,6 +424,49 @@
 .form-section app-location-picker {
   display: block;
   width: 100%;
+}
+
+/* User Filter Select styling */
+.form-section app-user-filter-select {
+  display: block;
+  width: 100%;
+}
+
+.form-section app-user-filter-select ::ng-deep .user-filter-select {
+  width: 100%;
+}
+
+.form-section app-user-filter-select ::ng-deep .mat-mdc-form-field {
+  width: 100%;
+}
+
+.form-section app-user-filter-select ::ng-deep .mat-mdc-text-field-wrapper {
+  background: #0a0a0a;
+}
+
+.form-section app-user-filter-select ::ng-deep .mat-mdc-form-field-focus-overlay {
+  background: transparent;
+}
+
+.form-section app-user-filter-select ::ng-deep .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading,
+.form-section app-user-filter-select ::ng-deep .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__notch,
+.form-section app-user-filter-select ::ng-deep .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-color: #444;
+}
+
+.form-section app-user-filter-select ::ng-deep .mdc-text-field--outlined:hover .mdc-notched-outline .mdc-notched-outline__leading,
+.form-section app-user-filter-select ::ng-deep .mdc-text-field--outlined:hover .mdc-notched-outline .mdc-notched-outline__notch,
+.form-section app-user-filter-select ::ng-deep .mdc-text-field--outlined:hover .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-color: #c3ff00;
+}
+
+.form-section app-user-filter-select ::ng-deep .mat-mdc-select-value,
+.form-section app-user-filter-select ::ng-deep .mat-mdc-form-field-label {
+  color: #e5e5e5;
+}
+
+.form-section app-user-filter-select ::ng-deep .mat-mdc-select-arrow {
+  color: #c3ff00;
 }
 
 /* PrimeNG Calendar styling */
