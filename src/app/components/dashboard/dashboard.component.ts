@@ -18,6 +18,7 @@ import { TeamsComponent } from '../personals/teams/teams.component';
 import { UsersComponent } from '../users/users.component';
 import { ProfileComponent } from '../profile/profile.component';
 import { DiscountListComponent } from '../discounts/discount-list/discount-list.component';
+import { ServicesComponent } from '../services/services.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +35,7 @@ import { DiscountListComponent } from '../discounts/discount-list/discount-list.
     UsersComponent,
     ProfileComponent,
     DiscountListComponent,
+    ServicesComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -53,6 +55,7 @@ export class DashboardComponent implements OnInit {
     | 'personals'
     | 'users'
     | 'discounts'
+    | 'services'
     | 'profile'
   >('bookings');
 
@@ -102,6 +105,7 @@ export class DashboardComponent implements OnInit {
     | 'personals'
     | 'users'
     | 'discounts'
+    | 'services'
     | 'profile' {
     return [
       'bookings',
@@ -112,6 +116,7 @@ export class DashboardComponent implements OnInit {
       'personals',
       'users',
       'discounts',
+      'services',
       'profile',
     ].includes(view);
   }
@@ -133,6 +138,8 @@ export class DashboardComponent implements OnInit {
         return 'Utilisateurs';
       case 'discounts':
         return 'Réductions';
+      case 'services':
+        return 'Services';
       case 'profile':
         return 'Profil';
       default:
@@ -212,6 +219,14 @@ export class DashboardComponent implements OnInit {
       this.viewType.set('personals');
     } else {
       this.router.navigate(['/dashboard/personals']);
+    }
+  }
+  switchToServices() {
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      this.viewType.set('services');
+    } else {
+      this.router.navigate(['/dashboard/services']);
     }
   }
   switchToProfile() {

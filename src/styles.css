@@ -907,3 +907,30 @@ body {
   margin: 0;
   max-height: none;
 }
+
+/* Service Modal Dialog Specific Styles */
+.service-modal-dialog .mat-mdc-dialog-container {
+  background: #1a1a1a;
+  color: #e5e5e5;
+  border-radius: 12px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.service-modal-dialog .mat-mdc-dialog-surface {
+  background: transparent;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.service-modal-dialog .mat-mdc-dialog-content {
+  padding: 0;
+  margin: 0;
+  max-height: none;
+  overflow-y: auto;
+}
+
+.service-modal-dialog .mat-mdc-dialog-actions {
+  padding: 0;
+  margin: 0;
+  min-height: auto;
+}
