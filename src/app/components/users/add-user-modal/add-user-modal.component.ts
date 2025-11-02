@@ -16,7 +16,7 @@ import { UserService } from '../../../services/user.service';
 interface NewUser {
   phoneNumber: string;
   name: string;
-  email?: string;
+  email: string;
 }
 
 @Component({
@@ -198,7 +198,12 @@ export class AddUserModalComponent implements OnInit, OnDestroy {
       next: (user) => {
         this.isSubmitting = false;
         this.toast.success('Utilisateur créé avec succès !');
-        this.confirmAdd.emit(user);
+        this.confirmAdd.emit({
+          ...user,
+          bookings: [],
+          orders: [],
+          subscription: null,
+        });
         this.resetForm();
       },
       error: (error) => {

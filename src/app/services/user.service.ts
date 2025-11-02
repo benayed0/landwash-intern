@@ -19,6 +19,14 @@ interface User {
   memberSince: Date;
   phoneNumber?: string;
   name?: string;
+}
+
+interface UserResponse {
+  _id: string;
+  email: string;
+  memberSince: Date;
+  phoneNumber?: string;
+  name?: string;
   bookings: any[];
   orders: any[];
   subscription?: Subscription | null;
@@ -34,16 +42,16 @@ export class UserService {
   createUser(userData: {
     phoneNumber: string;
     name: string;
-    email?: string;
+    email: string;
   }): Observable<User> {
     return this.http.post<User>(`${this.apiUrl}/users`, userData);
   }
-  getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/users`);
+  getAllUsers(): Observable<UserResponse[]> {
+    return this.http.get<UserResponse[]>(`${this.apiUrl}/users`);
   }
 
-  getUserById(id: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/users/${id}`);
+  getUserById(id: string): Observable<UserResponse> {
+    return this.http.get<UserResponse>(`${this.apiUrl}/users/${id}`);
   }
 
   getUserStats(): Observable<{
