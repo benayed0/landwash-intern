@@ -190,11 +190,20 @@ export class ServiceModalComponent implements OnInit {
     this.editingLocationIndex.set(index);
   }
 
+  closeLocationEdit() {
+    this.editingLocationIndex.set(null);
+  }
+
   onLocationSelected(location: SelectedLocation, index: number) {
-    this.formData.availableLocations[index] = {
-      coordinates: [location.lng, location.lat],
-      address: location.address,
-    };
+    // Only update coordinates, keep address editable
+    this.formData.availableLocations[index].coordinates = [location.lng, location.lat];
+
+    // If address is empty, set the suggested address from location picker
+    if (!this.formData.availableLocations[index].address ||
+        this.formData.availableLocations[index].address.trim() === '') {
+      this.formData.availableLocations[index].address = location.address;
+    }
+
     // Clear any errors for this location
     delete this.errors[`address_${index}`];
     delete this.errors[`coordinates_${index}`];

@@ -32,7 +32,7 @@ import { Subject, Subscription } from 'rxjs';
 export class LocationPickerComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
-  @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
+  @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
   @Input() initialLocation?: SelectedLocation | null;
   @Input() placeholder: string = 'Rechercher une adresse...';
   @Output() locationSelected = new EventEmitter<SelectedLocation>();
@@ -49,19 +49,16 @@ export class LocationPickerComponent
   currentSelection = signal<SelectedLocation | null>(null);
 
   constructor(private locationService: LocationService) {}
-  ngAfterViewInit() {
-    // Defensive: mobile webviews love focusing inputs randomly
-    setTimeout(() => {
-      const inputEl = this.mapContainer.nativeElement
-        .closest('.location-picker')
-        ?.querySelector('.search-input') as HTMLInputElement;
-      if (inputEl) inputEl.blur();
-    }, 150);
-  }
-  ngOnInit() {
-    this.initializeMap();
-    this.setupSearch();
 
+  ngOnInit() {
+    this.setupSearch();
+  }
+
+  ngAfterViewInit() {
+    // Initialize map after view is ready
+    this.initializeMap();
+
+    // Set initial location if provided
     if (this.initialLocation) {
       this.setLocation(
         this.initialLocation.lat,
@@ -69,6 +66,14 @@ export class LocationPickerComponent
         this.initialLocation.address
       );
     }
+
+    // Defensive: mobile webviews love focusing inputs randomly
+    setTimeout(() => {
+      const inputEl = this.mapContainer.nativeElement
+        .closest('.location-picker')
+        ?.querySelector('.search-input') as HTMLInputElement;
+      if (inputEl) inputEl.blur();
+    }, 150);
   }
 
   ngOnDestroy() {
