@@ -132,6 +132,30 @@
               placeholder="Rechercher une adresse en Tunisie..."
               (locationSelected)="onLocationSelected($event, i)"
             ></app-location-picker>
+
+            <!-- Editable Address Field -->
+            <div class="form-group address-edit-group">
+              <label [for]="'address-' + i">Adresse personnalisée *</label>
+              <input
+                type="text"
+                [id]="'address-' + i"
+                [name]="'address-' + i"
+                [(ngModel)]="formData.availableLocations[i].address"
+                [class.error]="errors['address_' + i]"
+                placeholder="Modifier l'adresse si nécessaire..."
+                class="address-input"
+              />
+              <small class="field-hint">
+                Cette adresse sera affichée aux utilisateurs. Vous pouvez la modifier après avoir sélectionné la localisation sur la carte.
+              </small>
+            </div>
+
+            <div class="location-edit-actions">
+              <button type="button" class="btn-done-editing" (click)="closeLocationEdit()">
+                ✓ Terminer la modification
+              </button>
+            </div>
+
             <span class="error-message" *ngIf="errors['address_' + i] || errors['coordinates_' + i]">
               {{ errors['address_' + i] || errors['coordinates_' + i] }}
             </span>

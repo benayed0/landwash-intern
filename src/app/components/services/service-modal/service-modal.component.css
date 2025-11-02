@@ -367,6 +367,67 @@
   border: 1px solid rgba(195, 255, 0, 0.2);
 }
 
+/* Address Edit Group */
+.address-edit-group {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(42, 42, 42, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.address-edit-group label {
+  color: #c3ff00;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.address-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(30, 30, 30, 0.8);
+  border: 2px solid rgba(195, 255, 0, 0.3);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #e5e5e5;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.address-input:focus {
+  outline: none;
+  border-color: #c3ff00;
+  box-shadow: 0 0 0 4px rgba(195, 255, 0, 0.1);
+}
+
+.address-input.error {
+  border-color: #f44336;
+}
+
+/* Location Edit Actions */
+.location-edit-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-done-editing {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #c3ff00, #a8d900);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(195, 255, 0, 0.2);
+}
+
+.btn-done-editing:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(195, 255, 0, 0.35);
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .modal-container {
