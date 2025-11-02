@@ -3,24 +3,23 @@ import {
   Inject,
   OnInit,
   inject,
-  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { ServiceService } from '../../../services/service.service';
-import { Service, BookingType, UpdateServiceDto, ServiceLocation } from '../../../models/service.model';
-import { LocationPickerComponent } from '../../location-picker/location-picker.component';
-import { SelectedLocation } from '../../../services/location.service';
+import { Service, BookingType, UpdateServiceDto } from '../../../models/service.model';
+import { ServiceLocation } from '../../../models/service-location.model';
 
 export interface ServiceModalData {
   service: Service;
+  allLocations: ServiceLocation[];
 }
 
 @Component({
   selector: 'app-service-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule, LocationPickerComponent],
+  imports: [CommonModule, FormsModule, MatDialogModule],
   templateUrl: './service-modal.component.html',
   styleUrl: './service-modal.component.css',
 })
@@ -31,21 +30,17 @@ export class ServiceModalComponent implements OnInit {
     type: BookingType | '';
     price: number;
     duration: number;
-    availableLocations: ServiceLocation[];
+    selectedLocationIds: string[];
   } = {
     type: '',
     price: 0,
     duration: 60,
-    availableLocations: [],
+    selectedLocationIds: [],
   };
 
   bookingTypes: BookingType[] = ['small', 'big', 'salon', 'pickup'];
   isSubmitting = false;
   errors: { [key: string]: string } = {};
-
-  // Signals for location tracking
-  currentLocationIndex = signal<number>(0);
-  editingLocationIndex = signal<number | null>(null);
 
   constructor(
     public dialogRef: MatDialogRef<ServiceModalComponent>,
@@ -58,14 +53,22 @@ export class ServiceModalComponent implements OnInit {
 
   resetForm() {
     if (this.data.service) {
+      // Extract location IDs from service
+      const locationIds: string[] = this.data.service.availableLocations
+        .map((loc) => {
+          if (typeof loc === 'string') {
+            return loc;
+          }
+          const serviceLocation = loc as ServiceLocation;
+          return serviceLocation._id || '';
+        })
+        .filter((id) => id !== '');
+
       this.formData = {
         type: this.data.service.type,
         price: this.data.service.price,
         duration: this.data.service.duration,
-        availableLocations: this.data.service.availableLocations.map((loc) => ({
-          coordinates: [...loc.coordinates] as [number, number],
-          address: loc.address,
-        })),
+        selectedLocationIds: locationIds,
       };
     }
     this.errors = {};
@@ -92,29 +95,9 @@ export class ServiceModalComponent implements OnInit {
 
     // Salon type doesn't require locations (service at home)
     if (this.formData.type !== 'salon') {
-      if (!this.formData.availableLocations || this.formData.availableLocations.length === 0) {
-        this.errors['locations'] = 'Au moins une localisation est requise';
+      if (!this.formData.selectedLocationIds || this.formData.selectedLocationIds.length === 0) {
+        this.errors['locations'] = 'Au moins une localisation est requise pour ce type de service';
         isValid = false;
-      } else {
-        // Validate each location
-        for (let i = 0; i < this.formData.availableLocations.length; i++) {
-          const location = this.formData.availableLocations[i];
-
-          if (!location.address || location.address.trim() === '') {
-            this.errors[`address_${i}`] = "L'adresse est requise";
-            isValid = false;
-          }
-
-          if (
-            !location.coordinates ||
-            location.coordinates.length !== 2 ||
-            isNaN(location.coordinates[0]) ||
-            isNaN(location.coordinates[1])
-          ) {
-            this.errors[`coordinates_${i}`] = 'Les coordonnées sont invalides';
-            isValid = false;
-          }
-        }
       }
     }
 
@@ -136,13 +119,13 @@ export class ServiceModalComponent implements OnInit {
       type: this.formData.type as BookingType,
       price: this.formData.price,
       duration: this.formData.duration,
-      availableLocations: this.formData.availableLocations,
+      availableLocations: this.formData.selectedLocationIds,
     };
 
     this.serviceService.updateService(this.data.service._id, updateDto).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.dialogRef.close(true); // Pass true to indicate success
+        this.dialogRef.close(true);
       },
       error: (err) => {
         console.error('Error updating service:', err);
@@ -166,58 +149,28 @@ export class ServiceModalComponent implements OnInit {
     return labels[type];
   }
 
-  // Location management with map picker
-  addLocation() {
-    this.formData.availableLocations.push({
-      coordinates: [10.1815, 36.8065],
-      address: '',
-    });
-    // Set the newly added location as the one being edited
-    this.editingLocationIndex.set(this.formData.availableLocations.length - 1);
+  // Location selection helpers
+  isLocationSelected(locationId: string): boolean {
+    return this.formData.selectedLocationIds.includes(locationId);
   }
 
-  removeLocation(index: number) {
-    if (this.formData.availableLocations.length > 1) {
-      this.formData.availableLocations.splice(index, 1);
-      // Clear editing state if we removed the location being edited
-      if (this.editingLocationIndex() === index) {
-        this.editingLocationIndex.set(null);
-      }
+  toggleLocation(locationId: string) {
+    const index = this.formData.selectedLocationIds.indexOf(locationId);
+    if (index > -1) {
+      // Remove location
+      this.formData.selectedLocationIds.splice(index, 1);
+    } else {
+      // Add location
+      this.formData.selectedLocationIds.push(locationId);
+    }
+    // Clear location error if user selects at least one
+    if (this.formData.selectedLocationIds.length > 0) {
+      delete this.errors['locations'];
     }
   }
 
-  editLocation(index: number) {
-    this.editingLocationIndex.set(index);
-  }
-
-  closeLocationEdit() {
-    this.editingLocationIndex.set(null);
-  }
-
-  onLocationSelected(location: SelectedLocation, index: number) {
-    // Only update coordinates, keep address editable
-    this.formData.availableLocations[index].coordinates = [location.lng, location.lat];
-
-    // If address is empty, set the suggested address from location picker
-    if (!this.formData.availableLocations[index].address ||
-        this.formData.availableLocations[index].address.trim() === '') {
-      this.formData.availableLocations[index].address = location.address;
-    }
-
-    // Clear any errors for this location
-    delete this.errors[`address_${index}`];
-    delete this.errors[`coordinates_${index}`];
-  }
-
-  getInitialLocation(index: number): SelectedLocation | null {
-    const loc = this.formData.availableLocations[index];
-    if (loc && loc.coordinates && loc.coordinates.length === 2) {
-      return {
-        lat: loc.coordinates[1],
-        lng: loc.coordinates[0],
-        address: loc.address || '',
-      };
-    }
-    return null;
+  getAvailableLocations(): ServiceLocation[] {
+    // Only show active locations
+    return this.data.allLocations.filter((loc) => loc.isActive);
   }
 }

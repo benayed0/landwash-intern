@@ -1,16 +1,13 @@
-export type BookingType = 'small' | 'big' | 'salon' | 'pickup';
+import { ServiceLocation } from './service-location.model';
 
-export interface ServiceLocation {
-  coordinates: [number, number]; // [longitude, latitude]
-  address: string;
-}
+export type BookingType = 'small' | 'big' | 'salon' | 'pickup';
 
 export interface Service {
   _id?: string;
   type: BookingType;
   price: number;
   duration: number; // Duration in minutes
-  availableLocations: ServiceLocation[];
+  availableLocations: (string | ServiceLocation)[]; // Can be IDs or populated objects
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -19,12 +16,12 @@ export interface CreateServiceDto {
   type: BookingType;
   price: number;
   duration: number;
-  availableLocations: ServiceLocation[];
+  availableLocations?: string[]; // Array of ServiceLocation IDs
 }
 
 export interface UpdateServiceDto {
   type?: BookingType;
   price?: number;
   duration?: number;
-  availableLocations?: ServiceLocation[];
+  availableLocations?: string[]; // Array of ServiceLocation IDs
 }

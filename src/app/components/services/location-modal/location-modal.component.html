@@ -1,0 +1,75 @@
+<div class="modal-container">
+  <div class="modal-header">
+    <h2 mat-dialog-title>
+      {{ isEditing ? 'Modifier la Localisation' : 'Ajouter une Localisation' }}
+    </h2>
+    <button class="close-btn" (click)="onClose()" type="button">&times;</button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="modal-form" mat-dialog-content>
+    <!-- Address -->
+    <div class="form-group">
+      <label for="address">Adresse *</label>
+      <input
+        type="text"
+        id="address"
+        name="address"
+        [(ngModel)]="formData.address"
+        [class.error]="errors['address']"
+        placeholder="Entrez l'adresse complète"
+        required
+      />
+      <span class="error-message" *ngIf="errors['address']">{{
+        errors['address']
+      }}</span>
+    </div>
+
+    <!-- Map Location Picker -->
+    <div class="form-group">
+      <label>Sélectionner sur la carte *</label>
+      <app-location-picker
+        [initialLocation]="getInitialLocation()"
+        placeholder="Rechercher une adresse en Tunisie..."
+        (locationSelected)="onLocationSelected($event)"
+      ></app-location-picker>
+      <span class="error-message" *ngIf="errors['coordinates']">{{
+        errors['coordinates']
+      }}</span>
+      <small class="field-hint">
+        Coordonnées: Lat {{ formData.coordinates[1] | number: '1.4-4' }}, Lng
+        {{ formData.coordinates[0] | number: '1.4-4' }}
+      </small>
+    </div>
+
+    <!-- Active Status -->
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          name="isActive"
+          [(ngModel)]="formData.isActive"
+        />
+        <span>Localisation active</span>
+      </label>
+      <small class="field-hint">
+        Les localisations inactives ne seront pas disponibles pour de nouveaux
+        services
+      </small>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions" mat-dialog-actions>
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="onClose()"
+        [disabled]="isSubmitting"
+      >
+        Annuler
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Enregistrement...' : (isEditing ? 'Modifier' : 'Ajouter') }}
+      </button>
+    </div>
+  </form>
+</div>

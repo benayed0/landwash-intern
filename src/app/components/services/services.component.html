@@ -1,124 +1,208 @@
 <div class="services-container">
   <div class="content">
     <div class="page-header">
-      <h1>⚙️ Services</h1>
-    </div>
-
-    <!-- Filter Tabs -->
-    <div class="filter-tabs" *ngIf="!loading">
-      <button
-        class="filter-tab"
-        [class.active]="selectedType === 'all'"
-        (click)="onFilterChange('all')"
-      >
-        Tous ({{ services.length }})
-      </button>
-      <button
-        class="filter-tab"
-        [class.active]="selectedType === 'small'"
-        (click)="onFilterChange('small')"
-      >
-        🚗 Petit véhicule
-      </button>
-      <button
-        class="filter-tab"
-        [class.active]="selectedType === 'big'"
-        (click)="onFilterChange('big')"
-      >
-        🚙 Grand véhicule
-      </button>
-      <button
-        class="filter-tab"
-        [class.active]="selectedType === 'salon'"
-        (click)="onFilterChange('salon')"
-      >
-        ✨ Salon
-      </button>
-      <button
-        class="filter-tab"
-        [class.active]="selectedType === 'pickup'"
-        (click)="onFilterChange('pickup')"
-      >
-        🚚 Pick-up
-      </button>
-    </div>
-
-    <!-- Loading State -->
-    <app-loading-spinner
-      *ngIf="loading"
-      [size]="'medium'"
-      [message]="'Chargement des services...'"
-      [color]="'primary'"
-    >
-    </app-loading-spinner>
-
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="!loading && services.length === 0">
-      <div class="empty-icon">⚙️</div>
-      <p>Aucun service trouvé</p>
-    </div>
-
-    <!-- Services Grid -->
-    <div class="services-grid" *ngIf="!loading && filteredServices.length > 0">
-      <div class="service-card" *ngFor="let service of filteredServices">
-        <!-- Service Type Badge -->
-        <div class="service-type-badge">
-          {{ getServiceTypeLabel(service.type) }}
-        </div>
-
-        <!-- Service Info -->
-        <div class="service-info">
-          <div class="service-meta">
-            <div class="meta-item">
-              <span class="meta-icon">💰</span>
-              <span class="meta-value">{{ service.price }} TND</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-icon">⏱️</span>
-              <span class="meta-value">{{ formatDuration(service.duration) }}</span>
-            </div>
-            <div class="meta-item" *ngIf="service.type !== 'salon'">
-              <span class="meta-icon">📍</span>
-              <span class="meta-value">{{ service.availableLocations.length }} location(s)</span>
-            </div>
-          </div>
-
-          <!-- At-home service message for salon type -->
-          <div class="at-home-message" *ngIf="service.type === 'salon'">
-            <span class="home-icon">🏠</span>
-            <span>Service à domicile</span>
-          </div>
-
-          <!-- Locations list for other types -->
-          <div class="service-locations" *ngIf="service.type !== 'salon'">
-            <div class="location-item" *ngFor="let location of service.availableLocations">
-              <span class="location-icon">📍</span>
-              <div class="location-details">
-                <span class="location-address">{{ location.address }}</span>
-                <small class="location-coordinates">
-                  {{ location.coordinates[1] }}, {{ location.coordinates[0] }}
-                </small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Service Actions -->
-        <div class="service-actions">
-          <button class="action-btn edit-btn" (click)="onEditService(service)">
-            ✏️ Modifier
-          </button>
-          <button class="action-btn delete-btn" (click)="onDeleteService(service)">
-            🗑️ Supprimer
-          </button>
-        </div>
+      <h1>⚙️ Services & Localisations</h1>
+      <div class="view-toggle">
+        <button
+          class="toggle-btn"
+          [class.active]="viewMode === 'services'"
+          (click)="switchView('services')"
+        >
+          📋 Services
+        </button>
+        <button
+          class="toggle-btn"
+          [class.active]="viewMode === 'locations'"
+          (click)="switchView('locations')"
+        >
+          📍 Localisations
+        </button>
       </div>
     </div>
 
-    <!-- Filtered Empty State -->
-    <div class="empty-state" *ngIf="!loading && services.length > 0 && filteredServices.length === 0">
-      <div class="empty-icon">🔍</div>
-      <p>Aucun service trouvé pour ce type</p>
+    <!-- Services View -->
+    <div *ngIf="viewMode === 'services'">
+      <!-- Filter Tabs -->
+      <div class="filter-tabs" *ngIf="!loading">
+        <button
+          class="filter-tab"
+          [class.active]="selectedType === 'all'"
+          (click)="onFilterChange('all')"
+        >
+          Tous ({{ services.length }})
+        </button>
+        <button
+          class="filter-tab"
+          [class.active]="selectedType === 'small'"
+          (click)="onFilterChange('small')"
+        >
+          🚗 Petit véhicule
+        </button>
+        <button
+          class="filter-tab"
+          [class.active]="selectedType === 'big'"
+          (click)="onFilterChange('big')"
+        >
+          🚙 Grand véhicule
+        </button>
+        <button
+          class="filter-tab"
+          [class.active]="selectedType === 'salon'"
+          (click)="onFilterChange('salon')"
+        >
+          ✨ Salon
+        </button>
+        <button
+          class="filter-tab"
+          [class.active]="selectedType === 'pickup'"
+          (click)="onFilterChange('pickup')"
+        >
+          🚚 Pick-up
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <app-loading-spinner
+        *ngIf="loading"
+        [size]="'medium'"
+        [message]="'Chargement des services...'"
+        [color]="'primary'"
+      >
+      </app-loading-spinner>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!loading && services.length === 0">
+        <div class="empty-icon">⚙️</div>
+        <p>Aucun service trouvé</p>
+      </div>
+
+      <!-- Services Grid -->
+      <div class="services-grid" *ngIf="!loading && filteredServices.length > 0">
+        <div class="service-card" *ngFor="let service of filteredServices">
+          <!-- Service Type Badge -->
+          <div class="service-type-badge">
+            {{ getServiceTypeLabel(service.type) }}
+          </div>
+
+          <!-- Service Info -->
+          <div class="service-info">
+            <div class="service-meta">
+              <div class="meta-item">
+                <span class="meta-icon">💰</span>
+                <span class="meta-value">{{ service.price }} TND</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">⏱️</span>
+                <span class="meta-value">{{ formatDuration(service.duration) }}</span>
+              </div>
+              <div class="meta-item" *ngIf="service.type !== 'salon'">
+                <span class="meta-icon">📍</span>
+                <span class="meta-value">{{ getActiveServiceLocations(service).length }} location(s)</span>
+              </div>
+            </div>
+
+            <!-- At-home service message for salon type -->
+            <div class="at-home-message" *ngIf="service.type === 'salon'">
+              <span class="home-icon">🏠</span>
+              <span>Service à domicile</span>
+            </div>
+
+            <!-- Locations list for other types -->
+            <div class="service-locations" *ngIf="service.type !== 'salon'">
+              <div class="location-item" *ngFor="let location of getActiveServiceLocations(service)">
+                <span class="location-icon">📍</span>
+                <div class="location-details">
+                  <span class="location-address">{{ location.address }}</span>
+                  <small class="location-coordinates">
+                    {{ location.coordinates[1] }}, {{ location.coordinates[0] }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Actions -->
+          <div class="service-actions">
+            <button class="action-btn edit-btn" (click)="onEditService(service)">
+              ✏️ Modifier
+            </button>
+            <button class="action-btn delete-btn" (click)="onDeleteService(service)">
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtered Empty State -->
+      <div class="empty-state" *ngIf="!loading && services.length > 0 && filteredServices.length === 0">
+        <div class="empty-icon">🔍</div>
+        <p>Aucun service trouvé pour ce type</p>
+      </div>
+    </div>
+
+    <!-- Locations View -->
+    <div *ngIf="viewMode === 'locations'">
+      <div class="locations-header">
+        <button class="add-location-btn" (click)="onAddLocation()">
+          ➕ Ajouter une localisation
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <app-loading-spinner
+        *ngIf="locationsLoading"
+        [size]="'medium'"
+        [message]="'Chargement des localisations...'"
+        [color]="'primary'"
+      >
+      </app-loading-spinner>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!locationsLoading && locations.length === 0">
+        <div class="empty-icon">📍</div>
+        <p>Aucune localisation trouvée</p>
+        <button class="add-first-btn" (click)="onAddLocation()">
+          Ajouter la première localisation
+        </button>
+      </div>
+
+      <!-- Locations Grid -->
+      <div class="locations-grid" *ngIf="!locationsLoading && locations.length > 0">
+        <div class="location-card" *ngFor="let location of locations">
+          <div class="location-status" [class.inactive]="!location.isActive">
+            {{ location.isActive ? '✅ Active' : '⛔ Inactive' }}
+          </div>
+
+          <div class="location-info">
+            <div class="location-main">
+              <span class="location-icon-large">📍</span>
+              <div class="location-text">
+                <h3 class="location-address">{{ location.address }}</h3>
+                <small class="location-coordinates">
+                  Lat: {{ location.coordinates[1] | number: '1.4-4' }},
+                  Lng: {{ location.coordinates[0] | number: '1.4-4' }}
+                </small>
+              </div>
+            </div>
+
+            <div class="location-usage">
+              <span class="usage-icon">🔗</span>
+              <span class="usage-text">
+                Utilisée par {{ getServicesUsingLocation(location) }} service(s)
+              </span>
+            </div>
+          </div>
+
+          <div class="location-actions">
+            <button class="action-btn edit-btn" (click)="onEditLocation(location)">
+              ✏️ Modifier
+            </button>
+            <button class="action-btn delete-btn" (click)="onDeleteLocation(location)">
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -127,9 +211,13 @@
 <div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
   <div class="modal-content delete-confirm" (click)="$event.stopPropagation()">
     <h3>Confirmer la suppression</h3>
-    <p>
+    <p *ngIf="serviceToDelete">
       Êtes-vous sûr de vouloir supprimer le service
-      <strong>{{ getServiceTypeLabel(serviceToDelete?.type!) }}</strong> ?
+      <strong>{{ getServiceTypeLabel(serviceToDelete.type) }}</strong> ?
+    </p>
+    <p *ngIf="locationToDelete">
+      Êtes-vous sûr de vouloir supprimer la localisation
+      <strong>{{ locationToDelete.address }}</strong> ?
     </p>
     <p class="warning-text">Cette action est irréversible.</p>
     <div class="modal-actions">

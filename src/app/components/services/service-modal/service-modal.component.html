@@ -72,96 +72,44 @@
       </div>
     </div>
 
-    <!-- Available Locations -->
+    <!-- Available Locations Selection -->
     <div class="form-group" *ngIf="formData.type !== 'salon'">
-      <div class="locations-header">
-        <label>Localisations disponibles *</label>
-        <button type="button" class="add-location-btn" (click)="addLocation()">
-          + Ajouter une localisation
-        </button>
-      </div>
+      <label>Localisations disponibles *</label>
       <span class="error-message" *ngIf="errors['locations']">{{
         errors['locations']
       }}</span>
 
-      <div class="locations-list">
+      <div class="info-message" *ngIf="getAvailableLocations().length === 0">
+        <span class="info-icon">⚠️</span>
+        <span>Aucune localisation active disponible. Veuillez d'abord créer des localisations dans l'onglet "Localisations".</span>
+      </div>
+
+      <div class="locations-selection" *ngIf="getAvailableLocations().length > 0">
         <div
-          class="location-item"
-          *ngFor="let location of formData.availableLocations; let i = index"
+          class="location-checkbox"
+          *ngFor="let location of getAvailableLocations()"
         >
-          <div class="location-header">
-            <h4>Localisation {{ i + 1 }}</h4>
-            <div class="location-actions">
-              <button
-                type="button"
-                class="edit-location-btn"
-                (click)="editLocation(i)"
-                *ngIf="editingLocationIndex() !== i"
-              >
-                ✏️ Modifier
-              </button>
-              <button
-                type="button"
-                class="remove-location-btn"
-                (click)="removeLocation(i)"
-                *ngIf="formData.availableLocations.length > 1"
-              >
-                🗑️ Supprimer
-              </button>
-            </div>
-          </div>
-
-          <!-- Location Display (when not editing) -->
-          <div class="location-display" *ngIf="editingLocationIndex() !== i">
-            <div class="location-info">
-              <span class="location-icon">📍</span>
-              <div class="location-details">
-                <div class="location-address">{{ location.address || 'Adresse non définie' }}</div>
-                <div class="location-coordinates">
-                  Lat: {{ location.coordinates[1] | number: '1.4-4' }},
-                  Lng: {{ location.coordinates[0] | number: '1.4-4' }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Location Picker (when editing) -->
-          <div class="location-picker-wrapper" *ngIf="editingLocationIndex() === i">
-            <app-location-picker
-              [initialLocation]="getInitialLocation(i)"
-              placeholder="Rechercher une adresse en Tunisie..."
-              (locationSelected)="onLocationSelected($event, i)"
-            ></app-location-picker>
-
-            <!-- Editable Address Field -->
-            <div class="form-group address-edit-group">
-              <label [for]="'address-' + i">Adresse personnalisée *</label>
-              <input
-                type="text"
-                [id]="'address-' + i"
-                [name]="'address-' + i"
-                [(ngModel)]="formData.availableLocations[i].address"
-                [class.error]="errors['address_' + i]"
-                placeholder="Modifier l'adresse si nécessaire..."
-                class="address-input"
-              />
-              <small class="field-hint">
-                Cette adresse sera affichée aux utilisateurs. Vous pouvez la modifier après avoir sélectionné la localisation sur la carte.
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="isLocationSelected(location._id!)"
+              (change)="toggleLocation(location._id!)"
+            />
+            <div class="location-info-check">
+              <span class="location-address">{{ location.address }}</span>
+              <small class="location-coordinates">
+                Lat: {{ location.coordinates[1] | number: '1.4-4' }},
+                Lng: {{ location.coordinates[0] | number: '1.4-4' }}
               </small>
             </div>
-
-            <div class="location-edit-actions">
-              <button type="button" class="btn-done-editing" (click)="closeLocationEdit()">
-                ✓ Terminer la modification
-              </button>
-            </div>
-
-            <span class="error-message" *ngIf="errors['address_' + i] || errors['coordinates_' + i]">
-              {{ errors['address_' + i] || errors['coordinates_' + i] }}
-            </span>
-          </div>
+          </label>
         </div>
       </div>
+
+      <small class="field-hint">
+        Sélectionnez au moins une localisation où ce service est disponible.
+        Les localisations peuvent être gérées dans l'onglet "Localisations".
+      </small>
     </div>
 
     <!-- Form Actions -->
