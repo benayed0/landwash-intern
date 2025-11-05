@@ -105,6 +105,9 @@ export class CreateBookingComponent implements OnInit {
     { value: 'big', label: 'SUV / Grandes Voitures', icon: '🚙' },
     { value: 'pickup', label: 'Pick-up', icon: '🚗' },
     { value: 'salon', label: 'Salon', icon: '🛌' },
+    { value: 'paint_correction', label: 'Correction de Peinture', icon: '🎨' },
+    { value: 'body_correction', label: 'Correction de Carrosserie', icon: '🔧' },
+    { value: 'ceramic_coating', label: 'Revêtement Céramique', icon: '✨' },
   ];
   ngAfterViewInit() {
     setTimeout(() => {
@@ -321,11 +324,14 @@ export class CreateBookingComponent implements OnInit {
   private generateAllTimeSlots(): string[] {
     const serviceType = this.bookingForm.get('type')?.value;
 
-    // For detailing services (small, big, and pickup cars), only allow specific time slots
+    // For detailing services (small, big, pickup cars, and special services), only allow specific time slots
     if (
       serviceType === 'small' ||
       serviceType === 'big' ||
-      serviceType === 'pickup'
+      serviceType === 'pickup' ||
+      serviceType === 'paint_correction' ||
+      serviceType === 'body_correction' ||
+      serviceType === 'ceramic_coating'
     ) {
       return ['09:00', '12:00', '15:00'];
     }
@@ -350,9 +356,12 @@ export class CreateBookingComponent implements OnInit {
       if (
         serviceType === 'small' ||
         serviceType === 'big' ||
-        serviceType === 'pickup'
+        serviceType === 'pickup' ||
+        serviceType === 'paint_correction' ||
+        serviceType === 'body_correction' ||
+        serviceType === 'ceramic_coating'
       ) {
-        // For detailing services, check if any of the specific slots (8h, 11h, 14h) overlap
+        // For detailing services and special services, check if any of the specific slots (8h, 11h, 14h) overlap
         // Detailing takes 2 hours, so we need to check for overlaps
         const carWashSlots = ['09:00', '12:00', '15:00'];
 
@@ -481,11 +490,14 @@ export class CreateBookingComponent implements OnInit {
     this.bookingForm.patchValue({ type });
 
     // Set default prices based on type
-    const defaultPrices = {
+    const defaultPrices: Record<BookingType, number> = {
       small: 160,
       big: 220,
       pickup: 200,
       salon: 18,
+      paint_correction: 350,
+      body_correction: 400,
+      ceramic_coating: 500,
     };
 
     if (this.bookingForm.get('price')?.value === 0) {
@@ -621,18 +633,21 @@ export class CreateBookingComponent implements OnInit {
     const type = this.bookingForm.get('type')?.value;
     const salonsSeats = this.bookingForm.get('salonsSeats')?.value || 1;
 
-    const basePrices = {
+    const basePrices: Record<BookingType, number> = {
       small: 160,
       big: 220,
       pickup: 200,
       salon: 18,
+      paint_correction: 350,
+      body_correction: 400,
+      ceramic_coating: 500,
     };
 
     if (type === 'salon') {
       return basePrices.salon * salonsSeats;
     }
 
-    return basePrices[type as keyof typeof basePrices] || 0;
+    return basePrices[type] || 0;
   }
 
   // Bulk Weekly Booking Feature

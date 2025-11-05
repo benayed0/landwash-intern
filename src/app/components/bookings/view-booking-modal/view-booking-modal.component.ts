@@ -84,6 +84,14 @@ export class ViewBookingModalComponent implements OnInit {
         return 'SUV';
       case 'salon':
         return 'Salon';
+      case 'pickup':
+        return 'Pick-up';
+      case 'paint_correction':
+        return 'Correction de Peinture';
+      case 'body_correction':
+        return 'Correction de Carrosserie';
+      case 'ceramic_coating':
+        return 'Revêtement Céramique';
       default:
         return serviceType || '';
     }

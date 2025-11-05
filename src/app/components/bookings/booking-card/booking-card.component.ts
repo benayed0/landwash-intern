@@ -55,7 +55,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   // Edit mode properties
   isEditing = false;
   editForm = {
-    type: 'small' as 'small' | 'big' | 'salon' | 'pickup',
+    type: 'small' as 'small' | 'big' | 'salon' | 'pickup' | 'paint_correction' | 'body_correction' | 'ceramic_coating',
     price: 0,
     date: '',
     status: 'pending' as BookingStatus,
@@ -65,7 +65,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     phoneNumber: '',
     transportFee: 0,
   };
-  previousServiceType: 'small' | 'big' | 'salon' | 'pickup' = 'small';
+  previousServiceType: 'small' | 'big' | 'salon' | 'pickup' | 'paint_correction' | 'body_correction' | 'ceramic_coating' = 'small';
 
   // Slot management for edit mode
   bookedSlots = signal<BookingSlots | null>(null);
@@ -87,12 +87,24 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       big: 'SUV / Grandes Voitures',
       salon: 'Salon',
       pickup: 'Pick-up',
+      paint_correction: 'Correction de Peinture',
+      body_correction: 'Correction de Carrosserie',
+      ceramic_coating: 'Revêtement Céramique',
     };
     return labels[type] || type;
   }
 
   getVehicleIcon(type: string): string {
-    return type === 'salon' ? '🛌' : '🚗';
+    const icons: any = {
+      small: '🚗',
+      big: '🚗',
+      pickup: '🚗',
+      salon: '🛌',
+      paint_correction: '🎨',
+      body_correction: '🔧',
+      ceramic_coating: '✨',
+    };
+    return icons[type] || '🚗';
   }
 
   formatDate(date: Date | string): string {
@@ -358,11 +370,14 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   private generateAllTimeSlots(): string[] {
     const serviceType = this.editForm.type;
 
-    // For detailing services (small, big, and pickup cars), only allow specific time slots
+    // For detailing services (small, big, pickup cars, and special services), only allow specific time slots
     if (
       serviceType === 'small' ||
       serviceType === 'big' ||
-      serviceType === 'pickup'
+      serviceType === 'pickup' ||
+      serviceType === 'paint_correction' ||
+      serviceType === 'body_correction' ||
+      serviceType === 'ceramic_coating'
     ) {
       return ['09:00', '12:00', '15:00'];
     }
@@ -387,9 +402,12 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       if (
         serviceType === 'small' ||
         serviceType === 'big' ||
-        serviceType === 'pickup'
+        serviceType === 'pickup' ||
+        serviceType === 'paint_correction' ||
+        serviceType === 'body_correction' ||
+        serviceType === 'ceramic_coating'
       ) {
-        // For detailing services, check if any of the specific slots (9h, 12h, 15h) overlap
+        // For detailing services and special services, check if any of the specific slots (9h, 12h, 15h) overlap
         const carWashSlots = ['09:00', '12:00', '15:00'];
 
         const [startHourStr, startMinStr] = start.split(':');

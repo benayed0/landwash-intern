@@ -692,7 +692,13 @@ export class BookingListComponent implements OnInit {
     if (this.bookingTypeFilter() !== 'all') {
       if (this.bookingTypeFilter() === 'detailing') {
         filteredBookings = filteredBookings.filter(
-          (booking) => booking.type === 'small' || booking.type === 'big' || booking.type === 'pickup'
+          (booking) =>
+            booking.type === 'small' ||
+            booking.type === 'big' ||
+            booking.type === 'pickup' ||
+            booking.type === 'paint_correction' ||
+            booking.type === 'body_correction' ||
+            booking.type === 'ceramic_coating'
         );
       } else if (this.bookingTypeFilter() === 'salon') {
         filteredBookings = filteredBookings.filter(
