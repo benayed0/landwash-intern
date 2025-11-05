@@ -36,19 +36,19 @@ export class PriceConfirmModalComponent implements OnInit {
   }
 
   isSubscriptionBooking(): boolean {
-    return this.booking?.withSub === true;
+    return this.booking.withSub === true;
   }
 
   shouldShowCarPlate(): boolean {
-    return this.isSubscriptionBooking() && this.booking?.type !== 'salon';
+    return this.isSubscriptionBooking() && this.booking.type !== 'salon';
   }
 
   getCarPlate(): string {
-    return this.booking?.subId?.carPlate || 'N/A';
+    return this.booking.subId?.carPlate || 'N/A';
   }
 
   getSubscriptionPlan(): string {
-    return this.booking?.subId?.plan || 'N/A';
+    return this.booking.subId?.plan || 'N/A';
   }
 
   getVehicleTypeLabel(type: string): string {
@@ -56,6 +56,10 @@ export class PriceConfirmModalComponent implements OnInit {
       small: 'Citadines / Petites Voitures',
       big: 'SUV / Grandes Voitures',
       salon: 'Salon',
+      pickup: 'Pick-up',
+      paint_correction: 'Correction de Peinture',
+      body_correction: 'Correction de Carrosserie',
+      ceramic_coating: 'Revêtement Céramique',
     };
     return labels[type] || type;
   }
@@ -91,7 +95,7 @@ export class PriceConfirmModalComponent implements OnInit {
   }
 
   confirm() {
-    if (this.booking?._id) {
+    if (this.booking._id) {
       this.confirmComplete.emit({
         booking: this.booking,
         price: this.finalPrice,

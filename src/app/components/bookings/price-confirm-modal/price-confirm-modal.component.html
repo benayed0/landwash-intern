@@ -9,11 +9,11 @@
         <div class="info-row">
           <span class="label">Type:</span>
           <span class="value">
-            {{ getVehicleTypeLabel(booking?.type || "") }}
-            @if(booking?.type === 'salon' && booking?.salonsSeats){
+            {{ getVehicleTypeLabel(booking.type || "") }}
+            @if(booking.type === 'salon' && booking.salonsSeats){
 
             <span class="salon-seats">
-              ({{ booking?.salonsSeats }} sièges)
+              ({{ booking.salonsSeats }} sièges)
             </span>
             }
           </span>
@@ -21,7 +21,7 @@
         <div class="info-row">
           <span class="label">Client:</span>
           <span class="value">{{
-            booking?.userId?.name || booking?.userId?.email || "N/A"
+            booking.userId?.name || booking.userId?.email || "N/A"
           }}</span>
         </div>
         <div class="info-row" *ngIf="shouldShowCarPlate()">
@@ -34,14 +34,14 @@
         </div>
         <div class="info-row">
           <span class="label">Date:</span>
-          <span class="value">{{ formatDate(booking?.date) }}</span>
+          <span class="value">{{ formatDate(booking.date) }}</span>
         </div>
-        <div class="info-row" *ngIf="isTeamObject(booking?.teamId)">
+        <div class="info-row" *ngIf="isTeamObject(booking.teamId)">
           <span class="label">Équipe:</span>
           <span class="value team-name">
-            {{ getTeamName(booking?.teamId) }}
-            <span class="team-chief" *ngIf="getTeamChief(booking?.teamId)">
-              (Chef: {{ getTeamChief(booking?.teamId) }})
+            {{ getTeamName(booking.teamId) }}
+            <span class="team-chief" *ngIf="getTeamChief(booking.teamId)">
+              (Chef: {{ getTeamChief(booking.teamId) }})
             </span>
           </span>
         </div>
