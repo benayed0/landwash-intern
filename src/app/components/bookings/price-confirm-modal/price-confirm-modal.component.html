@@ -21,7 +21,7 @@
         <div class="info-row">
           <span class="label">Client:</span>
           <span class="value">{{
-            booking.userId?.name || booking.userId?.email || "N/A"
+            booking.userId.name || booking.userId.email || "N/A"
           }}</span>
         </div>
         <div class="info-row" *ngIf="shouldShowCarPlate()">

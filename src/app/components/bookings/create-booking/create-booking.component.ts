@@ -630,7 +630,7 @@ export class CreateBookingComponent implements OnInit {
 
   // Calculate estimated price based on type and salon seats
   calculateEstimatedPrice(): number {
-    const type = this.bookingForm.get('type')?.value;
+    const type = this.bookingForm.get('type')?.value as BookingType;
     const salonsSeats = this.bookingForm.get('salonsSeats')?.value || 1;
 
     const basePrices: Record<BookingType, number> = {
