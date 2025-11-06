@@ -51,17 +51,24 @@ export class PriceConfirmModalComponent implements OnInit {
     return this.booking.subId?.plan || 'N/A';
   }
 
-  getVehicleTypeLabel(type: string): string {
+  getBookingTypeLabel(type: string): string {
     const labels: any = {
-      small: 'Citadines / Petites Voitures',
-      big: 'SUV / Grandes Voitures',
+      detailing: 'Lavage Détaillé',
       salon: 'Salon',
-      pickup: 'Pick-up',
       paint_correction: 'Correction de Peinture',
       body_correction: 'Correction de Carrosserie',
       ceramic_coating: 'Revêtement Céramique',
     };
     return labels[type] || type;
+  }
+
+  getCarTypeLabel(carType: string): string {
+    const labels: any = {
+      small: 'Citadines / Petites Voitures',
+      big: 'SUV / Grandes Voitures',
+      pickup: 'Pick-up',
+    };
+    return labels[carType] || carType;
   }
 
   formatDate(date: Date | string | undefined): string {

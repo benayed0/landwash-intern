@@ -42,12 +42,23 @@ export class RejectConfirmModalComponent {
     }).format(d);
   }
 
-  getVehicleTypeLabel(type: string): string {
+  getBookingTypeLabel(type: string): string {
+    const labels: any = {
+      detailing: 'Lavage Détaillé',
+      salon: 'Salon',
+      paint_correction: 'Correction de Peinture',
+      body_correction: 'Correction de Carrosserie',
+      ceramic_coating: 'Revêtement Céramique',
+    };
+    return labels[type] || type;
+  }
+
+  getCarTypeLabel(carType: string): string {
     const labels: any = {
       small: 'Citadines / Petites Voitures',
       big: 'SUV / Grandes Voitures',
-      salon: 'Salon',
+      pickup: 'Pick-up',
     };
-    return labels[type] || type;
+    return labels[carType] || carType;
   }
 }
