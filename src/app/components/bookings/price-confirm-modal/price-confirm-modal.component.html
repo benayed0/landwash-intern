@@ -9,7 +9,7 @@
         <div class="info-row">
           <span class="label">Type:</span>
           <span class="value">
-            {{ getVehicleTypeLabel(booking.type || "") }}
+            {{ getBookingTypeLabel(booking.type || "") }}
             @if(booking.type === 'salon' && booking.salonsSeats){
 
             <span class="salon-seats">
@@ -17,6 +17,14 @@
             </span>
             }
           </span>
+        </div>
+        <div class="info-row" *ngIf="booking.carType">
+          <span class="label">Véhicule:</span>
+          <span class="value">{{ getCarTypeLabel(booking.carType) }}</span>
+        </div>
+        <div class="info-row" *ngIf="booking.colorTone">
+          <span class="label">Couleur:</span>
+          <span class="value">{{ booking.colorTone }}</span>
         </div>
         <div class="info-row">
           <span class="label">Client:</span>

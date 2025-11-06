@@ -11,8 +11,18 @@
 
       <div class="booking-summary">
         <div class="summary-item">
+          <span class="summary-label">Type de service:</span>
+          <span class="summary-value">{{ getBookingTypeLabel(booking.type) }}</span>
+        </div>
+
+        <div class="summary-item" *ngIf="booking.carType">
           <span class="summary-label">Type de véhicule:</span>
-          <span class="summary-value">{{ getVehicleTypeLabel(booking.type) }}</span>
+          <span class="summary-value">{{ getCarTypeLabel(booking.carType) }}</span>
+        </div>
+
+        <div class="summary-item" *ngIf="booking.colorTone">
+          <span class="summary-label">Couleur:</span>
+          <span class="summary-value">{{ booking.colorTone }}</span>
         </div>
 
         <div class="summary-item">

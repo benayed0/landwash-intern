@@ -1,7 +1,8 @@
-import { Component, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, Output, EventEmitter, Inject, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking } from '../../../models/booking.model';
+import { BookingLabelService } from '../../../services/booking-label.service';
 
 @Component({
   selector: 'app-reject-confirm-modal',
@@ -14,6 +15,8 @@ export class RejectConfirmModalComponent {
   @Output() confirmReject = new EventEmitter<void>();
 
   booking: Booking;
+
+  private bookingLabelService = inject(BookingLabelService);
 
   constructor(
     public dialogRef: MatDialogRef<RejectConfirmModalComponent>,
@@ -42,12 +45,11 @@ export class RejectConfirmModalComponent {
     }).format(d);
   }
 
-  getVehicleTypeLabel(type: string): string {
-    const labels: any = {
-      small: 'Citadines / Petites Voitures',
-      big: 'SUV / Grandes Voitures',
-      salon: 'Salon',
-    };
-    return labels[type] || type;
+  getBookingTypeLabel(type: string): string {
+    return this.bookingLabelService.getBookingTypeLabel(type);
+  }
+
+  getCarTypeLabel(carType: string): string {
+    return this.bookingLabelService.getCarTypeLabel(carType);
   }
 }

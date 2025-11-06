@@ -54,6 +54,42 @@
       </div>
     </div>
 
+    <!-- Car Type (for all non-salon types) -->
+    <div
+      class="form-section"
+      *ngIf="bookingForm.get('type')?.value !== 'salon'"
+    >
+      <h2>Type de véhicule</h2>
+      <div class="form-group">
+        <label for="carType">Taille du véhicule *</label>
+        <select id="carType" formControlName="carType" class="form-input">
+          <option *ngFor="let carType of carTypes" [value]="carType.value">
+            {{ carType.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Color Tone (for paint correction, body correction, ceramic coating) -->
+    <div
+      class="form-section"
+      *ngIf="bookingForm.get('type')?.value === 'paint_correction' ||
+             bookingForm.get('type')?.value === 'body_correction' ||
+             bookingForm.get('type')?.value === 'ceramic_coating'"
+    >
+      <h2>Teinte de couleur</h2>
+      <div class="form-group">
+        <label for="colorTone">Couleur du véhicule</label>
+        <input
+          type="text"
+          id="colorTone"
+          formControlName="colorTone"
+          class="form-input"
+          placeholder="Ex: Noir, Blanc, Rouge..."
+        />
+      </div>
+    </div>
+
     <!-- Salon Seats (only for salon type) -->
     <div
       class="form-section"

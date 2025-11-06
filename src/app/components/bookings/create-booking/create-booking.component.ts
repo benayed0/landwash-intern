@@ -22,6 +22,7 @@ import { BookingService } from '../../../services/booking.service';
 import { TeamService } from '../../../services/team.service';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
+import { BookingLabelService } from '../../../services/booking-label.service';
 import {
   Booking,
   BookingType,
@@ -57,6 +58,7 @@ export class CreateBookingComponent implements OnInit {
   private teamService = inject(TeamService);
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private bookingLabelService = inject(BookingLabelService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -99,20 +101,9 @@ export class CreateBookingComponent implements OnInit {
     selectedAlternative: string | null;
   }[]>([]);
 
-  // Form options
-  bookingTypes: { value: BookingType; label: string; icon: string }[] = [
-    { value: 'detailing', label: 'Lavage Détaillé', icon: '🚗' },
-    { value: 'salon', label: 'Salon', icon: '🛌' },
-    { value: 'paint_correction', label: 'Correction de Peinture', icon: '🎨' },
-    { value: 'body_correction', label: 'Correction de Carrosserie', icon: '🔧' },
-    { value: 'ceramic_coating', label: 'Revêtement Céramique', icon: '✨' },
-  ];
-
-  carTypes = [
-    { value: 'small', label: 'Citadines / Petites Voitures' },
-    { value: 'big', label: 'SUV / Grandes Voitures' },
-    { value: 'pickup', label: 'Pick-up' },
-  ];
+  // Form options - loaded from shared service
+  bookingTypes = this.bookingLabelService.getAllBookingTypes();
+  carTypes = this.bookingLabelService.getAllCarTypes();
   ngAfterViewInit() {
     setTimeout(() => {
       const element = document.getElementsByClassName('header')[0];
