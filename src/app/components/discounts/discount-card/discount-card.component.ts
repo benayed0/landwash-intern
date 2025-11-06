@@ -33,6 +33,7 @@ import {
   ServiceType,
 } from '../../../models/discount.model';
 import { ProductService } from '../../../services/product.service';
+import { BookingLabelService } from '../../../services/booking-label.service';
 import { Product } from '../../../models/product.model';
 import { HotToastService } from '@ngneat/hot-toast';
 
@@ -66,6 +67,7 @@ export class DiscountCardComponent implements OnChanges {
   @Output() delete = new EventEmitter<string>();
 
   private productService = inject(ProductService);
+  private bookingLabelService = inject(BookingLabelService);
   private toast = inject(HotToastService);
   private dialog = inject(MatDialog);
 
@@ -80,13 +82,11 @@ export class DiscountCardComponent implements OnChanges {
     { label: 'Montant Fixe', value: DiscountType.Fixed },
   ];
 
-  // Service type options
-  serviceTypeOptions = [
-    { label: 'Citadine', value: ServiceType.Small },
-    { label: 'SUV', value: ServiceType.Big },
-    { label: 'Salon', value: ServiceType.Salon },
-    { label: 'Produits', value: 'products' },
-  ];
+  // Service type options - using shared BookingLabelService
+  serviceTypeOptions = this.bookingLabelService.getAllBookingTypes().map(type => ({
+    label: type.label,
+    value: type.value
+  }));
 
   // Computed properties
   isExpired = computed(() => {
@@ -276,10 +276,7 @@ export class DiscountCardComponent implements OnChanges {
     if (!services || services.length === 0) return 'Tous les services';
 
     const serviceLabels = services.map((service) => {
-      const option = this.serviceTypeOptions.find(
-        (opt) => opt.value === service
-      );
-      return option?.label || service;
+      return this.bookingLabelService.getBookingTypeLabel(service);
     });
 
     return serviceLabels.join(', ');

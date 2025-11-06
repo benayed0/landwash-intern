@@ -1,15 +1,14 @@
 import { Product } from './product.model';
+import { BookingType } from './booking.model';
 
 export enum DiscountType {
   Percentage = 'percentage',
   Fixed = 'fixed',
 }
 
-export enum ServiceType {
-  Small = 'small',
-  Big = 'big',
-  Salon = 'salon',
-}
+// Use shared BookingType from booking.model instead of separate ServiceType enum
+export type ServiceType = BookingType;
+
 export interface Discount {
   _id?: string;
   code: string;

@@ -12,6 +12,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking } from '../../../models/booking.model';
 import { Team } from '../../../models/team.model';
 import { TeamService } from '../../../services/team.service';
+import { BookingLabelService } from '../../../services/booking-label.service';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 
 @Component({
@@ -34,6 +35,7 @@ export class TeamAssignModalComponent implements OnInit {
   }>();
 
   private teamService = inject(TeamService);
+  private bookingLabelService = inject(BookingLabelService);
 
   booking: Booking;
   isReassignment: boolean;
@@ -74,13 +76,7 @@ export class TeamAssignModalComponent implements OnInit {
   }
 
   getVehicleTypeLabel(type: string): string {
-    const labels: any = {
-      small: 'Citadines / Petites Voitures',
-      big: 'SUV / Grandes Voitures',
-      pickup: 'Pick-up Vehicles',
-      salon: 'Salon',
-    };
-    return labels[type] || type;
+    return this.bookingLabelService.getBookingTypeLabel(type);
   }
 
   getCurrentTeamName(): string {

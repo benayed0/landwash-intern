@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { ServiceService } from '../../../services/service.service';
+import { BookingLabelService } from '../../../services/booking-label.service';
 import { Service, BookingType, CarType, UpdateServiceDto } from '../../../models/service.model';
 import { ServiceLocation } from '../../../models/service-location.model';
 
@@ -25,6 +26,7 @@ export interface ServiceModalData {
 })
 export class ServiceModalComponent implements OnInit {
   private serviceService = inject(ServiceService);
+  private bookingLabelService = inject(BookingLabelService);
 
   formData: {
     type: BookingType | '';
@@ -40,8 +42,9 @@ export class ServiceModalComponent implements OnInit {
     selectedLocationIds: [],
   };
 
-  bookingTypes: BookingType[] = ['small', 'big', 'salon', 'pickup'];
-  carTypes: CarType[] = ['small', 'big', 'pickup'];
+  // Get booking types and car types from the shared service
+  bookingTypes = this.bookingLabelService.getAllBookingTypes();
+  carTypes = this.bookingLabelService.getAllCarTypes();
   isSubmitting = false;
   errors: { [key: string]: string } = {};
 
@@ -145,22 +148,13 @@ export class ServiceModalComponent implements OnInit {
   }
 
   getTypeLabel(type: BookingType): string {
-    const labels: Record<BookingType, string> = {
-      small: 'Petit véhicule 🚗',
-      big: 'Grand véhicule 🚙',
-      salon: 'Salon ✨',
-      pickup: 'Pick-up 🚚',
-    };
-    return labels[type];
+    const icon = this.bookingLabelService.getBookingTypeIcon(type);
+    const label = this.bookingLabelService.getBookingTypeLabel(type);
+    return `${label} ${icon}`;
   }
 
   getCarTypeLabel(carType: CarType): string {
-    const labels: Record<CarType, string> = {
-      small: 'Petite voiture 🚗',
-      big: 'Grande voiture 🚙',
-      pickup: 'Pick-up 🚚',
-    };
-    return labels[carType];
+    return this.bookingLabelService.getCarTypeLabel(carType);
   }
 
   // Location selection helpers
