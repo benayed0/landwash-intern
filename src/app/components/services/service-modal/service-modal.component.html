@@ -16,8 +16,8 @@
         required
       >
         <option value="">Sélectionner un type</option>
-        <option *ngFor="let type of bookingTypes" [value]="type">
-          {{ getTypeLabel(type) }}
+        <option *ngFor="let type of bookingTypes" [value]="type.value">
+          {{ type.label }} {{ type.icon }}
         </option>
       </select>
       <span class="error-message" *ngIf="errors['type']">{{
@@ -34,8 +34,8 @@
         [(ngModel)]="formData.carType"
       >
         <option value="">Aucun (non spécifié)</option>
-        <option *ngFor="let carType of carTypes" [value]="carType">
-          {{ getCarTypeLabel(carType) }}
+        <option *ngFor="let carType of carTypes" [value]="carType.value">
+          {{ carType.label }}
         </option>
       </select>
       <small class="field-hint">

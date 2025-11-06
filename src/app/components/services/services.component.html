@@ -33,31 +33,38 @@
         </button>
         <button
           class="filter-tab"
-          [class.active]="selectedType === 'small'"
-          (click)="onFilterChange('small')"
+          [class.active]="selectedType === 'detailing'"
+          (click)="onFilterChange('detailing')"
         >
-          🚗 Petit véhicule
-        </button>
-        <button
-          class="filter-tab"
-          [class.active]="selectedType === 'big'"
-          (click)="onFilterChange('big')"
-        >
-          🚙 Grand véhicule
+          {{ getServiceTypeIcon('detailing') }} {{ getServiceTypeLabel('detailing') }}
         </button>
         <button
           class="filter-tab"
           [class.active]="selectedType === 'salon'"
           (click)="onFilterChange('salon')"
         >
-          ✨ Salon
+          {{ getServiceTypeIcon('salon') }} {{ getServiceTypeLabel('salon') }}
         </button>
         <button
           class="filter-tab"
-          [class.active]="selectedType === 'pickup'"
-          (click)="onFilterChange('pickup')"
+          [class.active]="selectedType === 'paint_correction'"
+          (click)="onFilterChange('paint_correction')"
         >
-          🚚 Pick-up
+          {{ getServiceTypeIcon('paint_correction') }} {{ getServiceTypeLabel('paint_correction') }}
+        </button>
+        <button
+          class="filter-tab"
+          [class.active]="selectedType === 'body_correction'"
+          (click)="onFilterChange('body_correction')"
+        >
+          {{ getServiceTypeIcon('body_correction') }} {{ getServiceTypeLabel('body_correction') }}
+        </button>
+        <button
+          class="filter-tab"
+          [class.active]="selectedType === 'ceramic_coating'"
+          (click)="onFilterChange('ceramic_coating')"
+        >
+          {{ getServiceTypeIcon('ceramic_coating') }} {{ getServiceTypeLabel('ceramic_coating') }}
         </button>
       </div>
 

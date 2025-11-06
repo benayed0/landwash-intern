@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ServiceService } from '../../services/service.service';
 import { ServiceLocationService } from '../../services/service-location.service';
+import { BookingLabelService } from '../../services/booking-label.service';
 import { Service, BookingType } from '../../models/service.model';
 import { ServiceLocation } from '../../models/service-location.model';
 import { ServiceModalComponent } from './service-modal/service-modal.component';
@@ -25,6 +26,7 @@ import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinn
 export class ServicesComponent implements OnInit {
   private serviceService = inject(ServiceService);
   private serviceLocationService = inject(ServiceLocationService);
+  private bookingLabelService = inject(BookingLabelService);
   private dialog = inject(MatDialog);
 
   services: Service[] = [];
@@ -246,22 +248,15 @@ export class ServicesComponent implements OnInit {
   }
 
   getServiceTypeLabel(type: BookingType): string {
-    const labels: Record<BookingType, string> = {
-      small: 'Petit véhicule',
-      big: 'Grand véhicule',
-      salon: 'Salon',
-      pickup: 'Pick-up',
-    };
-    return labels[type] || type;
+    return this.bookingLabelService.getBookingTypeLabel(type);
   }
 
   getCarTypeLabel(carType: string): string {
-    const labels: Record<string, string> = {
-      small: 'Petite voiture',
-      big: 'Grande voiture',
-      pickup: 'Pick-up',
-    };
-    return labels[carType] || carType;
+    return this.bookingLabelService.getCarTypeLabel(carType);
+  }
+
+  getServiceTypeIcon(type: BookingType): string {
+    return this.bookingLabelService.getBookingTypeIcon(type);
   }
 
   formatDuration(minutes: number): string {

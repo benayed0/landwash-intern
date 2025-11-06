@@ -1,7 +1,9 @@
 import { ServiceLocation } from './service-location.model';
+import { BookingType, carType } from './booking.model';
 
-export type BookingType = 'small' | 'big' | 'salon' | 'pickup';
-export type CarType = 'small' | 'big' | 'pickup';
+// Re-export for convenience
+export type { BookingType };
+export type CarType = carType;
 
 export interface Service {
   _id?: string;
