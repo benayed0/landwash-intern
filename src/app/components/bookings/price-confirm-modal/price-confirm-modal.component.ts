@@ -1,8 +1,9 @@
-import { Component, Output, EventEmitter, Inject, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking } from '../../../models/booking.model';
+import { BookingLabelService } from '../../../services/booking-label.service';
 
 @Component({
   selector: 'app-price-confirm-modal',
@@ -19,6 +20,8 @@ export class PriceConfirmModalComponent implements OnInit {
 
   booking: Booking;
   finalPrice = 0;
+
+  private bookingLabelService = inject(BookingLabelService);
 
   constructor(
     public dialogRef: MatDialogRef<PriceConfirmModalComponent>,
@@ -52,23 +55,11 @@ export class PriceConfirmModalComponent implements OnInit {
   }
 
   getBookingTypeLabel(type: string): string {
-    const labels: any = {
-      detailing: 'Lavage Détaillé',
-      salon: 'Salon',
-      paint_correction: 'Correction de Peinture',
-      body_correction: 'Correction de Carrosserie',
-      ceramic_coating: 'Revêtement Céramique',
-    };
-    return labels[type] || type;
+    return this.bookingLabelService.getBookingTypeLabel(type);
   }
 
   getCarTypeLabel(carType: string): string {
-    const labels: any = {
-      small: 'Citadines / Petites Voitures',
-      big: 'SUV / Grandes Voitures',
-      pickup: 'Pick-up',
-    };
-    return labels[carType] || carType;
+    return this.bookingLabelService.getCarTypeLabel(carType);
   }
 
   formatDate(date: Date | string | undefined): string {

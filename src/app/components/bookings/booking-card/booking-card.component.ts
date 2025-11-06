@@ -21,6 +21,7 @@ import {
 } from '../../../models/booking.model';
 import { DelayModalComponent } from '../delay-modal/delay-modal.component';
 import { BookingService } from '../../../services/booking.service';
+import { BookingLabelService } from '../../../services/booking-label.service';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
 
 @Component({
@@ -82,36 +83,18 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private bookingService = inject(BookingService);
+  private bookingLabelService = inject(BookingLabelService);
 
   getVehicleTypeLabel(type: string): string {
-    const labels: any = {
-      detailing: 'Lavage Détaillé',
-      salon: 'Salon',
-      paint_correction: 'Correction de Peinture',
-      body_correction: 'Correction de Carrosserie',
-      ceramic_coating: 'Revêtement Céramique',
-    };
-    return labels[type] || type;
+    return this.bookingLabelService.getBookingTypeLabel(type);
   }
 
   getCarTypeLabel(carType?: string): string {
-    const labels: any = {
-      small: 'Citadines / Petites Voitures',
-      big: 'SUV / Grandes Voitures',
-      pickup: 'Pick-up',
-    };
-    return carType ? labels[carType] || carType : '';
+    return carType ? this.bookingLabelService.getCarTypeLabel(carType) : '';
   }
 
   getVehicleIcon(type: string): string {
-    const icons: any = {
-      detailing: '🚗',
-      salon: '🛌',
-      paint_correction: '🎨',
-      body_correction: '🔧',
-      ceramic_coating: '✨',
-    };
-    return icons[type] || '🚗';
+    return this.bookingLabelService.getBookingTypeIcon(type);
   }
 
   formatDate(date: Date | string): string {
