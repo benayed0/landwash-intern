@@ -25,6 +25,24 @@
       }}</span>
     </div>
 
+    <!-- Car Type -->
+    <div class="form-group">
+      <label for="carType">Type de voiture (optionnel)</label>
+      <select
+        id="carType"
+        name="carType"
+        [(ngModel)]="formData.carType"
+      >
+        <option value="">Aucun (non spécifié)</option>
+        <option *ngFor="let carType of carTypes" [value]="carType">
+          {{ getCarTypeLabel(carType) }}
+        </option>
+      </select>
+      <small class="field-hint">
+        Optionnel: Spécifiez le type de voiture pour cette variation de service
+      </small>
+    </div>
+
     <!-- Price -->
     <div class="form-group">
       <label for="price">Prix (TND) *</label>

@@ -255,6 +255,15 @@ export class ServicesComponent implements OnInit {
     return labels[type] || type;
   }
 
+  getCarTypeLabel(carType: string): string {
+    const labels: Record<string, string> = {
+      small: 'Petite voiture',
+      big: 'Grande voiture',
+      pickup: 'Pick-up',
+    };
+    return labels[carType] || carType;
+  }
+
   formatDuration(minutes: number): string {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;

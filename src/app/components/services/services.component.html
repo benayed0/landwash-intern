@@ -88,6 +88,11 @@
           <!-- Service Variations -->
           <div class="service-variations">
             <div class="service-variation" *ngFor="let service of group.services">
+              <!-- Car Type Badge (if defined) -->
+              <div class="car-type-badge" *ngIf="service.carType">
+                🚗 {{ getCarTypeLabel(service.carType) }}
+              </div>
+
               <!-- Service Info -->
               <div class="service-info">
                 <div class="service-meta">
