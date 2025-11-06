@@ -88,7 +88,7 @@
         </div>
         <div class="info-item" *ngIf="booking()?.colorTone">
           <span class="label">Teinte de Couleur</span>
-          <span class="value">🎨 {{ booking()?.colorTone }}</span>
+          <span class="value">{{ colorToneIcon() }} {{ colorToneLabel() }}</span>
         </div>
         <div class="info-item">
           <span class="label">Prix</span>

@@ -79,14 +79,17 @@
     >
       <h2>Teinte de couleur</h2>
       <div class="form-group">
-        <label for="colorTone">Couleur du véhicule</label>
-        <input
-          type="text"
+        <label for="colorTone">Teinte de couleur du véhicule</label>
+        <select
           id="colorTone"
           formControlName="colorTone"
           class="form-input"
-          placeholder="Ex: Noir, Blanc, Rouge..."
-        />
+        >
+          <option value="">Aucune (non spécifié)</option>
+          <option *ngFor="let colorTone of colorTones" [value]="colorTone.value">
+            {{ colorTone.icon }} {{ colorTone.label }}
+          </option>
+        </select>
       </div>
     </div>
 

@@ -5,41 +5,35 @@
   </div>
 
   <form (ngSubmit)="onSubmit()" class="modal-form" mat-dialog-content>
-    <!-- Service Type -->
+    <!-- Service Type (Non-editable) -->
     <div class="form-group">
-      <label for="type">Type de service *</label>
-      <select
+      <label for="type">Type de service</label>
+      <input
+        type="text"
         id="type"
         name="type"
-        [(ngModel)]="formData.type"
-        [class.error]="errors['type']"
-        required
-      >
-        <option value="">Sélectionner un type</option>
-        <option *ngFor="let type of bookingTypes" [value]="type.value">
-          {{ type.label }} {{ type.icon }}
-        </option>
-      </select>
-      <span class="error-message" *ngIf="errors['type']">{{
-        errors['type']
-      }}</span>
+        [value]="getDisplayTypeLabel()"
+        readonly
+        class="readonly-field"
+      />
+      <small class="field-hint">
+        Le type de service ne peut pas être modifié
+      </small>
     </div>
 
-    <!-- Car Type -->
+    <!-- Car Type (Non-editable) -->
     <div class="form-group">
-      <label for="carType">Type de voiture (optionnel)</label>
-      <select
+      <label for="carType">Type de voiture</label>
+      <input
+        type="text"
         id="carType"
         name="carType"
-        [(ngModel)]="formData.carType"
-      >
-        <option value="">Aucun (non spécifié)</option>
-        <option *ngFor="let carType of carTypes" [value]="carType.value">
-          {{ carType.label }}
-        </option>
-      </select>
+        [value]="getDisplayCarTypeLabel()"
+        readonly
+        class="readonly-field"
+      />
       <small class="field-hint">
-        Optionnel: Spécifiez le type de voiture pour cette variation de service
+        Le type de voiture ne peut pas être modifié
       </small>
     </div>
 

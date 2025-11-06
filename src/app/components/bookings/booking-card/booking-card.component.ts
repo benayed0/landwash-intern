@@ -56,9 +56,14 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   // Edit mode properties
   isEditing = false;
   editForm = {
-    type: 'detailing' as 'detailing' | 'salon' | 'paint_correction' | 'body_correction' | 'ceramic_coating',
+    type: 'detailing' as
+      | 'detailing'
+      | 'salon'
+      | 'paint_correction'
+      | 'body_correction'
+      | 'ceramic_coating',
     carType: 'small' as 'small' | 'big' | 'pickup',
-    colorTone: '',
+    colorTone: undefined as 'clear' | 'medium_clear' | 'dark' | undefined,
     price: 0,
     date: '',
     status: 'pending' as BookingStatus,
@@ -68,7 +73,12 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     phoneNumber: '',
     transportFee: 0,
   };
-  previousServiceType: 'detailing' | 'salon' | 'paint_correction' | 'body_correction' | 'ceramic_coating' = 'detailing';
+  previousServiceType:
+    | 'detailing'
+    | 'salon'
+    | 'paint_correction'
+    | 'body_correction'
+    | 'ceramic_coating' = 'detailing';
 
   // Slot management for edit mode
   bookedSlots = signal<BookingSlots | null>(null);
@@ -85,6 +95,9 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   private bookingService = inject(BookingService);
   private bookingLabelService = inject(BookingLabelService);
 
+  // Color tones for dropdown
+  colorTones = this.bookingLabelService.getAllColorTones();
+
   getVehicleTypeLabel(type: string): string {
     return this.bookingLabelService.getBookingTypeLabel(type);
   }
@@ -95,6 +108,14 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
 
   getVehicleIcon(type: string): string {
     return this.bookingLabelService.getBookingTypeIcon(type);
+  }
+
+  getColorToneLabel(colorTone: string): string {
+    return this.bookingLabelService.getColorToneLabel(colorTone);
+  }
+
+  getColorToneIcon(colorTone: string): string {
+    return this.bookingLabelService.getColorToneIcon(colorTone);
   }
 
   formatDate(date: Date | string): string {
@@ -240,7 +261,7 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     this.editForm = {
       type: this.booking.type,
       carType: this.booking.carType || 'small',
-      colorTone: this.booking.colorTone || '',
+      colorTone: this.booking.colorTone || undefined,
       price: this.booking.price,
       date: this.formatDateTimeForInput(this.booking.date),
       status: this.booking.status,

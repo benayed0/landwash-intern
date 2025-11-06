@@ -66,7 +66,7 @@ export class BookingListComponent implements OnInit {
   isFilterExpanded = signal(false);
   currentUser: Personal | null = null;
   userRole: 'admin' | 'worker' | null = null;
-  bookingTypeFilter = signal<'all' | 'detailing' | 'salon'>('all');
+  bookingTypeFilter = signal<'all' | 'detailing' | 'renov' | 'salon'>('all');
 
   // Date filtering properties
   selectedPreset = signal<'all' | 'today' | '7days' | '30days' | 'custom'>(
@@ -523,7 +523,11 @@ export class BookingListComponent implements OnInit {
       });
   }
 
-  onConfirmAssign(event: { booking: Booking; teamId: string; transportFee: number }) {
+  onConfirmAssign(event: {
+    booking: Booking;
+    teamId: string;
+    transportFee: number;
+  }) {
     this.operationLoading[`assign-${event.booking._id}`] = true;
 
     // Update everything in a single API call: transportFee, teamId, and status
@@ -533,19 +537,25 @@ export class BookingListComponent implements OnInit {
       status: 'confirmed',
     };
 
-    this.bookingService.updateBooking(event.booking._id!, updateData).subscribe({
-      next: () => {
-        this.loadBookings();
-        this.operationLoading[`assign-${event.booking._id}`] = false;
-      },
-      error: (err: any) => {
-        console.error('Error confirming booking:', err);
-        this.operationLoading[`assign-${event.booking._id}`] = false;
-      },
-    });
+    this.bookingService
+      .updateBooking(event.booking._id!, updateData)
+      .subscribe({
+        next: () => {
+          this.loadBookings();
+          this.operationLoading[`assign-${event.booking._id}`] = false;
+        },
+        error: (err: any) => {
+          console.error('Error confirming booking:', err);
+          this.operationLoading[`assign-${event.booking._id}`] = false;
+        },
+      });
   }
 
-  onReassignTeam(event: { booking: Booking; teamId: string; transportFee: number }) {
+  onReassignTeam(event: {
+    booking: Booking;
+    teamId: string;
+    transportFee: number;
+  }) {
     this.operationLoading[`reassign-${event.booking._id}`] = true;
 
     // Update transport fee and team in a single API call (don't change status)
@@ -554,17 +564,19 @@ export class BookingListComponent implements OnInit {
       teamId: event.teamId as any,
     };
 
-    this.bookingService.updateBooking(event.booking._id!, updateData).subscribe({
-      next: () => {
-        this.loadBookings();
-        this.operationLoading[`reassign-${event.booking._id}`] = false;
-        console.log('Team reassigned successfully with transport fee');
-      },
-      error: (err: any) => {
-        console.error('Error reassigning team:', err);
-        this.operationLoading[`reassign-${event.booking._id}`] = false;
-      },
-    });
+    this.bookingService
+      .updateBooking(event.booking._id!, updateData)
+      .subscribe({
+        next: () => {
+          this.loadBookings();
+          this.operationLoading[`reassign-${event.booking._id}`] = false;
+          console.log('Team reassigned successfully with transport fee');
+        },
+        error: (err: any) => {
+          console.error('Error reassigning team:', err);
+          this.operationLoading[`reassign-${event.booking._id}`] = false;
+        },
+      });
   }
 
   onConfirmReject() {
@@ -692,15 +704,18 @@ export class BookingListComponent implements OnInit {
     if (this.bookingTypeFilter() !== 'all') {
       if (this.bookingTypeFilter() === 'detailing') {
         filteredBookings = filteredBookings.filter(
-          (booking) =>
-            booking.type === 'detailing' ||
-            booking.type === 'paint_correction' ||
-            booking.type === 'body_correction' ||
-            booking.type === 'ceramic_coating'
+          (booking) => booking.type === 'detailing'
         );
       } else if (this.bookingTypeFilter() === 'salon') {
         filteredBookings = filteredBookings.filter(
           (booking) => booking.type === 'salon'
+        );
+      } else if (this.bookingTypeFilter() === 'renov') {
+        filteredBookings = filteredBookings.filter(
+          (booking) =>
+            booking.type === 'paint_correction' ||
+            booking.type === 'body_correction' ||
+            booking.type === 'ceramic_coating'
         );
       }
     }

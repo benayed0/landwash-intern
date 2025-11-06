@@ -79,6 +79,9 @@ export class CreateBookingComponent implements OnInit {
   // Location picker
   selectedLocation = signal<SelectedLocation | null>(null);
 
+  // Color tones for dropdown
+  colorTones = this.bookingLabelService.getAllColorTones();
+
   // Date picker
   today = new Date();
   bookedSlots = signal<BookingSlots | null>(null);

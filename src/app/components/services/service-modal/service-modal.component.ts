@@ -1,15 +1,19 @@
-import {
-  Component,
-  Inject,
-  OnInit,
-  inject,
-} from '@angular/core';
+import { Component, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { ServiceService } from '../../../services/service.service';
 import { BookingLabelService } from '../../../services/booking-label.service';
-import { Service, BookingType, CarType, UpdateServiceDto } from '../../../models/service.model';
+import {
+  Service,
+  BookingType,
+  CarType,
+  UpdateServiceDto,
+} from '../../../models/service.model';
 import { ServiceLocation } from '../../../models/service-location.model';
 
 export interface ServiceModalData {
@@ -101,9 +105,13 @@ export class ServiceModalComponent implements OnInit {
     }
 
     // Salon type doesn't require locations (service at home)
-    if (this.formData.type !== 'salon') {
-      if (!this.formData.selectedLocationIds || this.formData.selectedLocationIds.length === 0) {
-        this.errors['locations'] = 'Au moins une localisation est requise pour ce type de service';
+    if (this.formData.type !== 'detailing' && this.formData.type !== 'salon') {
+      if (
+        !this.formData.selectedLocationIds ||
+        this.formData.selectedLocationIds.length === 0
+      ) {
+        this.errors['locations'] =
+          'Au moins une localisation est requise pour ce type de service';
         isValid = false;
       }
     }
@@ -122,25 +130,26 @@ export class ServiceModalComponent implements OnInit {
 
     this.isSubmitting = true;
 
+    // Only send editable fields (excluding type and carType)
     const updateDto: UpdateServiceDto = {
-      type: this.formData.type as BookingType,
-      carType: this.formData.carType ? (this.formData.carType as CarType) : undefined,
       price: this.formData.price,
       duration: this.formData.duration,
       availableLocations: this.formData.selectedLocationIds,
     };
 
-    this.serviceService.updateService(this.data.service._id, updateDto).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.dialogRef.close(true);
-      },
-      error: (err) => {
-        console.error('Error updating service:', err);
-        this.isSubmitting = false;
-        alert('Erreur lors de la modification du service');
-      },
-    });
+    this.serviceService
+      .updateService(this.data.service._id, updateDto)
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          console.error('Error updating service:', err);
+          this.isSubmitting = false;
+          alert('Erreur lors de la modification du service');
+        },
+      });
   }
 
   onClose() {
@@ -180,5 +189,14 @@ export class ServiceModalComponent implements OnInit {
   getAvailableLocations(): ServiceLocation[] {
     // Only show active locations
     return this.data.allLocations.filter((loc) => loc.isActive);
+  }
+
+  // Helper methods for display-only fields
+  getDisplayTypeLabel(): string {
+    return this.formData.type ? this.getTypeLabel(this.formData.type as BookingType) : '';
+  }
+
+  getDisplayCarTypeLabel(): string {
+    return this.formData.carType ? this.getCarTypeLabel(this.formData.carType as CarType) : 'Aucun (non spécifié)';
   }
 }

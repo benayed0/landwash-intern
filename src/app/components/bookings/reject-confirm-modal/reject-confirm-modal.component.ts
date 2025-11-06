@@ -52,4 +52,12 @@ export class RejectConfirmModalComponent {
   getCarTypeLabel(carType: string): string {
     return this.bookingLabelService.getCarTypeLabel(carType);
   }
+
+  getColorToneLabel(colorTone: string): string {
+    return this.bookingLabelService.getColorToneLabel(colorTone);
+  }
+
+  getColorToneIcon(colorTone: string): string {
+    return this.bookingLabelService.getColorToneIcon(colorTone);
+  }
 }

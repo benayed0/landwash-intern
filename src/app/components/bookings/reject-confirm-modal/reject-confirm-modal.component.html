@@ -22,7 +22,7 @@
 
         <div class="summary-item" *ngIf="booking.colorTone">
           <span class="summary-label">Couleur:</span>
-          <span class="summary-value">{{ booking.colorTone }}</span>
+          <span class="summary-value">{{ getColorToneIcon(booking.colorTone) }} {{ getColorToneLabel(booking.colorTone) }}</span>
         </div>
 
         <div class="summary-item">

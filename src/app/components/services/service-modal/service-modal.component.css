@@ -84,6 +84,19 @@
   border-color: #f44336;
 }
 
+/* Readonly Field Styling */
+.readonly-field {
+  background: rgba(30, 30, 30, 0.6) !important;
+  color: #888 !important;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.readonly-field:focus {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+
 .form-group textarea {
   resize: vertical;
   min-height: 60px;

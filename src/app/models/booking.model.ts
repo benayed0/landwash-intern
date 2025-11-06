@@ -12,6 +12,7 @@ export type BookingStatus =
   | 'completed'
   | 'canceled';
 export type carType = 'small' | 'big' | 'pickup';
+export type colorTone = 'clear' | 'medium_clear' | 'dark';
 export interface TeamInfo {
   _id: string;
   name: string;
@@ -26,7 +27,7 @@ export interface TeamInfo {
 export interface Booking {
   _id?: string;
   type: BookingType;
-  colorTone?: string; // Color tone for special booking types
+  colorTone?: colorTone; // Color tone for special booking types
   carType?: carType; // for all booking types except 'salon'
   createdAt: Date;
   updatedAt: Date;

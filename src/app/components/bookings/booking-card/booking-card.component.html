@@ -15,7 +15,7 @@
         <span class="salon-seats">{{ booking.salonsSeats }} sièges</span>
         }
         @if (booking.colorTone) {
-        <span class="color-tone-badge">🎨 {{ booking.colorTone }}</span>
+        <span class="color-tone-badge">{{ getColorToneIcon(booking.colorTone) }} {{ getColorToneLabel(booking.colorTone) }}</span>
         }
         <span class="booking-date-compact">{{ formatDate(booking.date) }}</span>
       </div>
@@ -114,12 +114,15 @@
     @if (editForm.type === 'paint_correction' || editForm.type === 'body_correction' || editForm.type === 'ceramic_coating') {
     <div class="form-group">
       <label>Teinte de couleur (optionnel)</label>
-      <input
-        type="text"
+      <select
         [(ngModel)]="editForm.colorTone"
         class="form-input"
-        placeholder="Ex: Noir métallisé, Rouge vif..."
-      />
+      >
+        <option [ngValue]="undefined">Aucune (non spécifié)</option>
+        <option *ngFor="let colorTone of colorTones" [value]="colorTone.value">
+          {{ colorTone.icon }} {{ colorTone.label }}
+        </option>
+      </select>
     </div>
     }
 

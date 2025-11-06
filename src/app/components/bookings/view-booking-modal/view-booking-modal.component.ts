@@ -87,6 +87,16 @@ export class ViewBookingModalComponent implements OnInit {
     return carType ? this.bookingLabelService.getCarTypeLabel(carType) : '';
   });
 
+  colorToneLabel = computed(() => {
+    const colorTone = this.booking()?.colorTone;
+    return colorTone ? this.bookingLabelService.getColorToneLabel(colorTone) : '';
+  });
+
+  colorToneIcon = computed(() => {
+    const colorTone = this.booking()?.colorTone;
+    return colorTone ? this.bookingLabelService.getColorToneIcon(colorTone) : '';
+  });
+
   ngOnInit() {
     this.loadBooking();
   }

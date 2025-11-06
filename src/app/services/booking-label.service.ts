@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BookingType, carType } from '../models/booking.model';
+import { BookingType, carType, colorTone } from '../models/booking.model';
 
 @Injectable({
   providedIn: 'root',
@@ -93,5 +93,45 @@ export class BookingLabelService {
    */
   requiresCarType(type: BookingType | string): boolean {
     return type !== 'salon';
+  }
+
+  /**
+   * Get the French label for a color tone
+   * @param colorTone The color tone
+   * @returns The French label for the color tone
+   */
+  getColorToneLabel(colorTone: colorTone | string): string {
+    const labels: Record<string, string> = {
+      clear: 'Clair',
+      medium_clear: 'Moyen Clair',
+      dark: 'Foncé',
+    };
+    return labels[colorTone] || colorTone;
+  }
+
+  /**
+   * Get the icon/emoji for a color tone
+   * @param colorTone The color tone
+   * @returns The emoji representing the color tone
+   */
+  getColorToneIcon(colorTone: colorTone | string): string {
+    const icons: Record<string, string> = {
+      clear: '⚪',
+      medium_clear: '🔵',
+      dark: '⚫',
+    };
+    return icons[colorTone] || '🎨';
+  }
+
+  /**
+   * Get all available color tones with their labels and icons
+   * @returns Array of color tones with labels and icons
+   */
+  getAllColorTones(): { value: colorTone; label: string; icon: string }[] {
+    return [
+      { value: 'clear', label: this.getColorToneLabel('clear'), icon: this.getColorToneIcon('clear') },
+      { value: 'medium_clear', label: this.getColorToneLabel('medium_clear'), icon: this.getColorToneIcon('medium_clear') },
+      { value: 'dark', label: this.getColorToneLabel('dark'), icon: this.getColorToneIcon('dark') },
+    ];
   }
 }

@@ -62,6 +62,14 @@ export class PriceConfirmModalComponent implements OnInit {
     return this.bookingLabelService.getCarTypeLabel(carType);
   }
 
+  getColorToneLabel(colorTone: string): string {
+    return this.bookingLabelService.getColorToneLabel(colorTone);
+  }
+
+  getColorToneIcon(colorTone: string): string {
+    return this.bookingLabelService.getColorToneIcon(colorTone);
+  }
+
   formatDate(date: Date | string | undefined): string {
     if (!date) return 'N/A';
     const d = new Date(date);

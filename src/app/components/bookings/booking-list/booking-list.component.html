@@ -30,6 +30,13 @@
         </button>
         <button
           class="type-tab"
+          [class.active]="bookingTypeFilter() === 'renov'"
+          (click)="bookingTypeFilter.set('renov'); onBookingTypeFilterChange()"
+        >
+          Renov
+        </button>
+        <button
+          class="type-tab"
           [class.active]="bookingTypeFilter() === 'salon'"
           (click)="bookingTypeFilter.set('salon'); onBookingTypeFilterChange()"
         >

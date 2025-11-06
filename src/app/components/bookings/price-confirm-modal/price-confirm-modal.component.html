@@ -24,7 +24,7 @@
         </div>
         <div class="info-row" *ngIf="booking.colorTone">
           <span class="label">Couleur:</span>
-          <span class="value">{{ booking.colorTone }}</span>
+          <span class="value">{{ getColorToneIcon(booking.colorTone) }} {{ getColorToneLabel(booking.colorTone) }}</span>
         </div>
         <div class="info-row">
           <span class="label">Client:</span>
