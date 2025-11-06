@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { ServiceService } from '../../../services/service.service';
-import { Service, BookingType, UpdateServiceDto } from '../../../models/service.model';
+import { Service, BookingType, CarType, UpdateServiceDto } from '../../../models/service.model';
 import { ServiceLocation } from '../../../models/service-location.model';
 
 export interface ServiceModalData {
@@ -28,17 +28,20 @@ export class ServiceModalComponent implements OnInit {
 
   formData: {
     type: BookingType | '';
+    carType: CarType | '';
     price: number;
     duration: number;
     selectedLocationIds: string[];
   } = {
     type: '',
+    carType: '',
     price: 0,
     duration: 60,
     selectedLocationIds: [],
   };
 
   bookingTypes: BookingType[] = ['small', 'big', 'salon', 'pickup'];
+  carTypes: CarType[] = ['small', 'big', 'pickup'];
   isSubmitting = false;
   errors: { [key: string]: string } = {};
 
@@ -66,6 +69,7 @@ export class ServiceModalComponent implements OnInit {
 
       this.formData = {
         type: this.data.service.type,
+        carType: this.data.service.carType || '',
         price: this.data.service.price,
         duration: this.data.service.duration,
         selectedLocationIds: locationIds,
@@ -117,6 +121,7 @@ export class ServiceModalComponent implements OnInit {
 
     const updateDto: UpdateServiceDto = {
       type: this.formData.type as BookingType,
+      carType: this.formData.carType ? (this.formData.carType as CarType) : undefined,
       price: this.formData.price,
       duration: this.formData.duration,
       availableLocations: this.formData.selectedLocationIds,
@@ -147,6 +152,15 @@ export class ServiceModalComponent implements OnInit {
       pickup: 'Pick-up 🚚',
     };
     return labels[type];
+  }
+
+  getCarTypeLabel(carType: CarType): string {
+    const labels: Record<CarType, string> = {
+      small: 'Petite voiture 🚗',
+      big: 'Grande voiture 🚙',
+      pickup: 'Pick-up 🚚',
+    };
+    return labels[carType];
   }
 
   // Location selection helpers

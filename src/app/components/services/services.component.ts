@@ -29,6 +29,7 @@ export class ServicesComponent implements OnInit {
 
   services: Service[] = [];
   filteredServices: Service[] = [];
+  groupedServices: Map<BookingType, Service[]> = new Map();
   locations: ServiceLocation[] = [];
   loading = false;
   locationsLoading = false;
@@ -83,6 +84,25 @@ export class ServicesComponent implements OnInit {
         (s) => s.type === this.selectedType
       );
     }
+    this.groupServicesByType();
+  }
+
+  groupServicesByType() {
+    this.groupedServices.clear();
+
+    this.filteredServices.forEach(service => {
+      if (!this.groupedServices.has(service.type)) {
+        this.groupedServices.set(service.type, []);
+      }
+      this.groupedServices.get(service.type)!.push(service);
+    });
+  }
+
+  getGroupedServicesArray(): Array<{ type: BookingType; services: Service[] }> {
+    return Array.from(this.groupedServices.entries()).map(([type, services]) => ({
+      type,
+      services
+    }));
   }
 
   onFilterChange(type: BookingType | 'all') {
@@ -233,6 +253,15 @@ export class ServicesComponent implements OnInit {
       pickup: 'Pick-up',
     };
     return labels[type] || type;
+  }
+
+  getCarTypeLabel(carType: string): string {
+    const labels: Record<string, string> = {
+      small: 'Petite voiture',
+      big: 'Grande voiture',
+      pickup: 'Pick-up',
+    };
+    return labels[carType] || carType;
   }
 
   formatDuration(minutes: number): string {

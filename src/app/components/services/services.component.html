@@ -76,59 +76,70 @@
         <p>Aucun service trouvé</p>
       </div>
 
-      <!-- Services Grid -->
+      <!-- Services Grid - Grouped by Type -->
       <div class="services-grid" *ngIf="!loading && filteredServices.length > 0">
-        <div class="service-card" *ngFor="let service of filteredServices">
-          <!-- Service Type Badge -->
-          <div class="service-type-badge">
-            {{ getServiceTypeLabel(service.type) }}
+        <div class="service-group-card" *ngFor="let group of getGroupedServicesArray()">
+          <!-- Service Type Header -->
+          <div class="service-type-header">
+            <h2>{{ getServiceTypeLabel(group.type) }}</h2>
+            <span class="service-count">{{ group.services.length }} variation(s)</span>
           </div>
 
-          <!-- Service Info -->
-          <div class="service-info">
-            <div class="service-meta">
-              <div class="meta-item">
-                <span class="meta-icon">💰</span>
-                <span class="meta-value">{{ service.price }} TND</span>
+          <!-- Service Variations -->
+          <div class="service-variations">
+            <div class="service-variation" *ngFor="let service of group.services">
+              <!-- Car Type Badge (if defined) -->
+              <div class="car-type-badge" *ngIf="service.carType">
+                🚗 {{ getCarTypeLabel(service.carType) }}
               </div>
-              <div class="meta-item">
-                <span class="meta-icon">⏱️</span>
-                <span class="meta-value">{{ formatDuration(service.duration) }}</span>
-              </div>
-              <div class="meta-item" *ngIf="service.type !== 'salon'">
-                <span class="meta-icon">📍</span>
-                <span class="meta-value">{{ getActiveServiceLocations(service).length }} location(s)</span>
-              </div>
-            </div>
 
-            <!-- At-home service message for salon type -->
-            <div class="at-home-message" *ngIf="service.type === 'salon'">
-              <span class="home-icon">🏠</span>
-              <span>Service à domicile</span>
-            </div>
+              <!-- Service Info -->
+              <div class="service-info">
+                <div class="service-meta">
+                  <div class="meta-item">
+                    <span class="meta-icon">💰</span>
+                    <span class="meta-value">{{ service.price }} TND</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    <span class="meta-value">{{ formatDuration(service.duration) }}</span>
+                  </div>
+                  <div class="meta-item" *ngIf="service.type !== 'salon'">
+                    <span class="meta-icon">📍</span>
+                    <span class="meta-value">{{ getActiveServiceLocations(service).length }} location(s)</span>
+                  </div>
+                </div>
 
-            <!-- Locations list for other types -->
-            <div class="service-locations" *ngIf="service.type !== 'salon'">
-              <div class="location-item" *ngFor="let location of getActiveServiceLocations(service)">
-                <span class="location-icon">📍</span>
-                <div class="location-details">
-                  <span class="location-address">{{ location.address }}</span>
-                  <small class="location-coordinates">
-                    {{ location.coordinates[1] }}, {{ location.coordinates[0] }}
-                  </small>
+                <!-- At-home service message for salon type -->
+                <div class="at-home-message" *ngIf="service.type === 'salon'">
+                  <span class="home-icon">🏠</span>
+                  <span>Service à domicile</span>
+                </div>
+
+                <!-- Locations list for other types -->
+                <div class="service-locations" *ngIf="service.type !== 'salon'">
+                  <div class="location-item" *ngFor="let location of getActiveServiceLocations(service)">
+                    <span class="location-icon">📍</span>
+                    <div class="location-details">
+                      <span class="location-address">{{ location.address }}</span>
+                      <small class="location-coordinates">
+                        {{ location.coordinates[1] }}, {{ location.coordinates[0] }}
+                      </small>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Service Actions -->
-          <div class="service-actions">
-            <button class="action-btn edit-btn" (click)="onEditService(service)">
-              ✏️ Modifier
-            </button>
-            <button class="action-btn delete-btn" (click)="onDeleteService(service)">
-              🗑️ Supprimer
-            </button>
+              <!-- Service Actions -->
+              <div class="service-actions">
+                <button class="action-btn edit-btn" (click)="onEditService(service)">
+                  ✏️ Modifier
+                </button>
+                <button class="action-btn delete-btn" (click)="onDeleteService(service)">
+                  🗑️ Supprimer
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
