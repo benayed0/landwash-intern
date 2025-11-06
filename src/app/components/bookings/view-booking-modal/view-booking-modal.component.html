@@ -78,6 +78,18 @@
           <span class="label">Type de Service</span>
           <span class="value">{{ serviceTypeLabel() }}</span>
         </div>
+        <div class="info-item" *ngIf="booking()?.type !== 'salon' && booking()?.carType">
+          <span class="label">Type de Véhicule</span>
+          <span class="value">{{ carTypeLabel() }}</span>
+        </div>
+        <div class="info-item" *ngIf="booking()?.salonsSeats && booking()?.type === 'salon'">
+          <span class="label">Nombre de Sièges</span>
+          <span class="value">{{ booking()?.salonsSeats }}</span>
+        </div>
+        <div class="info-item" *ngIf="booking()?.colorTone">
+          <span class="label">Teinte de Couleur</span>
+          <span class="value">🎨 {{ booking()?.colorTone }}</span>
+        </div>
         <div class="info-item">
           <span class="label">Prix</span>
           <span class="value price">{{ formatPrice(booking()?.price) }}</span>

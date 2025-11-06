@@ -1,4 +1,9 @@
-export type BookingType = 'small' | 'big' | 'salon' | 'pickup' | 'paint_correction' | 'body_correction' | 'ceramic_coating';
+export type BookingType =
+  | 'detailing'
+  | 'salon'
+  | 'paint_correction'
+  | 'body_correction'
+  | 'ceramic_coating';
 export type BookingStatus =
   | 'pending'
   | 'rejected'
@@ -6,7 +11,7 @@ export type BookingStatus =
   | 'in-progress'
   | 'completed'
   | 'canceled';
-
+export type carType = 'small' | 'big' | 'pickup';
 export interface TeamInfo {
   _id: string;
   name: string;
@@ -22,6 +27,7 @@ export interface Booking {
   _id?: string;
   type: BookingType;
   colorTone?: string; // Color tone for special booking types
+  carType?: carType; // for all booking types except 'salon'
   createdAt: Date;
   updatedAt: Date;
   price: number;

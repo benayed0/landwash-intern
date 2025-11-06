@@ -8,8 +8,14 @@
         <span class="vehicle-label">{{
           getVehicleTypeLabel(booking.type)
         }}</span>
+        @if (booking.type !== 'salon' && booking.carType) {
+        <span class="car-type-badge">{{ getCarTypeLabel(booking.carType) }}</span>
+        }
         @if (booking.type === 'salon' && booking.salonsSeats) {
         <span class="salon-seats">{{ booking.salonsSeats }} sièges</span>
+        }
+        @if (booking.colorTone) {
+        <span class="color-tone-badge">🎨 {{ booking.colorTone }}</span>
         }
         <span class="booking-date-compact">{{ formatDate(booking.date) }}</span>
       </div>
@@ -64,18 +70,33 @@
 
   <div class="edit-form">
     <div class="form-group">
-      <label>Type de véhicule</label>
+      <label>Type de service</label>
       <select
         [(ngModel)]="editForm.type"
         class="form-input"
         (change)="onServiceTypeChange()"
       >
+        <option value="detailing">Lavage Détaillé</option>
+        <option value="salon">Salon</option>
+        <option value="paint_correction">Correction de Peinture</option>
+        <option value="body_correction">Correction de Carrosserie</option>
+        <option value="ceramic_coating">Revêtement Céramique</option>
+      </select>
+    </div>
+
+    @if (editForm.type !== 'salon') {
+    <div class="form-group">
+      <label>Type de véhicule</label>
+      <select
+        [(ngModel)]="editForm.carType"
+        class="form-input"
+      >
         <option value="small">Citadines / Petites Voitures</option>
         <option value="big">SUV / Grandes Voitures</option>
         <option value="pickup">Pick-up</option>
-        <option value="salon">Salon</option>
       </select>
     </div>
+    }
 
     @if (editForm.type === 'salon') {
     <div class="form-group">
@@ -86,6 +107,18 @@
         min="1"
         max="20"
         class="form-input"
+      />
+    </div>
+    }
+
+    @if (editForm.type === 'paint_correction' || editForm.type === 'body_correction' || editForm.type === 'ceramic_coating') {
+    <div class="form-group">
+      <label>Teinte de couleur (optionnel)</label>
+      <input
+        type="text"
+        [(ngModel)]="editForm.colorTone"
+        class="form-input"
+        placeholder="Ex: Noir métallisé, Rouge vif..."
       />
     </div>
     }

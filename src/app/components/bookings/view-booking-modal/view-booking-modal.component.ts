@@ -78,14 +78,10 @@ export class ViewBookingModalComponent implements OnInit {
   serviceTypeLabel = computed(() => {
     const serviceType = this.booking()?.type;
     switch (serviceType) {
-      case 'small':
-        return 'Citadine';
-      case 'big':
-        return 'SUV';
+      case 'detailing':
+        return 'Lavage Détaillé';
       case 'salon':
         return 'Salon';
-      case 'pickup':
-        return 'Pick-up';
       case 'paint_correction':
         return 'Correction de Peinture';
       case 'body_correction':
@@ -94,6 +90,20 @@ export class ViewBookingModalComponent implements OnInit {
         return 'Revêtement Céramique';
       default:
         return serviceType || '';
+    }
+  });
+
+  carTypeLabel = computed(() => {
+    const carType = this.booking()?.carType;
+    switch (carType) {
+      case 'small':
+        return 'Citadines / Petites Voitures';
+      case 'big':
+        return 'SUV / Grandes Voitures';
+      case 'pickup':
+        return 'Pick-up';
+      default:
+        return carType || '';
     }
   });
 

@@ -101,13 +101,17 @@ export class CreateBookingComponent implements OnInit {
 
   // Form options
   bookingTypes: { value: BookingType; label: string; icon: string }[] = [
-    { value: 'small', label: 'Citadines / Petites Voitures', icon: '🚗' },
-    { value: 'big', label: 'SUV / Grandes Voitures', icon: '🚙' },
-    { value: 'pickup', label: 'Pick-up', icon: '🚗' },
+    { value: 'detailing', label: 'Lavage Détaillé', icon: '🚗' },
     { value: 'salon', label: 'Salon', icon: '🛌' },
     { value: 'paint_correction', label: 'Correction de Peinture', icon: '🎨' },
     { value: 'body_correction', label: 'Correction de Carrosserie', icon: '🔧' },
     { value: 'ceramic_coating', label: 'Revêtement Céramique', icon: '✨' },
+  ];
+
+  carTypes = [
+    { value: 'small', label: 'Citadines / Petites Voitures' },
+    { value: 'big', label: 'SUV / Grandes Voitures' },
+    { value: 'pickup', label: 'Pick-up' },
   ];
   ngAfterViewInit() {
     setTimeout(() => {
@@ -157,7 +161,9 @@ export class CreateBookingComponent implements OnInit {
 
   initializeForm() {
     this.bookingForm = this.fb.group({
-      type: ['small', Validators.required],
+      type: ['detailing', Validators.required],
+      carType: ['small'],
+      colorTone: [''],
       price: [160, [Validators.required, Validators.min(0.01)]],
       date: ['', Validators.required],
       withSub: [false],
@@ -324,11 +330,9 @@ export class CreateBookingComponent implements OnInit {
   private generateAllTimeSlots(): string[] {
     const serviceType = this.bookingForm.get('type')?.value;
 
-    // For detailing services (small, big, pickup cars, and special services), only allow specific time slots
+    // For detailing services and special services, only allow specific time slots
     if (
-      serviceType === 'small' ||
-      serviceType === 'big' ||
-      serviceType === 'pickup' ||
+      serviceType === 'detailing' ||
       serviceType === 'paint_correction' ||
       serviceType === 'body_correction' ||
       serviceType === 'ceramic_coating'
@@ -354,16 +358,14 @@ export class CreateBookingComponent implements OnInit {
 
     bookedSlots.forEach(([start, end]) => {
       if (
-        serviceType === 'small' ||
-        serviceType === 'big' ||
-        serviceType === 'pickup' ||
+        serviceType === 'detailing' ||
         serviceType === 'paint_correction' ||
         serviceType === 'body_correction' ||
         serviceType === 'ceramic_coating'
       ) {
-        // For detailing services and special services, check if any of the specific slots (8h, 11h, 14h) overlap
+        // For detailing services and special services, check if any of the specific slots (9h, 12h, 15h) overlap
         // Detailing takes 2 hours, so we need to check for overlaps
-        const carWashSlots = ['09:00', '12:00', '15:00'];
+        const detailingSlots = ['09:00', '12:00', '15:00'];
 
         const [startHourStr, startMinStr] = start.split(':');
         const [endHourStr, endMinStr] = end.split(':');
@@ -375,10 +377,10 @@ export class CreateBookingComponent implements OnInit {
         const startMinutes = startHour * 60 + startMin;
         const endMinutes = endHour * 60 + endMin;
 
-        carWashSlots.forEach((slot) => {
+        detailingSlots.forEach((slot) => {
           const slotHour = parseInt(slot.split(':')[0]);
           const slotStartMinutes = slotHour * 60;
-          const slotEndMinutes = slotStartMinutes + 120; // Car wash is 2 hours (120 minutes)
+          const slotEndMinutes = slotStartMinutes + 120; // Detailing is 2 hours (120 minutes)
 
           // Check if this slot overlaps with the booked time range
           if (slotStartMinutes < endMinutes && slotEndMinutes > startMinutes) {
@@ -491,9 +493,7 @@ export class CreateBookingComponent implements OnInit {
 
     // Set default prices based on type
     const defaultPrices: Record<BookingType, number> = {
-      small: 160,
-      big: 220,
-      pickup: 200,
+      detailing: 160,
       salon: 18,
       paint_correction: 350,
       body_correction: 400,
@@ -553,6 +553,8 @@ export class CreateBookingComponent implements OnInit {
 
       const booking: Partial<Booking> = {
         type: formValue.type,
+        carType: formValue.type !== 'salon' ? formValue.carType : undefined,
+        colorTone: formValue.colorTone || undefined,
         price:
           formValue.type === 'salon'
             ? this.bookingForm.get('salonsSeats')?.value * 18 || 1
@@ -634,9 +636,7 @@ export class CreateBookingComponent implements OnInit {
     const salonsSeats = this.bookingForm.get('salonsSeats')?.value || 1;
 
     const basePrices: Record<BookingType, number> = {
-      small: 160,
-      big: 220,
-      pickup: 200,
+      detailing: 160,
       salon: 18,
       paint_correction: 350,
       body_correction: 400,
@@ -790,6 +790,8 @@ export class CreateBookingComponent implements OnInit {
 
       const booking: Partial<Booking> = {
         type: formValue.type,
+        carType: formValue.type !== 'salon' ? formValue.carType : undefined,
+        colorTone: formValue.colorTone || undefined,
         price:
           formValue.type === 'salon'
             ? this.bookingForm.get('salonsSeats')?.value * 18 || 1
