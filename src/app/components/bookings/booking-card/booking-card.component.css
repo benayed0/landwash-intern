@@ -121,6 +121,12 @@
   line-height: 1;
 }
 
+.status-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .status-badge {
   padding: 4px 10px;
   border-radius: 12px;
@@ -473,36 +479,34 @@
   margin: 10px 0;
 }
 
-/* Floating Edit Button */
-.edit-btn-floating {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 44px;
-  height: 44px;
-  background: #c3ff00;
-  color: #0a0a0a;
-  border: none;
-  border-radius: 50%;
-  font-size: 18px;
+/* Header Edit Button */
+.edit-btn-header {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(195, 255, 0, 0.15);
+  color: #c3ff00;
+  border: 1px solid rgba(195, 255, 0, 0.3);
   cursor: pointer;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(195, 255, 0, 0.3);
   transition: all 0.2s ease;
-  z-index: 10;
+  flex-shrink: 0;
+  padding: 0;
 }
 
-.edit-btn-floating:active {
-  transform: scale(0.9);
+.edit-btn-header:active {
+  transform: scale(0.92);
+  background: rgba(195, 255, 0, 0.25);
 }
 
 @media (hover: hover) {
-  .edit-btn-floating:hover {
-    background: #a8d400;
-    transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(195, 255, 0, 0.4);
+  .edit-btn-header:hover {
+    background: rgba(195, 255, 0, 0.25);
+    border-color: #c3ff00;
+    transform: translateY(-1px);
   }
 }
 
@@ -682,12 +686,10 @@
     font-size: 14px;
   }
 
-  .edit-btn-floating {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
-    bottom: 10px;
-    right: 10px;
+  .edit-btn-header {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
   }
 }
 

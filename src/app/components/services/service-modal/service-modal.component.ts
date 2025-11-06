@@ -187,8 +187,18 @@ export class ServiceModalComponent implements OnInit {
   }
 
   getAvailableLocations(): ServiceLocation[] {
-    // Only show active locations
-    return this.data.allLocations.filter((loc) => loc.isActive);
+    // Only show active locations and sort selected ones first
+    return this.data.allLocations
+      .filter((loc) => loc.isActive)
+      .sort((a, b) => {
+        const aSelected = this.isLocationSelected(a._id!);
+        const bSelected = this.isLocationSelected(b._id!);
+        // Selected locations first
+        if (aSelected && !bSelected) return -1;
+        if (!aSelected && bSelected) return 1;
+        // Otherwise maintain original order
+        return 0;
+      });
   }
 
   // Helper methods for display-only fields

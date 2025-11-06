@@ -30,23 +30,30 @@
           +{{ booking.transportFee }} DT (Transport)
         </span>
       </div>
-      <span class="status-badge" [ngClass]="'status-' + booking.status">
-        {{
-          booking.status === "pending"
-            ? "En attente"
-            : booking.status === "confirmed"
-            ? "Confirmé"
-            : booking.status === "in-progress"
-            ? "En cours"
-            : booking.status === "completed"
-            ? "Terminé"
-            : booking.status === "rejected"
-            ? "Rejeté"
-            : booking.status === "canceled"
-            ? "Annulé"
-            : booking.status
-        }}
-      </span>
+      <div class="status-actions">
+        <span class="status-badge" [ngClass]="'status-' + booking.status">
+          {{
+            booking.status === "pending"
+              ? "En attente"
+              : booking.status === "confirmed"
+              ? "Confirmé"
+              : booking.status === "in-progress"
+              ? "En cours"
+              : booking.status === "completed"
+              ? "Terminé"
+              : booking.status === "rejected"
+              ? "Rejeté"
+              : booking.status === "canceled"
+              ? "Annulé"
+              : booking.status
+          }}
+        </span>
+        @if (canEdit()) {
+        <button class="edit-btn-header" (click)="startEdit(); $event.stopPropagation()" title="Modifier">
+          ✏️
+        </button>
+        }
+      </div>
     </div>
   </div>
   } @else {
@@ -394,13 +401,6 @@
       <span class="btn-text">Reconfirmer</span>
     </button>
   </div>
-  }
-
-  <!-- Edit Button - Floating -->
-  @if (canEdit()) {
-  <button class="edit-btn-floating" (click)="startEdit()" title="Modifier">
-    ✏️
-  </button>
   } }
 </div>
 
