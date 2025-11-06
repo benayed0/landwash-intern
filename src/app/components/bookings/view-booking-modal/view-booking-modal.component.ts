@@ -6,6 +6,7 @@ import {
   MatDialog,
 } from '@angular/material/dialog';
 import { BookingService } from '../../../services/booking.service';
+import { BookingLabelService } from '../../../services/booking-label.service';
 import { Booking } from '../../../models/booking.model';
 import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team-assign-modal.component';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
@@ -27,6 +28,7 @@ export class ViewBookingModalComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<ViewBookingModalComponent>);
   private data = inject<ViewBookingDialogData>(MAT_DIALOG_DATA);
   private bookingService = inject(BookingService);
+  private bookingLabelService = inject(BookingLabelService);
   private dialog = inject(MatDialog);
   auth = inject(AuthService);
   booking = signal<Booking | null>(null);
@@ -77,34 +79,12 @@ export class ViewBookingModalComponent implements OnInit {
 
   serviceTypeLabel = computed(() => {
     const serviceType = this.booking()?.type;
-    switch (serviceType) {
-      case 'detailing':
-        return 'Lavage Détaillé';
-      case 'salon':
-        return 'Salon';
-      case 'paint_correction':
-        return 'Correction de Peinture';
-      case 'body_correction':
-        return 'Correction de Carrosserie';
-      case 'ceramic_coating':
-        return 'Revêtement Céramique';
-      default:
-        return serviceType || '';
-    }
+    return serviceType ? this.bookingLabelService.getBookingTypeLabel(serviceType) : '';
   });
 
   carTypeLabel = computed(() => {
     const carType = this.booking()?.carType;
-    switch (carType) {
-      case 'small':
-        return 'Citadines / Petites Voitures';
-      case 'big':
-        return 'SUV / Grandes Voitures';
-      case 'pickup':
-        return 'Pick-up';
-      default:
-        return carType || '';
-    }
+    return carType ? this.bookingLabelService.getCarTypeLabel(carType) : '';
   });
 
   ngOnInit() {
