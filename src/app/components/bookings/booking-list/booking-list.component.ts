@@ -14,7 +14,7 @@ import { TeamService } from '../../../services/team.service';
 import { AuthService } from '../../../services/auth.service';
 import { Booking, BookingStatus } from '../../../models/booking.model';
 import { Team } from '../../../models/team.model';
-import { Personal } from '../../../models/personal.model';
+import { Personal, Role } from '../../../models/personal.model';
 import { BookingCardComponent } from '../booking-card/booking-card.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-confirm-modal.component';
@@ -65,7 +65,7 @@ export class BookingListComponent implements OnInit {
   sortBy: string = 'date-asc';
   isFilterExpanded = signal(false);
   currentUser: Personal | null = null;
-  userRole: 'admin' | 'worker' | null = null;
+  userRole: Role | null = null;
   bookingTypeFilter = signal<'all' | 'detailing' | 'renov' | 'salon'>('all');
 
   // Date filtering properties

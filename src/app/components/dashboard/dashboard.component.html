@@ -50,8 +50,8 @@
         <span class="nav-icon">💳</span>
         <span class="nav-label" [class.hidden]="sidebarCollapsed()"
           >Abonnements</span
-        >
-      </button>
+        ></button
+      >}
       <button
         class="nav-item"
         [class.active]="viewType() === 'analytics'"
@@ -62,6 +62,7 @@
           >Analytics</span
         >
       </button>
+      @if((authService.currentUser$ | async)?.role==='admin'){
       <button
         class="nav-item"
         [class.active]="viewType() === 'products'"
@@ -102,6 +103,7 @@
           >Réductions</span
         >
       </button>
+      }
       <button
         class="nav-item"
         [class.active]="viewType() === 'services'"
@@ -112,7 +114,6 @@
           >Services</span
         >
       </button>
-      }
       <button
         class="nav-item"
         [class.active]="viewType() === 'profile'"

@@ -23,6 +23,7 @@ import { DelayModalComponent } from '../delay-modal/delay-modal.component';
 import { BookingService } from '../../../services/booking.service';
 import { BookingLabelService } from '../../../services/booking-label.service';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
+import { Role } from '../../../models/personal.model';
 
 @Component({
   selector: 'app-booking-card',
@@ -33,7 +34,7 @@ import { RatingDisplayComponent } from '../../shared/rating-display/rating-displ
 })
 export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   @Input() booking!: Booking;
-  @Input() userRole: 'admin' | 'worker' = 'admin'; // Default to admin for backward compatibility
+  @Input() userRole: Role = 'admin'; // Default to admin for backward compatibility
   @Input() showMapsButton = true; // Control whether to show Google Maps button
   @Output() statusChange = new EventEmitter<{ id: string; status: string }>();
   @Output() requestComplete = new EventEmitter<Booking>();

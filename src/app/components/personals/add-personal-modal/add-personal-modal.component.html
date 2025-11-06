@@ -15,7 +15,7 @@
         placeholder="Ex: Jean Dupont"
         required
         [disabled]="isSubmitting"
-      >
+      />
       <mat-icon matPrefix>person</mat-icon>
       <mat-error *ngIf="nameError">{{ nameError }}</mat-error>
     </mat-form-field>
@@ -31,7 +31,7 @@
         placeholder="Ex: jean.dupont@example.com"
         required
         [disabled]="isSubmitting"
-      >
+      />
       <mat-icon matPrefix>email</mat-icon>
       <mat-error *ngIf="emailError">{{ emailError }}</mat-error>
     </mat-form-field>
@@ -46,7 +46,7 @@
         name="phone"
         placeholder="Ex: +216 XX XXX XXX"
         [disabled]="isSubmitting"
-      >
+      />
       <mat-icon matPrefix>phone</mat-icon>
     </mat-form-field>
 
@@ -64,14 +64,82 @@
           Travailleur
         </mat-option>
         <!-- Admin option can be enabled later -->
-        <!-- <mat-option value="admin">
-          <mat-icon>admin_panel_settings</mat-icon>
-          Administrateur
-        </mat-option> -->
+        <mat-option value="partner">
+          <mat-icon>person_apron</mat-icon>
+          Partenaire
+        </mat-option>
       </mat-select>
       <mat-icon matPrefix>badge</mat-icon>
     </mat-form-field>
+    @if(newPersonal.role==='partner'){
+    <!-- Services Field (Only for Partners) -->
+    <div class="services-section">
+      <div class="services-header">
+        <mat-icon>build</mat-icon>
+        <h3>Services attribués</h3>
+        <span class="service-count"
+          >{{ getSelectedServicesCount() }} sélectionné(s)</span
+        >
+      </div>
+      <p class="services-hint">
+        Sélectionnez les types de services que ce partenaire peut effectuer
+      </p>
 
+      <div class="services-grid">
+        <div
+          *ngFor="let serviceGroup of getGroupedServices()"
+          class="service-card"
+          [class.selected]="isServiceTypeSelected(serviceGroup.type)"
+          (click)="toggleServiceType(serviceGroup.type)"
+        >
+          <div class="service-card-header">
+            <div class="service-icon">
+              {{ getServiceTypeIcon(serviceGroup.type) }}
+            </div>
+            <div class="service-info">
+              <h4 class="service-name">
+                {{ getServiceTypeLabel(serviceGroup.type) }}
+              </h4>
+              <span class="service-variations"
+                >3 variations (Citadines, SUV, Pickup)</span
+              >
+            </div>
+          </div>
+          <div class="service-checkbox">
+            <mat-icon *ngIf="isServiceTypeSelected(serviceGroup.type)"
+              >check_circle</mat-icon
+            >
+            <mat-icon *ngIf="!isServiceTypeSelected(serviceGroup.type)"
+              >radio_button_unchecked</mat-icon
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="select-all-actions" *ngIf="getGroupedServices().length > 0">
+        <button
+          mat-stroked-button
+          type="button"
+          class="select-action-btn"
+          (click)="selectAllServices()"
+          [disabled]="isSubmitting"
+        >
+          <mat-icon>done_all</mat-icon>
+          Tout sélectionner
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          class="select-action-btn"
+          (click)="deselectAllServices()"
+          [disabled]="isSubmitting"
+        >
+          <mat-icon>clear</mat-icon>
+          Tout désélectionner
+        </button>
+      </div>
+    </div>
+    }
     <!-- Password Field with Generator -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Mot de passe généré</mat-label>
@@ -82,7 +150,7 @@
         name="password"
         readonly
         [disabled]="isSubmitting"
-      >
+      />
       <mat-icon matPrefix>lock</mat-icon>
       <button
         mat-icon-button
@@ -92,7 +160,9 @@
         [disabled]="isSubmitting"
         [attr.aria-label]="'Toggle password visibility'"
       >
-        <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+        <mat-icon>{{
+          passwordVisible ? "visibility_off" : "visibility"
+        }}</mat-icon>
       </button>
     </mat-form-field>
 
@@ -122,13 +192,17 @@
 
     <mat-hint class="password-hint">
       <mat-icon inline>info</mat-icon>
-      Copiez ce mot de passe et communiquez-le au nouveau personnel de manière sécurisée.
+      Copiez ce mot de passe et communiquez-le au nouveau personnel de manière
+      sécurisée.
     </mat-hint>
 
     <!-- Info Message -->
     <div class="info-message">
       <mat-icon>email</mat-icon>
-      <p>Un email de bienvenue sera envoyé à l'adresse indiquée avec les instructions de connexion.</p>
+      <p>
+        Un email de bienvenue sera envoyé à l'adresse indiquée avec les
+        instructions de connexion.
+      </p>
     </div>
   </form>
 </mat-dialog-content>

@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'worker';
+export type Role = 'admin' | 'partner' | 'worker';
 
 export interface Personal {
   _id: string;
@@ -9,6 +9,7 @@ export interface Personal {
   name: string;
   createdAt: Date;
   status: string;
+  services?: string[];
 }
 export interface CreatePersonalDto {
   email: string;
