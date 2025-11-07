@@ -7,7 +7,12 @@ import {
   MatDialogModule,
 } from '@angular/material/dialog';
 import { ServiceLocationService } from '../../../services/service-location.service';
+import { TeamService } from '../../../services/team.service';
+import { ServiceService } from '../../../services/service.service';
+import { BookingLabelService } from '../../../services/booking-label.service';
 import { ServiceLocation } from '../../../models/service-location.model';
+import { Team } from '../../../models/team.model';
+import { Service } from '../../../models/service.model';
 import { LocationPickerComponent } from '../../location-picker/location-picker.component';
 import { SelectedLocation } from '../../../services/location.service';
 
@@ -24,17 +29,25 @@ export interface LocationModalData {
 })
 export class LocationModalComponent implements OnInit {
   private serviceLocationService = inject(ServiceLocationService);
+  private teamService = inject(TeamService);
+  private serviceService = inject(ServiceService);
+  private bookingLabelService = inject(BookingLabelService);
 
   formData: {
     coordinates: [number, number];
     address: string;
     isActive: boolean;
+    teams: string[];
   } = {
     coordinates: [10.1815, 36.8065], // Default to Tunis
     address: '',
     isActive: true,
+    teams: [],
   };
 
+  availableTeams: Team[] = [];
+  allServices: Service[] = [];
+  loading = false;
   isSubmitting = false;
   errors: { [key: string]: string } = {};
   isEditing = false;
@@ -48,13 +61,71 @@ export class LocationModalComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadTeams();
+    this.loadServices();
+
     if (this.data && this.data.location) {
+      // Extract team IDs from populated teams or use as-is if already IDs
+      const teamIds = this.data.location.teams?.map(team =>
+        typeof team === 'string' ? team : team._id!
+      ) || [];
+
       this.formData = {
         coordinates: [...this.data.location.coordinates] as [number, number],
         address: this.data.location.address,
         isActive: this.data.location.isActive ?? true,
+        teams: teamIds,
       };
     }
+  }
+
+  loadServices() {
+    this.serviceService.getAllServices().subscribe({
+      next: (services: Service[]) => {
+        this.allServices = services;
+      },
+      error: (err: any) => {
+        console.error('Error loading services:', err);
+      },
+    });
+  }
+
+  loadTeams() {
+    this.loading = true;
+    this.teamService.getAllTeams().subscribe({
+      next: (teams) => {
+        this.availableTeams = teams;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading teams:', err);
+        this.loading = false;
+      },
+    });
+  }
+
+  isLocationUsedByServices(): boolean {
+    if (!this.isEditing || !this.data?.location?._id) {
+      return false;
+    }
+
+    return this.allServices.some(service =>
+      service.availableLocations.some(loc =>
+        typeof loc === 'string' ? loc === this.data!.location!._id : loc._id === this.data!.location!._id
+      )
+    );
+  }
+
+  getServicesUsingLocation(): Service[] {
+    if (!this.isEditing || !this.data?.location?._id) {
+      return [];
+    }
+
+    return this.allServices.filter(service =>
+      service.availableLocations.some(loc =>
+        typeof loc === 'string' ? loc === this.data!.location!._id : loc._id === this.data!.location!._id
+      )
+    );
   }
 
   validateForm(): boolean {
@@ -76,6 +147,16 @@ export class LocationModalComponent implements OnInit {
       isValid = false;
     }
 
+    // Check if trying to remove all teams from a location that's being used by services
+    if (this.isEditing && this.formData.teams.length === 0 && this.isLocationUsedByServices()) {
+      const servicesUsing = this.getServicesUsingLocation();
+      const serviceLabels = servicesUsing
+        .map(s => this.bookingLabelService.getBookingTypeLabel(s.type))
+        .join(', ');
+      this.errors['teams'] = `Cette localisation est utilisée par des services (${serviceLabels}). Vous devez d'abord la retirer de ces services ou assigner au moins une équipe.`;
+      isValid = false;
+    }
+
     return isValid;
   }
 
@@ -90,6 +171,7 @@ export class LocationModalComponent implements OnInit {
       coordinates: this.formData.coordinates,
       address: this.formData.address,
       isActive: this.formData.isActive,
+      teams: this.formData.teams,
     };
 
     const request = this.isEditing && this.data && this.data.location?._id
@@ -141,5 +223,18 @@ export class LocationModalComponent implements OnInit {
       };
     }
     return null;
+  }
+
+  toggleTeamSelection(teamId: string) {
+    const index = this.formData.teams.indexOf(teamId);
+    if (index > -1) {
+      this.formData.teams.splice(index, 1);
+    } else {
+      this.formData.teams.push(teamId);
+    }
+  }
+
+  isTeamSelected(teamId: string): boolean {
+    return this.formData.teams.includes(teamId);
   }
 }

@@ -224,7 +224,7 @@
               <tr>
                 <th>Équipe</th>
                 <th>Membres</th>
-                <th class="hide-mobile">Localisation</th>
+                <th class="hide-mobile">Zone d'action & Localisations</th>
                 <th>Actions</th>
                 <th class="add-column">
                   <button
@@ -259,13 +259,36 @@
                   }}</span>
                 </td>
                 <td class="hide-mobile">
-                  <div *ngIf="team.coordinates" class="location-cell">
-                    <div>
-                      📍 {{ team.coordinates[1].toFixed(4) }},
-                      {{ team.coordinates[0].toFixed(4) }}
+                  <div class="combined-location-cell">
+                    <div *ngIf="team.coordinates" class="action-zone">
+                      <div class="zone-coords">
+                        📍 {{ team.coordinates[1].toFixed(4) }},
+                        {{ team.coordinates[0].toFixed(4) }}
+                      </div>
+                      <div *ngIf="team.radius" class="zone-radius">
+                        🎯 {{ team.radius / 1000 }}km
+                      </div>
                     </div>
-                    <div *ngIf="team.radius" class="radius-text">
-                      🎯 {{ team.radius / 1000 }}km
+                    <div
+                      *ngIf="getLocationCountForTeam(team) > 0"
+                      class="service-locations"
+                    >
+                      <div class="locations-badges">
+                        <span
+                          class="location-badge"
+                          *ngFor="let location of getLocationsForTeam(team)"
+                        >
+                          📍 {{ location.address }}
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="
+                        !team.coordinates && getLocationCountForTeam(team) === 0
+                      "
+                      class="no-locations"
+                    >
+                      Aucune zone/localisation
                     </div>
                   </div>
                 </td>
@@ -383,7 +406,13 @@
                     class="role-badge"
                     [class.admin-badge]="personal.role === 'admin'"
                   >
-                    {{ personal.role === "admin" ? "Admin" : "Employé" }}
+                    {{
+                      personal.role === "admin"
+                        ? "Admin"
+                        : personal.role === "partner"
+                        ? "Partenaire"
+                        : "Employé"
+                    }}
                   </span>
                 </td>
                 <td>

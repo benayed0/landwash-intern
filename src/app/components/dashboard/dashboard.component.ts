@@ -73,7 +73,8 @@ export class DashboardComponent implements OnInit {
         const currentUrl = event.url;
         const urlParts = currentUrl.split('/dashboard/')[1];
         // Extract just the first segment (e.g., "orders" from "orders/123abc")
-        const view = urlParts ? urlParts.split('/')[0] : '';
+        // Remove query params and hash fragments
+        const view = urlParts ? urlParts.split('/')[0].split('?')[0].split('#')[0] : '';
         console.log(view);
 
         if (view && this.isValidViewType(view)) {
@@ -86,7 +87,8 @@ export class DashboardComponent implements OnInit {
     const currentUrl = this.router.url;
     const urlParts = currentUrl.split('/dashboard/')[1];
     // Extract just the first segment (e.g., "orders" from "orders/123abc")
-    const view = urlParts ? urlParts.split('/')[0] : '';
+    // Remove query params and hash fragments
+    const view = urlParts ? urlParts.split('/')[0].split('?')[0].split('#')[0] : '';
     console.log(view);
 
     if (view && this.isValidViewType(view)) {

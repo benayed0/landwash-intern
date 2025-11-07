@@ -10,7 +10,16 @@
         (focus)="onSearchFocus()"
         (blur)="onSearchBlur()"
       />
-      <div class="search-icon" *ngIf="!isLoading()">🔍</div>
+      <button
+        class="clear-button"
+        *ngIf="searchQuery() && !isLoading()"
+        (click)="clearSearch()"
+        type="button"
+        title="Effacer"
+      >
+        ✕
+      </button>
+      <div class="search-icon" *ngIf="!searchQuery() && !isLoading()">🔍</div>
       <div class="loading-spinner" *ngIf="isLoading()">⏳</div>
     </div>
 

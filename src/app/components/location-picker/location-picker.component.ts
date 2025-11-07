@@ -151,10 +151,25 @@ export class LocationPickerComponent
   }
 
   onSuggestionClick(result: LocationSearchResult) {
-    const lat = parseFloat(result.lat);
-    const lng = parseFloat(result.lon);
-    this.setLocation(lat, lng, result.display_name);
+    this.isLoading.set(true);
     this.hideSuggestions();
+
+    // Fetch place details to get coordinates
+    this.locationService.getPlaceDetails(result.place_id).subscribe({
+      next: (details) => {
+        if (details) {
+          this.setLocation(details.lat, details.lng, details.address);
+        } else {
+          this.isLoading.set(false);
+          alert('Impossible de récupérer les détails de la localisation');
+        }
+      },
+      error: (error) => {
+        this.isLoading.set(false);
+        console.error('Error fetching place details:', error);
+        alert('Erreur lors de la récupération des détails de la localisation');
+      }
+    });
   }
 
   private setLocation(lat: number, lng: number, address: string) {
@@ -175,6 +190,9 @@ export class LocationPickerComponent
     // Store current selection
     this.currentSelection.set({ lat, lng, address });
 
+    // Turn off loading spinner
+    this.isLoading.set(false);
+
     // Emit the selected location immediately
     this.locationSelected.emit({ lat, lng, address });
   }
@@ -182,9 +200,16 @@ export class LocationPickerComponent
   private setLocationFromCoordinates(lat: number, lng: number) {
     this.isLoading.set(true);
 
-    this.locationService.reverseGeocode(lat, lng).subscribe((address) => {
-      this.setLocation(lat, lng, address);
-      this.isLoading.set(false);
+    this.locationService.reverseGeocode(lat, lng).subscribe({
+      next: (address) => {
+        this.setLocation(lat, lng, address);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error reverse geocoding:', error);
+        this.setLocation(lat, lng, `${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        this.isLoading.set(false);
+      }
     });
   }
 
@@ -203,5 +228,11 @@ export class LocationPickerComponent
     setTimeout(() => {
       this.showSuggestions.set(false);
     }, 200);
+  }
+
+  clearSearch() {
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+    this.showSuggestions.set(false);
   }
 }

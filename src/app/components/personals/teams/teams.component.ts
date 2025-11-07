@@ -1,11 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { TeamService } from '../../../services/team.service';
+import { ServiceLocationService } from '../../../services/service-location.service';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
+import { ServiceLocation } from '../../../models/service-location.model';
 import { AddPersonalModalComponent } from '../add-personal-modal/add-personal-modal.component';
 import { EditPersonalModalComponent } from '../edit-personal-modal/edit-personal-modal.component';
 import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal.component';
@@ -23,11 +25,15 @@ import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-sp
 })
 export class TeamsComponent implements OnInit {
   private teamService = inject(TeamService);
+  private serviceLocationService = inject(ServiceLocationService);
   private toast = inject(HotToastService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   teams: Team[] = [];
   personals: Personal[] = [];
+  locations: ServiceLocation[] = [];
   selectedTeam: Team | null = null;
   isDeleting = false;
   loading = false;
@@ -68,10 +74,25 @@ export class TeamsComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.route.queryParams.subscribe((params) => {
+      if (params['tab']) {
+        this.switchTab(params['tab'] === 'personnel' ? 'personnel' : 'teams');
+      }
+    });
   }
 
   loadData() {
     this.loading = true;
+
+    // Load locations first to map teams to their locations
+    this.serviceLocationService.getAllLocations().subscribe({
+      next: (locations) => {
+        this.locations = locations;
+      },
+      error: (err) => {
+        console.error('Error loading locations:', err);
+      },
+    });
 
     this.teamService.getAllTeams().subscribe({
       next: (teams) => {
@@ -259,6 +280,10 @@ export class TeamsComponent implements OnInit {
   }
 
   switchTab(tab: 'teams' | 'personnel') {
+    this.router.navigate([], {
+      queryParams: { tab: tab === 'personnel' ? 'personnel' : 'teams' },
+      queryParamsHandling: 'merge',
+    });
     this.activeTab = tab;
     // Close any open menus when switching tabs
     this.showTeamSortMenu = false;
@@ -380,7 +405,9 @@ export class TeamsComponent implements OnInit {
     const subscription = dialogRef.componentInstance.personalUpdated.subscribe(
       (updatedPersonal: Personal) => {
         console.log('Personal updated:', updatedPersonal);
-        const index = this.personals.findIndex((p) => p._id === updatedPersonal._id);
+        const index = this.personals.findIndex(
+          (p) => p._id === updatedPersonal._id
+        );
         if (index !== -1) {
           this.personals[index] = updatedPersonal;
         }
@@ -404,8 +431,29 @@ export class TeamsComponent implements OnInit {
 
     dialogRef.componentInstance.availablePersonals = this.personals;
 
-    dialogRef.componentInstance.teamCreated.subscribe((data: Team) => {
+    dialogRef.componentInstance.teamCreated.subscribe((data: any) => {
+      const locationIds = data._locationIds || [];
+      delete data._locationIds; // Remove temporary property
+
       this.teams.push(data);
+
+      // Update locations locally - add this team to the selected locations
+      if (locationIds.length > 0) {
+        this.locations.forEach(loc => {
+          if (locationIds.includes(loc._id)) {
+            // Add team ID to location's teams array if not already there
+            if (!loc.teams) {
+              loc.teams = [];
+            }
+            if (!loc.teams.some((t: any) =>
+              (typeof t === 'string' ? t : t._id) === data._id
+            )) {
+              (loc.teams as any[]).push(data._id);
+            }
+          }
+        });
+      }
+
       this.updateFilteredLists();
       dialogRef.close();
     });
@@ -438,12 +486,38 @@ export class TeamsComponent implements OnInit {
 
       // Subscribe to the teamUpdated event
       const subscription = dialogRef.componentInstance.teamUpdated.subscribe(
-        (updatedTeam: Team) => {
+        (updatedTeam: any) => {
           console.log('Team updated:', updatedTeam);
+          const locationIds = updatedTeam._locationIds || [];
+          delete updatedTeam._locationIds; // Remove temporary property
+
           const index = this.teams.findIndex((t) => t._id === updatedTeam._id);
           if (index !== -1) {
             this.teams[index] = updatedTeam;
           }
+
+          // Update locations locally
+          // First, remove this team from all locations
+          this.locations.forEach(loc => {
+            if (loc.teams) {
+              loc.teams = (loc.teams as any[]).filter((t: any) =>
+                (typeof t === 'string' ? t : t._id) !== updatedTeam._id
+              );
+            }
+          });
+
+          // Then, add this team to the selected locations
+          if (locationIds.length > 0) {
+            this.locations.forEach(loc => {
+              if (locationIds.includes(loc._id)) {
+                if (!loc.teams) {
+                  loc.teams = [];
+                }
+                (loc.teams as any[]).push(updatedTeam._id);
+              }
+            });
+          }
+
           this.updateFilteredLists();
           this.selectedTeam = null;
         }
@@ -509,5 +583,18 @@ export class TeamsComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  // Get service locations for a team
+  getLocationsForTeam(team: Team): ServiceLocation[] {
+    if (!team._id) return [];
+    return this.locations.filter(loc =>
+      loc.teams?.some(t => typeof t === 'string' ? t === team._id : t._id === team._id)
+    );
+  }
+
+  // Get location count for a team
+  getLocationCountForTeam(team: Team): number {
+    return this.getLocationsForTeam(team).length;
   }
 }

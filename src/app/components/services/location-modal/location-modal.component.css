@@ -162,3 +162,72 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Teams Selector Styles */
+.teams-selector {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(42, 42, 42, 0.8);
+  padding: 0.5rem;
+}
+
+.team-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 0.5rem;
+}
+
+.team-item:last-child {
+  margin-bottom: 0;
+}
+
+.team-item:hover {
+  background: rgba(60, 60, 60, 0.5);
+}
+
+.team-item.selected {
+  background: rgba(195, 255, 0, 0.1);
+  border: 1px solid rgba(195, 255, 0, 0.3);
+}
+
+.team-item input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #c3ff00;
+}
+
+.team-name {
+  flex: 1;
+  color: #e5e5e5;
+  font-weight: 500;
+}
+
+.no-teams,
+.loading-teams {
+  padding: 1rem;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+.loading-teams {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

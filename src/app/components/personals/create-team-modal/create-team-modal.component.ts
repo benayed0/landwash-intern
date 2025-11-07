@@ -20,9 +20,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { TeamService } from '../../../services/team.service';
+import { ServiceLocationService } from '../../../services/service-location.service';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
+import { ServiceLocation } from '../../../models/service-location.model';
 import { HotToastService } from '@ngneat/hot-toast';
+import { firstValueFrom } from 'rxjs';
 import * as L from 'leaflet';
 
 @Component({
@@ -50,8 +53,13 @@ export class CreateTeamModalComponent
   @Output() teamCreated = new EventEmitter<Team>();
 
   private teamService = inject(TeamService);
+  private serviceLocationService = inject(ServiceLocationService);
   private toast = inject(HotToastService);
   private dialogRef = inject(MatDialogRef<CreateTeamModalComponent>);
+
+  availableLocations: ServiceLocation[] = [];
+  selectedLocationIds: Set<string> = new Set();
+  locationsLoading = false;
 
   newTeam: Partial<Team> = {
     name: '',
@@ -73,6 +81,21 @@ export class CreateTeamModalComponent
 
   ngOnInit() {
     this.resetForm();
+    this.loadLocations();
+  }
+
+  loadLocations() {
+    this.locationsLoading = true;
+    this.serviceLocationService.getAllLocations().subscribe({
+      next: (locations) => {
+        this.availableLocations = locations.filter(loc => loc.isActive !== false);
+        this.locationsLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading locations:', err);
+        this.locationsLoading = false;
+      },
+    });
   }
 
   ngAfterViewInit() {
@@ -195,6 +218,18 @@ export class CreateTeamModalComponent
     return this.selectedChiefId === personalId;
   }
 
+  onLocationToggle(locationId: string) {
+    if (this.selectedLocationIds.has(locationId)) {
+      this.selectedLocationIds.delete(locationId);
+    } else {
+      this.selectedLocationIds.add(locationId);
+    }
+  }
+
+  isLocationSelected(locationId: string): boolean {
+    return this.selectedLocationIds.has(locationId);
+  }
+
   onSubmit() {
     if (!this.validateForm()) return;
 
@@ -220,11 +255,26 @@ export class CreateTeamModalComponent
       chiefId,
     };
 
+    const selectedLocationIdArray = Array.from(this.selectedLocationIds);
+
+    // Create team first
     this.teamService.createTeam(teamData).subscribe({
       next: (team) => {
-        this.toast.success('Équipe créée avec succès!');
-        this.teamCreated.emit(team);
-        this.onCancel();
+        // Now update service locations
+        this.addTeamToLocations(team._id!, selectedLocationIdArray).then(() => {
+          this.toast.success('Équipe créée avec succès!');
+          // Emit team with location info for parent component to update locally
+          const teamWithLocationIds = {
+            ...team,
+            _locationIds: selectedLocationIdArray,
+          };
+          this.teamCreated.emit(teamWithLocationIds as any);
+          this.onCancel();
+        }).catch((err: any) => {
+          console.error('Error updating service locations:', err);
+          this.toast.error('Équipe créée mais erreur lors de la mise à jour des localisations');
+          this.isSubmitting = false;
+        });
       },
       error: (err) => {
         console.error('Error creating team:', err);
@@ -232,6 +282,24 @@ export class CreateTeamModalComponent
         this.isSubmitting = false;
       },
     });
+  }
+
+  async addTeamToLocations(teamId: string, locationIds: string[]): Promise<void> {
+    const updatePromises: Promise<any>[] = [];
+
+    // Add team to selected locations
+    for (const locationId of locationIds) {
+      const location = this.availableLocations.find(loc => loc._id === locationId);
+      if (location) {
+        const updatedTeams = [...(location.teams || []).map((t: any) => typeof t === 'string' ? t : t._id), teamId];
+        updatePromises.push(
+          firstValueFrom(this.serviceLocationService.updateLocation(locationId, { teams: updatedTeams }))
+        );
+      }
+    }
+
+    // Wait for all updates to complete
+    await Promise.all(updatePromises);
   }
 
   validateForm(): boolean {
@@ -270,6 +338,7 @@ export class CreateTeamModalComponent
     };
     this.selectedPersonals.clear();
     this.selectedChiefId = null;
+    this.selectedLocationIds.clear();
     this.isSubmitting = false;
     this.nameError = '';
   }

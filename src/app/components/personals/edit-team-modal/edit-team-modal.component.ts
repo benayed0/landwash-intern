@@ -27,9 +27,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { TeamService } from '../../../services/team.service';
+import { ServiceLocationService } from '../../../services/service-location.service';
 import { Team } from '../../../models/team.model';
 import { Personal } from '../../../models/personal.model';
+import { ServiceLocation } from '../../../models/service-location.model';
 import { HotToastService } from '@ngneat/hot-toast';
+import { firstValueFrom } from 'rxjs';
 import * as L from 'leaflet';
 
 @Component({
@@ -59,8 +62,13 @@ export class EditTeamModalComponent
   @Output() teamUpdated = new EventEmitter<Team>();
 
   private teamService = inject(TeamService);
+  private serviceLocationService = inject(ServiceLocationService);
   private toast = inject(HotToastService);
   private dialogRef = inject(MatDialogRef<EditTeamModalComponent>);
+
+  availableLocations: ServiceLocation[] = [];
+  selectedLocationIds: Set<string> = new Set();
+  locationsLoading = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -93,6 +101,29 @@ export class EditTeamModalComponent
 
   ngOnInit() {
     this.initializeForm();
+    this.loadLocations();
+  }
+
+  loadLocations() {
+    this.locationsLoading = true;
+    this.serviceLocationService.getAllLocations().subscribe({
+      next: (locations) => {
+        this.availableLocations = locations.filter(loc => loc.isActive !== false);
+        // Pre-select locations where this team is assigned
+        if (this.team?._id) {
+          locations.forEach(loc => {
+            if (loc.teams?.some(t => typeof t === 'string' ? t === this.team!._id : t._id === this.team!._id)) {
+              this.selectedLocationIds.add(loc._id!);
+            }
+          });
+        }
+        this.locationsLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading locations:', err);
+        this.locationsLoading = false;
+      },
+    });
   }
 
   ngAfterViewInit() {
@@ -296,6 +327,18 @@ export class EditTeamModalComponent
     return this.selectedChiefId === personalId;
   }
 
+  onLocationToggle(locationId: string) {
+    if (this.selectedLocationIds.has(locationId)) {
+      this.selectedLocationIds.delete(locationId);
+    } else {
+      this.selectedLocationIds.add(locationId);
+    }
+  }
+
+  isLocationSelected(locationId: string): boolean {
+    return this.selectedLocationIds.has(locationId);
+  }
+
   onSubmit() {
     if (!this.validateForm() || !this.team?._id) return;
 
@@ -321,11 +364,26 @@ export class EditTeamModalComponent
       chiefId,
     };
 
+    const selectedLocationIdArray = Array.from(this.selectedLocationIds);
+
+    // Update team first
     this.teamService.updateTeam(this.team._id, teamData).subscribe({
       next: (team) => {
-        this.toast.success('Équipe mise à jour avec succès!');
-        this.teamUpdated.emit(team);
-        this.onCancel();
+        // Now update service locations
+        this.updateServiceLocations(team._id!, selectedLocationIdArray).then(() => {
+          this.toast.success('Équipe mise à jour avec succès!');
+          // Emit team with location info for parent component to update locally
+          const teamWithLocationIds = {
+            ...team,
+            _locationIds: selectedLocationIdArray,
+          };
+          this.teamUpdated.emit(teamWithLocationIds as any);
+          this.onCancel();
+        }).catch((err) => {
+          console.error('Error updating service locations:', err);
+          this.toast.error('Équipe mise à jour mais erreur lors de la mise à jour des localisations');
+          this.isSubmitting = false;
+        });
       },
       error: (err) => {
         console.error('Error updating team:', err);
@@ -333,6 +391,53 @@ export class EditTeamModalComponent
         this.isSubmitting = false;
       },
     });
+  }
+
+  async updateServiceLocations(teamId: string, selectedLocationIds: string[]): Promise<void> {
+    // Get the original location IDs that had this team
+    const originalLocationIds = this.availableLocations
+      .filter(loc =>
+        loc.teams?.some(t =>
+          typeof t === 'string' ? t === teamId : t._id === teamId
+        )
+      )
+      .map(loc => loc._id!);
+
+    // Find locations to add (new selections)
+    const locationsToAdd = selectedLocationIds.filter(id => !originalLocationIds.includes(id));
+
+    // Find locations to remove (deselected)
+    const locationsToRemove = originalLocationIds.filter(id => !selectedLocationIds.includes(id));
+
+    // Update each location
+    const updatePromises: Promise<any>[] = [];
+
+    // Add team to new locations
+    for (const locationId of locationsToAdd) {
+      const location = this.availableLocations.find(loc => loc._id === locationId);
+      if (location) {
+        const updatedTeams = [...(location.teams || []).map((t: any) => typeof t === 'string' ? t : t._id), teamId];
+        updatePromises.push(
+          firstValueFrom(this.serviceLocationService.updateLocation(locationId, { teams: updatedTeams }))
+        );
+      }
+    }
+
+    // Remove team from deselected locations
+    for (const locationId of locationsToRemove) {
+      const location = this.availableLocations.find(loc => loc._id === locationId);
+      if (location) {
+        const updatedTeams = (location.teams || [])
+          .map((t: any) => typeof t === 'string' ? t : t._id)
+          .filter((id: string) => id !== teamId);
+        updatePromises.push(
+          firstValueFrom(this.serviceLocationService.updateLocation(locationId, { teams: updatedTeams }))
+        );
+      }
+    }
+
+    // Wait for all updates to complete
+    await Promise.all(updatePromises);
   }
 
   validateForm(): boolean {

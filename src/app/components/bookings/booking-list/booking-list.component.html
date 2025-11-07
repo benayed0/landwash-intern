@@ -11,6 +11,8 @@
   <div class="content">
     <!-- Filter and Sort Controls -->
     <div class="filter-section">
+      @if(userRole!=='partner'){
+
       <div class="booking-type-tabs">
         <button
           class="type-tab"
@@ -43,6 +45,7 @@
           Salon
         </button>
       </div>
+      }
       <button class="filter-accordion-toggle" (click)="toggleFilters()">
         <span class="filter-label">Filtres</span>
         <span class="filter-icon" [class.expanded]="isFilterExpanded()">

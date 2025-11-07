@@ -69,11 +69,56 @@
       </div>
     </div>
 
+    <!-- Service Locations Selection -->
+    <div class="form-section">
+      <div class="section-header">
+        <mat-icon>pin_drop</mat-icon>
+        <h3>Localisations de service</h3>
+      </div>
+      <p class="helper-text">
+        <mat-icon inline>info</mat-icon>
+        Sélectionnez les localisations où cette équipe peut travailler
+      </p>
+      <div class="locations-loading" *ngIf="locationsLoading">
+        <mat-icon class="spinning">hourglass_empty</mat-icon>
+        <span>Chargement des localisations...</span>
+      </div>
+      <div class="locations-list" *ngIf="!locationsLoading && availableLocations.length > 0">
+        <div
+          class="location-item"
+          *ngFor="let location of availableLocations"
+          [class.selected]="isLocationSelected(location._id!)"
+          (click)="onLocationToggle(location._id!)"
+        >
+          <mat-checkbox
+            [checked]="isLocationSelected(location._id!)"
+            (change)="onLocationToggle(location._id!)"
+            (click)="$event.stopPropagation()"
+            color="primary"
+          ></mat-checkbox>
+          <div class="location-icon">
+            <mat-icon>place</mat-icon>
+          </div>
+          <div class="location-details">
+            <div class="location-address">{{ location.address }}</div>
+            <div class="location-coords">
+              <mat-icon>my_location</mat-icon>
+              {{ location.coordinates[1].toFixed(4) }}, {{ location.coordinates[0].toFixed(4) }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="!locationsLoading && availableLocations.length === 0">
+        <mat-icon>location_off</mat-icon>
+        <p>Aucune localisation disponible</p>
+      </div>
+    </div>
+
     <!-- Location Selection -->
     <div class="form-section">
       <div class="section-header">
         <mat-icon>location_on</mat-icon>
-        <h3>Localisation de l'équipe</h3>
+        <h3>Localisation de l'équipe (optionnel)</h3>
       </div>
       <div class="location-info" *ngIf="editedTeam.coordinates">
         <div class="coordinate-item">

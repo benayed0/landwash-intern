@@ -39,12 +39,7 @@ mat-dialog-content {
     --mdc-outlined-text-field-outline-color: rgba(255, 255, 255, 0.15);
     --mdc-outlined-text-field-hover-outline-color: rgba(255, 255, 255, 0.25);
     --mdc-outlined-text-field-focus-outline-color: #c3ff00;
-    --mdc-outlined-text-field-disabled-outline-color: rgba(
-      255,
-      255,
-      255,
-      0.08
-    );
+    --mdc-outlined-text-field-disabled-outline-color: rgba(255, 255, 255, 0.08);
     --mdc-outlined-text-field-disabled-input-text-color: rgba(
       229,
       229,
@@ -150,11 +145,59 @@ mat-dialog-content {
 
 /* Password Section */
 .password-section {
-  margin-top: 16px;
+  margin-top: 20px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Password Toggle */
+.password-toggle {
+  margin-bottom: 16px;
+}
+
+::ng-deep .password-toggle .mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: #c3ff00;
+  --mdc-switch-selected-handle-color: #1a1a1a;
+  --mdc-switch-selected-hover-handle-color: #1a1a1a;
+  --mdc-switch-selected-focus-handle-color: #1a1a1a;
+  --mdc-switch-selected-pressed-handle-color: #1a1a1a;
+  --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.2);
+  --mdc-switch-unselected-handle-color: rgba(255, 255, 255, 0.5);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e5e5e5;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.toggle-label mat-icon {
+  color: #c3ff00;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Password Fields Container */
+.password-fields {
+  margin-top: 16px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Password Actions */
@@ -256,16 +299,16 @@ mat-dialog-actions {
 }
 
 /* Primary Button Override */
-::ng-deep button[color='primary'] {
+::ng-deep button[color="primary"] {
   --mdc-filled-button-container-color: #c3ff00 !important;
   --mdc-filled-button-label-text-color: #333 !important;
 }
 
-::ng-deep button[color='primary']:hover {
+::ng-deep button[color="primary"]:hover {
   background: #d4ff33 !important;
 }
 
-::ng-deep button[color='primary']:disabled {
+::ng-deep button[color="primary"]:disabled {
   --mdc-filled-button-container-color: rgba(195, 255, 0, 0.3) !important;
   --mdc-filled-button-label-text-color: rgba(51, 51, 51, 0.5) !important;
 }

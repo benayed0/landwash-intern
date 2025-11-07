@@ -314,4 +314,20 @@ export class ServicesComponent implements OnInit {
 
     return variants;
   }
+
+  // Get teams for a location (populated)
+  getTeamsForLocation(location: ServiceLocation): string[] {
+    if (!location.teams || location.teams.length === 0) {
+      return [];
+    }
+    // Return team names if populated, otherwise return empty array
+    return location.teams
+      .filter((team): team is import('./../../models/team.model').Team => typeof team !== 'string')
+      .map(team => team.name);
+  }
+
+  // Get team count for a location
+  getTeamCountForLocation(location: ServiceLocation): number {
+    return location.teams?.length || 0;
+  }
 }

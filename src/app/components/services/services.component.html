@@ -36,35 +36,39 @@
           [class.active]="selectedType === 'detailing'"
           (click)="onFilterChange('detailing')"
         >
-          {{ getServiceTypeIcon('detailing') }} {{ getServiceTypeLabel('detailing') }}
+          {{ getServiceTypeIcon("detailing") }}
+          {{ getServiceTypeLabel("detailing") }}
         </button>
         <button
           class="filter-tab"
           [class.active]="selectedType === 'salon'"
           (click)="onFilterChange('salon')"
         >
-          {{ getServiceTypeIcon('salon') }} {{ getServiceTypeLabel('salon') }}
+          {{ getServiceTypeIcon("salon") }} {{ getServiceTypeLabel("salon") }}
         </button>
         <button
           class="filter-tab"
           [class.active]="selectedType === 'paint_correction'"
           (click)="onFilterChange('paint_correction')"
         >
-          {{ getServiceTypeIcon('paint_correction') }} {{ getServiceTypeLabel('paint_correction') }}
+          {{ getServiceTypeIcon("paint_correction") }}
+          {{ getServiceTypeLabel("paint_correction") }}
         </button>
         <button
           class="filter-tab"
           [class.active]="selectedType === 'body_correction'"
           (click)="onFilterChange('body_correction')"
         >
-          {{ getServiceTypeIcon('body_correction') }} {{ getServiceTypeLabel('body_correction') }}
+          {{ getServiceTypeIcon("body_correction") }}
+          {{ getServiceTypeLabel("body_correction") }}
         </button>
         <button
           class="filter-tab"
           [class.active]="selectedType === 'ceramic_coating'"
           (click)="onFilterChange('ceramic_coating')"
         >
-          {{ getServiceTypeIcon('ceramic_coating') }} {{ getServiceTypeLabel('ceramic_coating') }}
+          {{ getServiceTypeIcon("ceramic_coating") }}
+          {{ getServiceTypeLabel("ceramic_coating") }}
         </button>
       </div>
 
@@ -84,24 +88,41 @@
       </div>
 
       <!-- Services Grid - Grouped by Type -->
-      <div class="services-grid" *ngIf="!loading && filteredServices.length > 0">
-        <div class="service-group-card" *ngFor="let group of getGroupedServicesArray()">
+      <div
+        class="services-grid"
+        *ngIf="!loading && filteredServices.length > 0"
+      >
+        <div
+          class="service-group-card"
+          *ngFor="let group of getGroupedServicesArray()"
+        >
           <!-- Service Type Header -->
           <div class="service-type-header">
             <h2>{{ getServiceTypeLabel(group.type) }}</h2>
-            <span class="service-count">{{ getServiceVariants(group.services[0]).length }} variante(s) de prix</span>
+            <span class="service-count"
+              >{{ getServiceVariants(group.services[0]).length }} variante(s) de
+              prix</span
+            >
           </div>
 
           <!-- Service Variations -->
           <div class="service-variations">
-            <div class="service-variation" *ngFor="let service of group.services">
+            <div
+              class="service-variation"
+              *ngFor="let service of group.services"
+            >
               <!-- Display all variants for this service -->
               <div class="variants-container">
-                <div class="variant-item" *ngFor="let variant of getServiceVariants(service)">
+                <div
+                  class="variant-item"
+                  *ngFor="let variant of getServiceVariants(service)"
+                >
                   <!-- Car Type Badge -->
                   <div class="car-type-badge">
                     <span *ngIf="variant.type === 'all'">🏠 Prix unique</span>
-                    <span *ngIf="variant.type !== 'all'">🚗 {{ getCarTypeLabel(variant.type) }}</span>
+                    <span *ngIf="variant.type !== 'all'"
+                      >🚗 {{ getCarTypeLabel(variant.type) }}</span
+                    >
                   </div>
 
                   <!-- Variant Info -->
@@ -113,11 +134,18 @@
                       </div>
                       <div class="meta-item">
                         <span class="meta-icon">⏱️</span>
-                        <span class="meta-value">{{ formatDuration(variant.duration) }}</span>
+                        <span class="meta-value">{{
+                          formatDuration(variant.duration)
+                        }}</span>
                       </div>
                       <div class="meta-item" *ngIf="service.type !== 'salon'">
                         <span class="meta-icon">📍</span>
-                        <span class="meta-value">{{ getActiveServiceLocations(service).length }} location(s)</span>
+                        <span class="meta-value"
+                          >{{
+                            getActiveServiceLocations(service).length
+                          }}
+                          location(s)</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -136,12 +164,18 @@
 
                 <!-- Locations list for other types -->
                 <div class="service-locations" *ngIf="service.type !== 'salon'">
-                  <div class="location-item" *ngFor="let location of getActiveServiceLocations(service)">
+                  <div
+                    class="location-item"
+                    *ngFor="let location of getActiveServiceLocations(service)"
+                  >
                     <span class="location-icon">📍</span>
                     <div class="location-details">
-                      <span class="location-address">{{ location.address }}</span>
+                      <span class="location-address">{{
+                        location.address
+                      }}</span>
                       <small class="location-coordinates">
-                        {{ location.coordinates[1] }}, {{ location.coordinates[0] }}
+                        {{ location.coordinates[1] }},
+                        {{ location.coordinates[0] }}
                       </small>
                     </div>
                   </div>
@@ -150,11 +184,11 @@
 
               <!-- Service Actions -->
               <div class="service-actions">
-                <button class="action-btn edit-btn" (click)="onEditService(service)">
+                <button
+                  class="action-btn edit-btn"
+                  (click)="onEditService(service)"
+                >
                   ✏️ Modifier
-                </button>
-                <button class="action-btn delete-btn" (click)="onDeleteService(service)">
-                  🗑️ Supprimer
                 </button>
               </div>
             </div>
@@ -163,7 +197,10 @@
       </div>
 
       <!-- Filtered Empty State -->
-      <div class="empty-state" *ngIf="!loading && services.length > 0 && filteredServices.length === 0">
+      <div
+        class="empty-state"
+        *ngIf="!loading && services.length > 0 && filteredServices.length === 0"
+      >
         <div class="empty-icon">🔍</div>
         <p>Aucun service trouvé pour ce type</p>
       </div>
@@ -187,7 +224,10 @@
       </app-loading-spinner>
 
       <!-- Empty State -->
-      <div class="empty-state" *ngIf="!locationsLoading && locations.length === 0">
+      <div
+        class="empty-state"
+        *ngIf="!locationsLoading && locations.length === 0"
+      >
         <div class="empty-icon">📍</div>
         <p>Aucune localisation trouvée</p>
         <button class="add-first-btn" (click)="onAddLocation()">
@@ -195,49 +235,106 @@
         </button>
       </div>
 
-      <!-- Locations Grid -->
-      <div class="locations-grid" *ngIf="!locationsLoading && locations.length > 0">
-        <div class="location-card" *ngFor="let location of locations">
-          <div class="location-status" [class.inactive]="!location.isActive">
-            {{ location.isActive ? '✅ Active' : '⛔ Inactive' }}
-          </div>
+      <!-- Locations Table -->
+      <div
+        class="locations-table-container"
+        *ngIf="!locationsLoading && locations.length > 0"
+      >
+        <table class="locations-table">
+          <thead>
+            <tr>
+              <th>Statut</th>
+              <th>Adresse</th>
+              <th>Coordonnées</th>
+              <th>Services</th>
+              <th>Équipes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let location of locations">
+              <!-- Status -->
+              <td>
+                <span class="status-badge" [class.inactive]="!location.isActive">
+                  {{ location.isActive ? "✅ Active" : "⛔ Inactive" }}
+                </span>
+              </td>
 
-          <div class="location-info">
-            <div class="location-main">
-              <span class="location-icon-large">📍</span>
-              <div class="location-text">
-                <h3 class="location-address">{{ location.address }}</h3>
-                <small class="location-coordinates">
-                  Lat: {{ location.coordinates[1] | number: '1.4-4' }},
-                  Lng: {{ location.coordinates[0] | number: '1.4-4' }}
-                </small>
-              </div>
-            </div>
+              <!-- Address -->
+              <td>
+                <div class="address-cell">
+                  <span class="address-icon">📍</span>
+                  <span class="address-text">{{ location.address }}</span>
+                </div>
+              </td>
 
-            <div class="location-usage">
-              <span class="usage-icon">🔗</span>
-              <span class="usage-text">
-                Utilisée par {{ getServicesUsingLocation(location) }} service(s)
-              </span>
-            </div>
-          </div>
+              <!-- Coordinates -->
+              <td>
+                <div class="coordinates-cell">
+                  <div class="coord-value">{{ location.coordinates[1] | number : "1.4-4" }}</div>
+                  <div class="coord-value">{{ location.coordinates[0] | number : "1.4-4" }}</div>
+                </div>
+              </td>
 
-          <div class="location-actions">
-            <button class="action-btn edit-btn" (click)="onEditLocation(location)">
-              ✏️ Modifier
-            </button>
-            <button class="action-btn delete-btn" (click)="onDeleteLocation(location)">
-              🗑️ Supprimer
-            </button>
-          </div>
-        </div>
+              <!-- Services Count -->
+              <td>
+                <div class="services-cell">
+                  <span class="service-count-badge">
+                    🔗 {{ getServicesUsingLocation(location) }} service(s)
+                  </span>
+                </div>
+              </td>
+
+              <!-- Teams -->
+              <td>
+                <div class="teams-cell">
+                  <div class="teams-badges" *ngIf="getTeamCountForLocation(location) > 0">
+                    <span
+                      class="team-badge"
+                      *ngFor="let teamName of getTeamsForLocation(location)"
+                    >
+                      {{ teamName }}
+                    </span>
+                  </div>
+                  <span class="no-teams" *ngIf="getTeamCountForLocation(location) === 0">
+                    Aucune équipe
+                  </span>
+                </div>
+              </td>
+
+              <!-- Actions -->
+              <td>
+                <div class="table-actions">
+                  <button
+                    class="action-btn-sm edit-btn"
+                    (click)="onEditLocation(location)"
+                    title="Modifier"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    class="action-btn-sm delete-btn"
+                    (click)="onDeleteLocation(location)"
+                    title="Supprimer"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+<div
+  class="modal-overlay"
+  *ngIf="showDeleteConfirm"
+  (click)="closeDeleteConfirm()"
+>
   <div class="modal-content delete-confirm" (click)="$event.stopPropagation()">
     <h3>Confirmer la suppression</h3>
     <p *ngIf="serviceToDelete">
@@ -250,11 +347,19 @@
     </p>
     <p class="warning-text">Cette action est irréversible.</p>
     <div class="modal-actions">
-      <button class="btn-secondary" (click)="closeDeleteConfirm()" [disabled]="deleteLoading">
+      <button
+        class="btn-secondary"
+        (click)="closeDeleteConfirm()"
+        [disabled]="deleteLoading"
+      >
         Annuler
       </button>
-      <button class="btn-danger" (click)="confirmDelete()" [disabled]="deleteLoading">
-        {{ deleteLoading ? 'Suppression...' : 'Supprimer' }}
+      <button
+        class="btn-danger"
+        (click)="confirmDelete()"
+        [disabled]="deleteLoading"
+      >
+        {{ deleteLoading ? "Suppression..." : "Supprimer" }}
       </button>
     </div>
   </div>

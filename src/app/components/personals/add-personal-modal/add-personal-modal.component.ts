@@ -48,7 +48,7 @@ export class AddPersonalModalComponent implements OnInit {
   bookingLabelService = inject(BookingLabelService);
   services: Service[] = [];
   @Output() confirmAdd = new EventEmitter<Personal>();
-
+  //
   newPersonal: NewPersonal = {
     email: '',
     name: '',
@@ -57,7 +57,7 @@ export class AddPersonalModalComponent implements OnInit {
     phone: '',
   };
 
-  passwordVisible = false;
+  passwordVisible = true; //
   isSubmitting = false;
   emailError = '';
   nameError = '';
@@ -187,7 +187,7 @@ export class AddPersonalModalComponent implements OnInit {
       role: 'worker',
       phone: '',
     };
-    this.passwordVisible = false;
+    this.passwordVisible = true;
     this.isSubmitting = false;
     this.emailError = '';
     this.nameError = '';
@@ -206,7 +206,10 @@ export class AddPersonalModalComponent implements OnInit {
       grouped.set(type, (grouped.get(type) || 0) + 1);
     });
 
-    return Array.from(grouped.entries()).map(([type, count]) => ({ type, count }));
+    return Array.from(grouped.entries()).map(([type, count]) => ({
+      type,
+      count,
+    }));
   }
 
   isServiceTypeSelected(type: BookingType): boolean {

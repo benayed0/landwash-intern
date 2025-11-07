@@ -16,6 +16,10 @@ import { SubscriptionService } from '../../services/subscription.service';
 import { Booking } from '../../models/booking.model';
 import { Order } from '../../models/order.model';
 import { SubscriptionTransaction } from '../../models/subscription.model';
+import { User } from '../users/users.component';
+import { Personal } from '../../models/personal.model';
+import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 Chart.register(...registerables);
 
@@ -42,8 +46,9 @@ export class AnalyticsComponent implements OnInit {
   bookings = signal<Booking[]>([]);
   orders = signal<Order[]>([]);
   subscriptions = signal<SubscriptionTransaction[]>([]);
+  userRole = signal<Personal['role']>('partner'); // Placeholder for user role if needed
   analyticsView = signal<'all' | 'bookings' | 'orders' | 'subscriptions'>(
-    'all'
+    this.userRole() === 'admin' ? 'all' : 'bookings'
   );
 
   // Date filtering properties
@@ -61,7 +66,6 @@ export class AnalyticsComponent implements OnInit {
   );
 
   private charts: { [key: string]: Chart<any, any, any> } = {};
-
   private getCommonChartOptions() {
     return {
       responsive: true,
@@ -214,7 +218,8 @@ export class AnalyticsComponent implements OnInit {
   constructor(
     private bookingService: BookingService,
     private orderService: OrderService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private authService: AuthService
   ) {
     // Update charts when view changes OR when filtered data changes
     effect(() => {
@@ -251,6 +256,8 @@ export class AnalyticsComponent implements OnInit {
   }
 
   private loadData() {
+    this.userRole.set(this.authService.isAdmin() ? 'admin' : 'partner');
+    this.analyticsView.set(this.userRole() === 'admin' ? 'all' : 'bookings');
     this.bookingService.getAllBookings().subscribe({
       next: (bookings) => {
         this.bookings.set(bookings);
@@ -301,16 +308,21 @@ export class AnalyticsComponent implements OnInit {
   private createAllAnalyticsCharts() {
     // All Type Chart
     if (this.allTypeChart?.nativeElement) {
+      const labels = ['Réservations'];
+      const data = [this.totalBookings()];
+      const backgroundColor = ['#36A2EB'];
+      if (this.userRole() === 'admin') {
+        labels.push('Commandes', 'Abonnements');
+        data.push(this.totalOrders(), this.totalSubscriptions());
+        backgroundColor.push('#FF6384', '#c3ff00');
+      }
+
       const typeData = {
-        labels: ['Réservations', 'Commandes', 'Abonnements'],
+        labels,
         datasets: [
           {
-            data: [
-              this.totalBookings(),
-              this.totalOrders(),
-              this.totalSubscriptions(),
-            ],
-            backgroundColor: ['#36A2EB', '#FF6384', '#c3ff00'],
+            data,
+            backgroundColor,
             borderWidth: 2,
           },
         ],
@@ -326,36 +338,40 @@ export class AnalyticsComponent implements OnInit {
     // All Monthly Chart
     if (this.allMonthlyChart?.nativeElement) {
       const timeBasedData = this.getTimeBasedData();
-
+      const datasets = [
+        {
+          label: 'Réservations',
+          data: timeBasedData.bookings,
+          borderColor: '#36A2EB',
+          backgroundColor: 'rgba(54, 162, 235, 0.1)',
+          tension: 0.4,
+        },
+      ];
+      if (this.userRole() === 'admin') {
+        datasets.push(
+          {
+            label: 'Commandes',
+            data: timeBasedData.orders,
+            borderColor: '#FF6384',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            tension: 0.4,
+          },
+          {
+            label: 'Abonnements',
+            data: timeBasedData.subscriptions,
+            borderColor: '#c3ff00',
+            backgroundColor: 'rgba(195, 255, 0, 0.1)',
+            tension: 0.4,
+          }
+        );
+      }
       this.charts['allMonthly'] = new Chart(
         this.allMonthlyChart.nativeElement,
         {
           type: 'line',
           data: {
             labels: timeBasedData.labels,
-            datasets: [
-              {
-                label: 'Réservations',
-                data: timeBasedData.bookings,
-                borderColor: '#36A2EB',
-                backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                tension: 0.4,
-              },
-              {
-                label: 'Commandes',
-                data: timeBasedData.orders,
-                borderColor: '#FF6384',
-                backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                tension: 0.4,
-              },
-              {
-                label: 'Abonnements',
-                data: timeBasedData.subscriptions,
-                borderColor: '#c3ff00',
-                backgroundColor: 'rgba(195, 255, 0, 0.1)',
-                tension: 0.4,
-              },
-            ],
+            datasets,
           },
           options: this.getLineChartOptions(),
         }
@@ -589,10 +605,24 @@ export class AnalyticsComponent implements OnInit {
     }
   }
 
-  private generateTimeRange(): { labels: string[], timeIndexes: string[], timeUnit: 'day' | 'month' } {
+  private generateTimeRange(): {
+    labels: string[];
+    timeIndexes: string[];
+    timeUnit: 'day' | 'month';
+  } {
     const monthNames = [
-      'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
-      'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
+      'Jan',
+      'Fév',
+      'Mar',
+      'Avr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Aoû',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Déc',
     ];
 
     if (!this.startDate() || !this.endDate()) {
@@ -601,7 +631,7 @@ export class AnalyticsComponent implements OnInit {
       return {
         labels: monthNames,
         timeIndexes: monthNames.map((_, index) => `${currentYear}-${index}`),
-        timeUnit: 'month'
+        timeUnit: 'month',
       };
     }
 
@@ -609,13 +639,16 @@ export class AnalyticsComponent implements OnInit {
     const endDate = new Date(this.endDate());
 
     // Calculate the number of days in the range
-    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const daysDiff =
+      Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+      ) + 1;
 
     console.log('Time range analysis:', {
       startDate: this.startDate(),
       endDate: this.endDate(),
       daysDiff,
-      willUseDaily: daysDiff <= 31
+      willUseDaily: daysDiff <= 31,
     });
 
     // Use daily view for periods of 31 days or less, monthly for longer periods
@@ -626,7 +659,10 @@ export class AnalyticsComponent implements OnInit {
     }
   }
 
-  private generateDailyRange(startDate: Date, endDate: Date): { labels: string[], timeIndexes: string[], timeUnit: 'day' } {
+  private generateDailyRange(
+    startDate: Date,
+    endDate: Date
+  ): { labels: string[]; timeIndexes: string[]; timeUnit: 'day' } {
     const labels: string[] = [];
     const timeIndexes: string[] = [];
 
@@ -646,7 +682,9 @@ export class AnalyticsComponent implements OnInit {
       }
 
       // Use YYYY-MM-DD format for indexing
-      const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+      const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day
+        .toString()
+        .padStart(2, '0')}`;
       timeIndexes.push(dateStr);
 
       // Move to next day
@@ -656,7 +694,11 @@ export class AnalyticsComponent implements OnInit {
     return { labels, timeIndexes, timeUnit: 'day' };
   }
 
-  private generateMonthlyRange(startDate: Date, endDate: Date, monthNames: string[]): { labels: string[], timeIndexes: string[], timeUnit: 'month' } {
+  private generateMonthlyRange(
+    startDate: Date,
+    endDate: Date,
+    monthNames: string[]
+  ): { labels: string[]; timeIndexes: string[]; timeUnit: 'month' } {
     const labels: string[] = [];
     const timeIndexes: string[] = [];
 
@@ -670,7 +712,10 @@ export class AnalyticsComponent implements OnInit {
       const currentYear = new Date().getFullYear();
 
       // Show year if it's not current year, or if we're spanning multiple years
-      if (year !== currentYear || startDate.getFullYear() !== endDate.getFullYear()) {
+      if (
+        year !== currentYear ||
+        startDate.getFullYear() !== endDate.getFullYear()
+      ) {
         labels.push(`${monthNames[monthIndex]} ${year}`);
       } else {
         labels.push(monthNames[monthIndex]);
@@ -711,9 +756,7 @@ export class AnalyticsComponent implements OnInit {
     });
 
     this.filteredSubscriptions().forEach((transaction) => {
-      const itemDate = new Date(
-        transaction.paidAt || transaction.createdAt
-      );
+      const itemDate = new Date(transaction.paidAt || transaction.createdAt);
       const timeKey = this.getTimeKey(itemDate, timeUnit);
       const index = timeIndexes.indexOf(timeKey);
       if (index >= 0) {
@@ -846,9 +889,7 @@ export class AnalyticsComponent implements OnInit {
     const data = new Array(labels.length).fill(0);
 
     this.filteredSubscriptions().forEach((transaction) => {
-      const itemDate = new Date(
-        transaction.paidAt || transaction.createdAt
-      );
+      const itemDate = new Date(transaction.paidAt || transaction.createdAt);
       const timeKey = this.getTimeKey(itemDate, timeUnit);
       const index = timeIndexes.indexOf(timeKey);
       if (index >= 0) {

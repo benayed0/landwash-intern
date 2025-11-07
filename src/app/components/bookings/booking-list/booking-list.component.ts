@@ -111,9 +111,18 @@ export class BookingListComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.authService.checkIsAdmin().subscribe((isAdmin) => {
-      this.userRole = isAdmin ? 'admin' : 'worker';
-    });
+    // Get the current user and set their role directly
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.userRole = currentUser.role;
+    } else {
+      // If user is not loaded yet, wait for it
+      this.authService.currentUser$.subscribe((user) => {
+        if (user) {
+          this.userRole = user.role;
+        }
+      });
+    }
     this.loadBookings();
     this.watchRouteParams();
     this.loadTeams();

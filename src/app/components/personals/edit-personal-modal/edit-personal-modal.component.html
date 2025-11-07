@@ -64,7 +64,7 @@
           <mat-icon>engineering</mat-icon>
           Travailleur
         </mat-option>
-        <mat-option value="admin">
+        <mat-option value="partner">
           <mat-icon>person_apron</mat-icon>
           Partenaire
         </mat-option>
@@ -74,70 +74,89 @@
 
     <!-- Password Reset Section -->
     <div class="password-section">
-      <!-- Password Field with Generator -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nouveau mot de passe</mat-label>
-        <input
-          matInput
-          [type]="passwordVisible ? 'text' : 'password'"
-          [(ngModel)]="newPassword"
-          name="password"
-          readonly
+      <!-- Toggle for Password Reset -->
+      <div class="password-toggle">
+        <mat-slide-toggle
+          [(ngModel)]="resetPassword"
+          name="resetPassword"
+          (change)="togglePasswordReset()"
           [disabled]="isSubmitting"
-        />
-        <mat-icon matPrefix>lock</mat-icon>
-        <button
-          mat-icon-button
-          matSuffix
-          type="button"
-          (click)="togglePasswordVisibility()"
-          [disabled]="isSubmitting"
-          [attr.aria-label]="'Toggle password visibility'"
+          color="primary"
         >
-          <mat-icon>{{
-            passwordVisible ? "visibility_off" : "visibility"
-          }}</mat-icon>
-        </button>
-      </mat-form-field>
-
-      <!-- Password Actions -->
-      <div class="password-actions">
-        <button
-          mat-stroked-button
-          type="button"
-          class="action-btn copy-btn"
-          (click)="copyPassword()"
-          [disabled]="isSubmitting"
-        >
-          <mat-icon>content_copy</mat-icon>
-          Copier
-        </button>
-        <button
-          mat-stroked-button
-          type="button"
-          class="action-btn"
-          (click)="regeneratePassword()"
-          [disabled]="isSubmitting"
-        >
-          <mat-icon>refresh</mat-icon>
-          Régénérer
-        </button>
+          <span class="toggle-label">
+            <mat-icon inline>lock_reset</mat-icon>
+            Modifier le mot de passe
+          </span>
+        </mat-slide-toggle>
       </div>
 
-      <mat-hint class="password-hint">
-        <mat-icon inline>info</mat-icon>
-        Copiez ce mot de passe et communiquez-le au personnel de manière
-        sécurisée.
-      </mat-hint>
-    </div>
+      <!-- Password Fields (shown only when resetPassword is true) -->
+      <div class="password-fields" *ngIf="resetPassword">
+        <!-- Password Field with Generator -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nouveau mot de passe</mat-label>
+          <input
+            matInput
+            [type]="passwordVisible ? 'text' : 'password'"
+            [(ngModel)]="newPassword"
+            name="password"
+            readonly
+            [disabled]="isSubmitting"
+          />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="togglePasswordVisibility()"
+            [disabled]="isSubmitting"
+            [attr.aria-label]="'Toggle password visibility'"
+          >
+            <mat-icon>{{
+              passwordVisible ? "visibility_off" : "visibility"
+            }}</mat-icon>
+          </button>
+        </mat-form-field>
 
-    <!-- Info Message -->
-    <div class="info-message" *ngIf="resetPassword">
-      <mat-icon>email</mat-icon>
-      <p>
-        Un email de notification sera envoyé pour informer du changement de mot
-        de passe.
-      </p>
+        <!-- Password Actions -->
+        <div class="password-actions">
+          <button
+            mat-stroked-button
+            type="button"
+            class="action-btn copy-btn"
+            (click)="copyPassword()"
+            [disabled]="isSubmitting"
+          >
+            <mat-icon>content_copy</mat-icon>
+            Copier
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            class="action-btn"
+            (click)="regeneratePassword()"
+            [disabled]="isSubmitting"
+          >
+            <mat-icon>refresh</mat-icon>
+            Régénérer
+          </button>
+        </div>
+
+        <mat-hint class="password-hint">
+          <mat-icon inline>info</mat-icon>
+          Copiez ce mot de passe et communiquez-le au personnel de manière
+          sécurisée.
+        </mat-hint>
+
+        <!-- Info Message -->
+        <div class="info-message">
+          <mat-icon>email</mat-icon>
+          <p>
+            Un email de notification sera envoyé pour informer du changement de
+            mot de passe.
+          </p>
+        </div>
+      </div>
     </div>
   </form>
 </mat-dialog-content>

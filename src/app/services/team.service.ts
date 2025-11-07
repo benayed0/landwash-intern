@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Team } from '../models/team.model';
 import { Personal } from '../models/personal.model';
@@ -24,12 +24,20 @@ export class TeamService {
     return this.http.get<Personal[]>(`${this.apiUrl}/personals`);
   }
 
-  createTeam(team: Partial<Team>): Observable<Team> {
-    return this.http.post<Team>(`${this.apiUrl}/teams`, team);
+  createTeam(team: Partial<Team>, locationIds?: string[]): Observable<Team> {
+    let params = new HttpParams();
+    if (locationIds && locationIds.length > 0) {
+      params = params.set('locationIds', locationIds.join(','));
+    }
+    return this.http.post<Team>(`${this.apiUrl}/teams`, team, { params });
   }
 
-  updateTeam(id: string, team: Partial<Team>): Observable<Team> {
-    return this.http.patch<Team>(`${this.apiUrl}/teams/${id}`, team);
+  updateTeam(id: string, team: Partial<Team>, locationIds?: string[]): Observable<Team> {
+    let params = new HttpParams();
+    if (locationIds !== undefined) {
+      params = params.set('locationIds', locationIds.join(','));
+    }
+    return this.http.patch<Team>(`${this.apiUrl}/teams/${id}`, team, { params });
   }
 
   deleteTeam(id: string): Observable<void> {

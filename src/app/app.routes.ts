@@ -3,6 +3,7 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TokenAuthComponent } from './components/token-auth/token-auth.component';
 import { adminGuard } from './guards/admin.guard';
+import { adminPartnerGuard } from './guards/admin-partner.guard';
 import { noAuthGuard } from './guards/no-auth.guard';
 import { roleRedirectGuard } from './guards/role-redirect.guard';
 import { authGuard } from './guards/auth.guard';
@@ -58,7 +59,7 @@ export const routes: Routes = [
   {
     path: 'dashboard/analytics',
     component: DashboardComponent,
-    canActivate: [adminGuard],
+    canActivate: [adminPartnerGuard], // Allow both admin and partner roles
   },
   {
     path: 'dashboard/products',

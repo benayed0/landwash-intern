@@ -1,13 +1,14 @@
 <div class="analytics-container">
   <!-- View Tabs for Analytics -->
   <div class="view-tabs">
+    @if(userRole()==='admin'){
     <button
       class="view-tab"
       [class.active]="analyticsView() === 'all'"
       (click)="analyticsView.set('all')"
     >
-      Tout
-    </button>
+      Tout</button
+    >}
     <button
       class="view-tab"
       [class.active]="analyticsView() === 'bookings'"
@@ -15,6 +16,8 @@
     >
       Réservations
     </button>
+    @if(userRole()==='admin'){
+
     <button
       class="view-tab"
       [class.active]="analyticsView() === 'orders'"
@@ -29,6 +32,7 @@
     >
       Abonnements
     </button>
+    }
   </div>
 
   <!-- Date Range Picker -->
@@ -118,6 +122,7 @@
           <h3>Total Réservations</h3>
           <p class="stat-number">{{ totalBookings() }}</p>
         </div>
+        @if(userRole()==='admin'){
         <div class="stat-card">
           <h3>Total Commandes</h3>
           <p class="stat-number">{{ totalOrders() }}</p>
@@ -132,10 +137,12 @@
             {{ totalRevenue() | currency : "TND" }}
           </p>
         </div>
+        }
         <div class="stat-card">
           <h3>Revenus Réservations</h3>
           <p class="stat-number">{{ bookingsRevenue() | currency : "TND" }}</p>
         </div>
+        @if(userRole()==='admin'){
         <div class="stat-card">
           <h3>Revenus Commandes</h3>
           <p class="stat-number">{{ ordersRevenue() | currency : "TND" }}</p>
@@ -146,6 +153,7 @@
             {{ subscriptionRevenue() | currency : "TND" }}
           </p>
         </div>
+        }
       </div>
 
       <div class="charts-container">

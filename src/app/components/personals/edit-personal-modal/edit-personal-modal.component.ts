@@ -53,7 +53,7 @@ export class EditPersonalModalComponent implements OnInit {
   // Password reset functionality
   resetPassword = false;
   newPassword = '';
-  passwordVisible = false;
+  passwordVisible = true;
 
   ngOnInit() {
     if (!this.personal) {
@@ -149,11 +149,12 @@ export class EditPersonalModalComponent implements OnInit {
   }
 
   togglePasswordReset() {
-    this.resetPassword = !this.resetPassword;
+    // The resetPassword value is already toggled by ngModel
     if (this.resetPassword) {
       this.generatePassword();
     } else {
       this.newPassword = '';
+      this.passwordVisible = false;
     }
   }
 

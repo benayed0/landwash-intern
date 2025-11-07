@@ -551,6 +551,77 @@
   color: #c3ff00;
 }
 
+/* Combined Location Cell */
+.combined-location-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.action-zone {
+  font-size: 13px;
+  font-family: "Courier New", monospace;
+  color: #999;
+  line-height: 1.6;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.zone-coords {
+  margin-bottom: 2px;
+}
+
+.zone-radius {
+  color: #c3ff00;
+}
+
+.service-locations {
+  padding-top: 2px;
+}
+
+.locations-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.location-badge {
+  background: linear-gradient(
+    135deg,
+    rgba(100, 150, 255, 0.2),
+    rgba(100, 150, 255, 0.1)
+  );
+  border: 1px solid rgba(100, 150, 255, 0.3);
+  color: #7da8ff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.location-badge:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(100, 150, 255, 0.3),
+    rgba(100, 150, 255, 0.15)
+  );
+  border-color: rgba(100, 150, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.no-locations {
+  color: #666;
+  font-size: 13px;
+  font-style: italic;
+}
+
 .table-actions {
   display: flex;
   gap: 8px;

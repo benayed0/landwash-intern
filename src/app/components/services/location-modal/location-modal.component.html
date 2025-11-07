@@ -41,6 +41,38 @@
       </small>
     </div>
 
+    <!-- Teams Selection -->
+    <div class="form-group">
+      <label>Équipes assignées</label>
+      <div class="teams-selector" *ngIf="!loading">
+        <div
+          class="team-item"
+          *ngFor="let team of availableTeams"
+          [class.selected]="isTeamSelected(team._id!)"
+          (click)="toggleTeamSelection(team._id!)"
+        >
+          <input
+            type="checkbox"
+            [checked]="isTeamSelected(team._id!)"
+            (click)="$event.stopPropagation()"
+          />
+          <span class="team-name">{{ team.name }}</span>
+        </div>
+        <div class="no-teams" *ngIf="availableTeams.length === 0">
+          Aucune équipe disponible
+        </div>
+      </div>
+      <div class="loading-teams" *ngIf="loading">
+        Chargement des équipes...
+      </div>
+      <span class="error-message" *ngIf="errors['teams']">{{
+        errors['teams']
+      }}</span>
+      <small class="field-hint">
+        Sélectionnez les équipes qui peuvent travailler dans cette localisation
+      </small>
+    </div>
+
     <!-- Active Status -->
     <div class="form-group">
       <label class="checkbox-label">
