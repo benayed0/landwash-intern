@@ -21,66 +21,93 @@
       </small>
     </div>
 
-    <!-- Car Type (Non-editable) -->
+    <!-- Variants Section -->
     <div class="form-group">
-      <label for="carType">Type de voiture</label>
-      <input
-        type="text"
-        id="carType"
-        name="carType"
-        [value]="getDisplayCarTypeLabel()"
-        readonly
-        class="readonly-field"
-      />
-      <small class="field-hint">
-        Le type de voiture ne peut pas être modifié
+      <label>Variantes de prix/durée</label>
+      <small class="field-hint" *ngIf="formData.type === 'salon'">
+        Les services salon ont un prix unique pour tous les types de véhicules.
       </small>
-    </div>
-
-    <!-- Price -->
-    <div class="form-group">
-      <label for="price">Prix (TND) *</label>
-      <input
-        type="number"
-        id="price"
-        name="price"
-        [(ngModel)]="formData.price"
-        [class.error]="errors['price']"
-        min="0"
-        step="0.01"
-        required
-      />
-      <span class="error-message" *ngIf="errors['price']">{{
-        errors['price']
-      }}</span>
-    </div>
-
-    <!-- Duration -->
-    <div class="form-group">
-      <label for="duration">Durée (minutes) *</label>
-      <input
-        type="number"
-        id="duration"
-        name="duration"
-        [(ngModel)]="formData.duration"
-        [class.error]="errors['duration']"
-        min="1"
-        step="5"
-        required
-      />
-      <span class="error-message" *ngIf="errors['duration']">{{
-        errors['duration']
-      }}</span>
-      <small class="field-hint">
-        Durée estimée du service en minutes (ex: 60, 90, 120)
+      <small class="field-hint" *ngIf="formData.type !== 'salon'">
+        Définissez les prix et durées pour différents types de voiture.
       </small>
+      <span class="error-message" *ngIf="errors['variants']">{{
+        errors["variants"]
+      }}</span>
+
+      <!-- List of existing variants -->
+      <div class="variants-list">
+        <div class="variant-card" *ngFor="let type of getVariantTypes()">
+          <div class="variant-header" *ngIf="hasVariant(type)">
+            <span class="variant-type">
+              <span *ngIf="type === 'all'"
+                >🏠 Prix unique (tous véhicules)</span
+              >
+              <span *ngIf="type !== 'all'">🚗 {{ getCarTypeLabel(type) }}</span>
+            </span>
+          </div>
+
+          <div class="variant-fields" *ngIf="hasVariant(type)">
+            <div class="variant-field">
+              <label [for]="'price-' + type">Prix (TND) *</label>
+              <input
+                type="number"
+                [id]="'price-' + type"
+                [name]="'price-' + type"
+                [ngModel]="getVariantData(type)?.price"
+                (ngModelChange)="updateVariant(type, 'price', $event)"
+                [class.error]="errors['price_' + type]"
+                min="0"
+                step="0.01"
+                required
+              />
+              <span class="error-message" *ngIf="errors['price_' + type]">{{
+                errors["price_" + type]
+              }}</span>
+            </div>
+
+            <div class="variant-field">
+              <label [for]="'duration-' + type">Durée (min) *</label>
+              <input
+                type="number"
+                [id]="'duration-' + type"
+                [name]="'duration-' + type"
+                [ngModel]="getVariantData(type)?.duration"
+                (ngModelChange)="updateVariant(type, 'duration', $event)"
+                [class.error]="errors['duration_' + type]"
+                min="1"
+                step="5"
+                required
+              />
+              <span class="error-message" *ngIf="errors['duration_' + type]">{{
+                errors["duration_" + type]
+              }}</span>
+            </div>
+          </div>
+
+          <!-- Add variant button -->
+          <button
+            type="button"
+            class="add-variant-btn"
+            *ngIf="!hasVariant(type)"
+            (click)="addVariant(type)"
+          >
+            <span *ngIf="type === 'all'">+ Ajouter le prix</span>
+            <span *ngIf="type !== 'all'"
+              >+ Ajouter prix pour {{ getCarTypeLabel(type) }}</span
+            >
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Salon Type Message -->
     <div class="form-group" *ngIf="formData.type === 'salon'">
       <div class="info-message">
         <span class="info-icon">ℹ️</span>
-        <span>Les services de type "Salon" sont toujours effectués au domicile du client. Aucune localisation n'est requise.</span>
+        <span
+          >Les services de type "Salon" sont toujours effectués au domicile du
+          client. Aucune localisation n'est requise.</span
+        >
       </div>
     </div>
 
@@ -88,15 +115,21 @@
     <div class="form-group" *ngIf="formData.type !== 'salon'">
       <label>Localisations disponibles *</label>
       <span class="error-message" *ngIf="errors['locations']">{{
-        errors['locations']
+        errors["locations"]
       }}</span>
 
       <div class="info-message" *ngIf="getAvailableLocations().length === 0">
         <span class="info-icon">⚠️</span>
-        <span>Aucune localisation active disponible. Veuillez d'abord créer des localisations dans l'onglet "Localisations".</span>
+        <span
+          >Aucune localisation active disponible. Veuillez d'abord créer des
+          localisations dans l'onglet "Localisations".</span
+        >
       </div>
 
-      <div class="locations-selection" *ngIf="getAvailableLocations().length > 0">
+      <div
+        class="locations-selection"
+        *ngIf="getAvailableLocations().length > 0"
+      >
         <div
           class="location-checkbox"
           *ngFor="let location of getAvailableLocations()"
@@ -110,8 +143,8 @@
             <div class="location-info-check">
               <span class="location-address">{{ location.address }}</span>
               <small class="location-coordinates">
-                Lat: {{ location.coordinates[1] | number: '1.4-4' }},
-                Lng: {{ location.coordinates[0] | number: '1.4-4' }}
+                Lat: {{ location.coordinates[1] | number : "1.4-4" }}, Lng:
+                {{ location.coordinates[0] | number : "1.4-4" }}
               </small>
             </div>
           </label>
@@ -119,8 +152,8 @@
       </div>
 
       <small class="field-hint">
-        Sélectionnez au moins une localisation où ce service est disponible.
-        Les localisations peuvent être gérées dans l'onglet "Localisations".
+        Sélectionnez au moins une localisation où ce service est disponible. Les
+        localisations peuvent être gérées dans l'onglet "Localisations".
       </small>
     </div>
 
@@ -135,7 +168,7 @@
         Annuler
       </button>
       <button type="submit" class="btn-primary" [disabled]="isSubmitting">
-        {{ isSubmitting ? 'Enregistrement...' : 'Modifier' }}
+        {{ isSubmitting ? "Enregistrement..." : "Modifier" }}
       </button>
     </div>
   </form>

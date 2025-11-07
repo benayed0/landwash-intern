@@ -89,33 +89,44 @@
           <!-- Service Type Header -->
           <div class="service-type-header">
             <h2>{{ getServiceTypeLabel(group.type) }}</h2>
-            <span class="service-count">{{ group.services.length }} variation(s)</span>
+            <span class="service-count">{{ getServiceVariants(group.services[0]).length }} variante(s) de prix</span>
           </div>
 
           <!-- Service Variations -->
           <div class="service-variations">
             <div class="service-variation" *ngFor="let service of group.services">
-              <!-- Car Type Badge (if defined) -->
-              <div class="car-type-badge" *ngIf="service.carType">
-                🚗 {{ getCarTypeLabel(service.carType) }}
-              </div>
+              <!-- Display all variants for this service -->
+              <div class="variants-container">
+                <div class="variant-item" *ngFor="let variant of getServiceVariants(service)">
+                  <!-- Car Type Badge -->
+                  <div class="car-type-badge">
+                    <span *ngIf="variant.type === 'all'">🏠 Prix unique</span>
+                    <span *ngIf="variant.type !== 'all'">🚗 {{ getCarTypeLabel(variant.type) }}</span>
+                  </div>
 
-              <!-- Service Info -->
-              <div class="service-info">
-                <div class="service-meta">
-                  <div class="meta-item">
-                    <span class="meta-icon">💰</span>
-                    <span class="meta-value">{{ service.price }} TND</span>
-                  </div>
-                  <div class="meta-item">
-                    <span class="meta-icon">⏱️</span>
-                    <span class="meta-value">{{ formatDuration(service.duration) }}</span>
-                  </div>
-                  <div class="meta-item" *ngIf="service.type !== 'salon'">
-                    <span class="meta-icon">📍</span>
-                    <span class="meta-value">{{ getActiveServiceLocations(service).length }} location(s)</span>
+                  <!-- Variant Info -->
+                  <div class="service-info">
+                    <div class="service-meta">
+                      <div class="meta-item">
+                        <span class="meta-icon">💰</span>
+                        <span class="meta-value">{{ variant.price }} TND</span>
+                      </div>
+                      <div class="meta-item">
+                        <span class="meta-icon">⏱️</span>
+                        <span class="meta-value">{{ formatDuration(variant.duration) }}</span>
+                      </div>
+                      <div class="meta-item" *ngIf="service.type !== 'salon'">
+                        <span class="meta-icon">📍</span>
+                        <span class="meta-value">{{ getActiveServiceLocations(service).length }} location(s)</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              <!-- Service Info (locations) -->
+              <div class="service-info">
+                <div class="service-meta"></div>
 
                 <!-- At-home service message for salon type -->
                 <div class="at-home-message" *ngIf="service.type === 'salon'">

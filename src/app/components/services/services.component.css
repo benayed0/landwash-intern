@@ -204,21 +204,35 @@
 
 /* Service Variations Container */
 .service-variations {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1.25rem;
 }
 
-/* Individual Service Variation */
+/* Individual Service Variation - wraps all variants */
 .service-variation {
+  background: transparent;
+  border-radius: 8px;
+  padding: 0;
+}
+
+/* Variants Container - holds the actual variant cards */
+.variants-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Individual Variant Card */
+.variant-item {
   background: rgba(42, 42, 42, 0.6);
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.service-variation:hover {
+.variant-item:hover {
   transform: translateY(-2px);
   background: rgba(50, 50, 50, 0.7);
   border-color: rgba(195, 255, 0, 0.2);
@@ -625,7 +639,7 @@
     gap: 1rem;
   }
 
-  .service-variations {
+  .variants-container {
     grid-template-columns: 1fr;
   }
 

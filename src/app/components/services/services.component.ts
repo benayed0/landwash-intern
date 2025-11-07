@@ -5,7 +5,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ServiceService } from '../../services/service.service';
 import { ServiceLocationService } from '../../services/service-location.service';
 import { BookingLabelService } from '../../services/booking-label.service';
-import { Service, BookingType } from '../../models/service.model';
+import { Service, BookingType, ServiceType } from '../../models/service.model';
 import { ServiceLocation } from '../../models/service-location.model';
 import { ServiceModalComponent } from './service-modal/service-modal.component';
 import { LocationModalComponent } from './location-modal/location-modal.component';
@@ -31,7 +31,6 @@ export class ServicesComponent implements OnInit {
 
   services: Service[] = [];
   filteredServices: Service[] = [];
-  groupedServices: Map<BookingType, Service[]> = new Map();
   locations: ServiceLocation[] = [];
   loading = false;
   locationsLoading = false;
@@ -86,24 +85,15 @@ export class ServicesComponent implements OnInit {
         (s) => s.type === this.selectedType
       );
     }
-    this.groupServicesByType();
   }
 
-  groupServicesByType() {
-    this.groupedServices.clear();
-
-    this.filteredServices.forEach(service => {
-      if (!this.groupedServices.has(service.type)) {
-        this.groupedServices.set(service.type, []);
-      }
-      this.groupedServices.get(service.type)!.push(service);
-    });
-  }
-
+  // Since services are already unique by type from the API (one service per booking type with variants),
+  // we just need to format them for display
   getGroupedServicesArray(): Array<{ type: BookingType; services: Service[] }> {
-    return Array.from(this.groupedServices.entries()).map(([type, services]) => ({
-      type,
-      services
+    // Each service represents a booking type, so wrap each in an array
+    return this.filteredServices.map(service => ({
+      type: service.type,
+      services: [service]
     }));
   }
 
@@ -306,5 +296,22 @@ export class ServicesComponent implements OnInit {
         return serviceLocation._id === locationId;
       })
     ).length;
+  }
+
+  // Get service variants as an array for display
+  getServiceVariants(service: Service): Array<{ type: ServiceType; price: number; duration: number }> {
+    const variants: Array<{ type: ServiceType; price: number; duration: number }> = [];
+
+    if (service.variants) {
+      Object.entries(service.variants).forEach(([type, data]) => {
+        variants.push({
+          type: type as ServiceType,
+          price: data.price,
+          duration: data.duration
+        });
+      });
+    }
+
+    return variants;
   }
 }

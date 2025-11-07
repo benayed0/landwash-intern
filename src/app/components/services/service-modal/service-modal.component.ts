@@ -12,6 +12,7 @@ import {
   Service,
   BookingType,
   CarType,
+  ServiceType,
   UpdateServiceDto,
 } from '../../../models/service.model';
 import { ServiceLocation } from '../../../models/service-location.model';
@@ -34,16 +35,14 @@ export class ServiceModalComponent implements OnInit {
 
   formData: {
     type: BookingType | '';
-    carType: CarType | '';
-    price: number;
-    duration: number;
+    variants: { [key in ServiceType]?: { price: number; duration: number } };
     selectedLocationIds: string[];
+    selectedVariant: ServiceType; // Which variant we're currently editing
   } = {
     type: '',
-    carType: '',
-    price: 0,
-    duration: 60,
+    variants: {},
     selectedLocationIds: [],
+    selectedVariant: 'all',
   };
 
   // Get booking types and car types from the shared service
@@ -74,12 +73,17 @@ export class ServiceModalComponent implements OnInit {
         })
         .filter((id) => id !== '');
 
+      // Copy variants from service
+      const variants: { [key in ServiceType]?: { price: number; duration: number } } = {};
+      Object.entries(this.data.service.variants).forEach(([key, value]) => {
+        variants[key as ServiceType] = { ...value };
+      });
+
       this.formData = {
         type: this.data.service.type,
-        carType: this.data.service.carType || '',
-        price: this.data.service.price,
-        duration: this.data.service.duration,
+        variants: variants,
         selectedLocationIds: locationIds,
+        selectedVariant: 'all', // Default to 'all' variant
       };
     }
     this.errors = {};
@@ -94,14 +98,22 @@ export class ServiceModalComponent implements OnInit {
       isValid = false;
     }
 
-    if (this.formData.price <= 0) {
-      this.errors['price'] = 'Le prix doit être supérieur à 0';
+    // Validate that at least one variant exists
+    if (!this.formData.variants || Object.keys(this.formData.variants).length === 0) {
+      this.errors['variants'] = 'Au moins une variante de prix/durée est requise';
       isValid = false;
-    }
-
-    if (this.formData.duration <= 0) {
-      this.errors['duration'] = 'La durée doit être supérieure à 0';
-      isValid = false;
+    } else {
+      // Validate each variant
+      Object.entries(this.formData.variants).forEach(([key, variant]) => {
+        if (variant.price <= 0) {
+          this.errors[`price_${key}`] = `Le prix pour ${key} doit être supérieur à 0`;
+          isValid = false;
+        }
+        if (variant.duration <= 0) {
+          this.errors[`duration_${key}`] = `La durée pour ${key} doit être supérieure à 0`;
+          isValid = false;
+        }
+      });
     }
 
     // Salon type doesn't require locations (service at home)
@@ -130,10 +142,17 @@ export class ServiceModalComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    // Only send editable fields (excluding type and carType)
+    // Build variants record from form data
+    const variants: Record<ServiceType, { price: number; duration: number }> = {} as Record<ServiceType, { price: number; duration: number }>;
+    Object.entries(this.formData.variants).forEach(([key, value]) => {
+      if (value) {
+        variants[key as ServiceType] = value;
+      }
+    });
+
+    // Only send editable fields
     const updateDto: UpdateServiceDto = {
-      price: this.formData.price,
-      duration: this.formData.duration,
+      variants: variants,
       availableLocations: this.formData.selectedLocationIds,
     };
 
@@ -206,7 +225,45 @@ export class ServiceModalComponent implements OnInit {
     return this.formData.type ? this.getTypeLabel(this.formData.type as BookingType) : '';
   }
 
-  getDisplayCarTypeLabel(): string {
-    return this.formData.carType ? this.getCarTypeLabel(this.formData.carType as CarType) : 'Aucun (non spécifié)';
+  // Get all available variant types for this service
+  getVariantTypes(): ServiceType[] {
+    // Salon services can only have 'all' variant (no car-specific pricing)
+    if (this.formData.type === 'salon') {
+      return ['all'];
+    }
+
+    // Other service types can only have car-specific variants (not 'all')
+    const carTypeValues = this.carTypes.map(ct => ct.value as CarType);
+    return carTypeValues;
+  }
+
+  // Get variant data for a specific type
+  getVariantData(type: ServiceType): { price: number; duration: number } | undefined {
+    return this.formData.variants[type];
+  }
+
+  // Update variant data
+  updateVariant(type: ServiceType, field: 'price' | 'duration', value: number) {
+    if (!this.formData.variants[type]) {
+      this.formData.variants[type] = { price: 0, duration: 60 };
+    }
+    this.formData.variants[type]![field] = value;
+  }
+
+  // Add a variant
+  addVariant(type: ServiceType) {
+    if (!this.formData.variants[type]) {
+      this.formData.variants[type] = { price: 0, duration: 60 };
+    }
+  }
+
+  // Remove a variant
+  removeVariant(type: ServiceType) {
+    delete this.formData.variants[type];
+  }
+
+  // Check if variant exists
+  hasVariant(type: ServiceType): boolean {
+    return !!this.formData.variants[type];
   }
 }
