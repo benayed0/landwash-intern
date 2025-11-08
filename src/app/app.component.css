@@ -1,3 +1,89 @@
 ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
   background-color: #1a1a1a !important;
 }
+
+/* Ionic Content */
+ion-content {
+  --background: #0a0a0a;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.router-content {
+  min-height: 100vh;
+  background: #0a0a0a;
+}
+
+/* Pull to Refresh Styling */
+ion-refresher {
+  z-index: 10000;
+}
+
+ion-refresher-content {
+  --spinner-color: #c3ff00 !important;
+  --refreshing-spinner-color: #c3ff00 !important;
+  --color: #c3ff00 !important;
+  --background: transparent !important;
+}
+
+/* Override Ionic's default styles */
+::ng-deep ion-refresher {
+  background: transparent !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+::ng-deep ion-refresher ion-spinner {
+  --color: #c3ff00 !important;
+  color: #c3ff00 !important;
+}
+
+::ng-deep ion-refresher-content {
+  background: transparent !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+::ng-deep ion-refresher-content .refresher-pulling-icon,
+::ng-deep ion-refresher-content .refresher-refreshing-icon {
+  color: #c3ff00 !important;
+}
+
+::ng-deep ion-refresher-content .refresher-pulling-icon svg,
+::ng-deep ion-refresher-content .refresher-refreshing-icon svg {
+  fill: #c3ff00 !important;
+  stroke: #c3ff00 !important;
+}
+
+::ng-deep .refresher-pulling-text,
+::ng-deep .refresher-refreshing-text {
+  color: #c3ff00 !important;
+  display: none;
+}
+
+/* Hide the refresher completely when not in use */
+::ng-deep ion-refresher {
+  visibility: hidden;
+  height: 0;
+  min-height: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: none;
+}
+
+/* Show only during pull states */
+::ng-deep ion-refresher.refresher-pulling,
+::ng-deep ion-refresher.refresher-refreshing,
+::ng-deep ion-refresher.refresher-cancelling,
+::ng-deep ion-refresher.refresher-completing {
+  visibility: visible;
+  height: auto;
+  min-height: 60px;
+  max-height: 200px;
+}

@@ -1,6 +1,12 @@
 /* Global Styles for Landwash Mobile App - Dark Mode */
 @import "primeicons/primeicons.css";
 
+/* Ionic Core CSS - Required for Ionic components */
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+
 * {
   margin: 0;
   padding: 0;

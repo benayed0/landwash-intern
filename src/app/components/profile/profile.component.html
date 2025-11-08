@@ -94,6 +94,30 @@
             {{ currentUser.createdAt | date : "dd/MM/yyyy" }}
           </div>
         </div>
+
+        <!-- Notification Toggle (Mobile Only) -->
+        <div class="info-group" *ngIf="isMobile && !isEditing">
+          <label>Notifications push</label>
+          <div class="notification-toggle">
+            <button
+              class="toggle-btn"
+              [class.active]="notificationsEnabled"
+              [disabled]="isLoadingNotificationStatus"
+              (click)="toggleNotifications()"
+            >
+              <span
+                class="toggle-slider"
+                [class.active]="notificationsEnabled"
+              ></span>
+            </button>
+            <span class="toggle-label">
+              {{ notificationsEnabled ? "Activées" : "Désactivées" }}
+            </span>
+            <span class="loading-spinner" *ngIf="isLoadingNotificationStatus"
+              >⏳</span
+            >
+          </div>
+        </div>
       </div>
 
       <!-- Action Buttons -->

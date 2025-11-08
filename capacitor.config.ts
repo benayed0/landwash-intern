@@ -1,11 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
+// Local development configuration
+// This file is gitignored and safe for local IPs
 const config: CapacitorConfig = {
-  appId: 'com.landwash.intern',
-  appName: 'landwash-intern',
-  webDir: 'dist/landwash-intern/browser',
-  // Note: For local development, set server.url in capacitor.config.local.ts
-  // This file should not contain development-specific URLs
+  server: {
+    url: 'http://192.168.1.67:4200', // your computer's local IP
+    cleartext: true,
+  },
 };
 
 export default config;
