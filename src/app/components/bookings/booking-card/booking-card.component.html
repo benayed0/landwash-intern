@@ -197,11 +197,32 @@
 
     <div class="form-group">
       <label>Adresse</label>
-      <textarea
-        [(ngModel)]="editForm.address"
-        class="form-input textarea"
-        rows="2"
-      ></textarea>
+
+      <!-- Service Location Dropdown (shown when service has locations) -->
+      @if (availableServiceLocationsEdit().length > 0) {
+        <select
+          class="form-input"
+          (change)="onServiceLocationChangeEdit($event)"
+        >
+          <option value="">Choisir une localisation...</option>
+          <option
+            *ngFor="let location of availableServiceLocationsEdit()"
+            [value]="location._id"
+            [selected]="location.address === editForm.address"
+          >
+            {{ location.address }}
+          </option>
+        </select>
+      }
+
+      <!-- Manual Address Textarea (shown when no service locations available) -->
+      @if (availableServiceLocationsEdit().length === 0) {
+        <textarea
+          [(ngModel)]="editForm.address"
+          class="form-input textarea"
+          rows="2"
+        ></textarea>
+      }
     </div>
 
     <div class="form-group">
@@ -230,7 +251,14 @@
   </div>
   } @if (!isEditing) {
   <!-- Compact Location -->
-  <div class="booking-location">
+  <div class="booking-location" [class.service-location]="isServiceLocation()">
+    @if (isServiceLocation()) {
+      <!-- Service Location Badge -->
+      <div class="service-location-badge">
+        <span class="badge-icon">🏢</span>
+        <span class="badge-text">Centre de service</span>
+      </div>
+    }
     <a
       href="https://www.google.com/maps/search/?api=1&query={{
         booking.coordinates[1]

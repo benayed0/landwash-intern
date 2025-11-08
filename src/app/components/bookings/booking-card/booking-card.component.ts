@@ -10,6 +10,7 @@ import {
   ChangeDetectorRef,
   NgZone,
   signal,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +25,10 @@ import { BookingService } from '../../../services/booking.service';
 import { BookingLabelService } from '../../../services/booking-label.service';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
 import { Role } from '../../../models/personal.model';
+import { ServiceService } from '../../../services/service.service';
+import { Service } from '../../../models/service.model';
+import { ServiceLocation } from '../../../models/service-location.model';
+import { BookingType } from '../../../models/booking.model';
 
 @Component({
   selector: 'app-booking-card',
@@ -89,12 +94,30 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   minDateString: string = '';
   workingHours = { start: '08:00', end: '18:00' };
 
+  // Service management for edit mode
+  services = signal<Service[]>([]);
+  selectedEditBookingType = signal<BookingType>('detailing');
+
+  // Computed signal for available service locations in edit mode
+  availableServiceLocationsEdit = computed<ServiceLocation[]>(() => {
+    const selectedType = this.selectedEditBookingType();
+    const service = this.services().find((s) => s.type === selectedType);
+
+    if (service && service.availableLocations && service.availableLocations.length > 0) {
+      return service.availableLocations.filter(
+        (loc): loc is ServiceLocation => typeof loc !== 'string'
+      );
+    }
+    return [];
+  });
+
   // Inject services
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private bookingService = inject(BookingService);
   private bookingLabelService = inject(BookingLabelService);
+  private serviceService = inject(ServiceService);
 
   // Color tones for dropdown
   colorTones = this.bookingLabelService.getAllColorTones();
@@ -117,6 +140,15 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
 
   getColorToneIcon(colorTone: string): string {
     return this.bookingLabelService.getColorToneIcon(colorTone);
+  }
+
+  // Check if booking is for a service with a predefined location
+  isServiceLocation(): boolean {
+    return (
+      this.booking.type === 'paint_correction' ||
+      this.booking.type === 'body_correction' ||
+      this.booking.type === 'ceramic_coating'
+    );
   }
 
   formatDate(date: Date | string): string {
@@ -273,8 +305,9 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
       transportFee: this.booking.transportFee || 0,
     };
 
-    // Initialize previous service type
+    // Initialize previous service type and update signal
     this.previousServiceType = this.booking.type;
+    this.selectedEditBookingType.set(this.booking.type);
 
     // Set min date for date picker
     this.setMinDate();
@@ -371,12 +404,33 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     if (this.previousServiceType !== this.editForm.type) {
       this.previousServiceType = this.editForm.type;
 
+      // Update signal for reactivity
+      this.selectedEditBookingType.set(this.editForm.type);
+
       // Clear selected time slot when changing service type
       this.selectedTimeSlot = '';
 
       // Refresh available time slots if we have a date selected
       if (this.selectedDateString && this.bookedSlots()) {
         this.updateAvailableTimeSlots();
+      }
+    }
+  }
+
+  onServiceLocationChangeEdit(event: any) {
+    const locationId = event.target.value;
+    if (locationId) {
+      const location = this.availableServiceLocationsEdit().find(
+        (loc) => loc._id === locationId
+      );
+
+      if (location) {
+        // Update address and coordinates based on selected location
+        this.editForm.address = location.address;
+        this.booking.coordinates = location.coordinates;
+
+        // Fetch available slots for this location
+        this.getSlots();
       }
     }
   }
@@ -539,6 +593,20 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     // Initialize cached time remaining for all bookings
     this.updateCachedTimeRemaining();
     this.startProgressTimer();
+
+    // Load services for edit mode
+    this.loadServices();
+  }
+
+  loadServices() {
+    this.serviceService.getAllServices().subscribe({
+      next: (services) => {
+        this.services.set(services);
+      },
+      error: (err) => {
+        console.error('Error loading services:', err);
+      },
+    });
   }
 
   ngOnDestroy() {
