@@ -1,119 +1,156 @@
-import { Injectable } from '@angular/core';
-import { SwPush } from '@angular/service-worker';
+import { Injectable, inject } from '@angular/core';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { Capacitor } from '@capacitor/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
+import { firstValueFrom } from 'rxjs';
+import { ForegroundNotificationService } from './foreground-notification.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PushNotificationService {
-  private readonly VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE'; // Replace with your actual VAPID public key
-  private readonly SERVER_URL = environment.apiUrl + '/notifications'; // Your NestJS API endpoint
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private foregroundNotificationService = inject(ForegroundNotificationService);
+  private apiUrl = environment.apiUrl;
+  private isInitialized = false;
 
-  constructor(private swPush: SwPush, private http: HttpClient) {
-    // this.showNotification(
-    //   'Service Initialisé',
-    //   'Le service de notification est prêt.'
-    // );
-  }
-
-  requestPermission(): Promise<NotificationPermission> {
-    if ('Notification' in window) {
-      return Notification.requestPermission();
-    }
-    return Promise.reject('Notifications not supported');
-  }
-
-  subscribeToNotifications(): Promise<void> {
-    if (!this.swPush.isEnabled) {
-      console.log('Service Worker Push is not enabled');
-      return Promise.resolve();
-    }
-
-    return this.swPush
-      .requestSubscription({
-        serverPublicKey: this.VAPID_PUBLIC_KEY,
-      })
-      .then((subscription) => {
-        console.log('Push subscription:', subscription);
-        return this.sendSubscriptionToServer(subscription).toPromise();
-      })
-      .then(() => {
-        console.log('Subscription sent to server');
-      })
-      .catch((err) => {
-        console.error('Could not subscribe to push notifications', err);
-      });
-  }
-
-  private sendSubscriptionToServer(
-    subscription: PushSubscription
-  ): Observable<any> {
-    return this.http.post(`${this.SERVER_URL}/subscribe`, subscription);
-  }
-
-  listenForMessages() {
-    if (!this.swPush.isEnabled) {
+  async init() {
+    // Prevent multiple initializations
+    if (this.isInitialized) {
+      console.log('🔔 Push notifications already initialized');
       return;
     }
 
-    this.swPush.messages.subscribe(
-      (message: any) => {
-        console.log('Push message received:', message);
+    // Only request permissions on native platforms (iOS/Android)
+    if (Capacitor.getPlatform() === 'web') {
+      console.log('🔔 Push notifications not available on web platform');
+      return;
+    }
 
-        // Handle different types of notifications
-        if (message.notification) {
-          this.showNotification(
-            message.notification.title,
-            message.notification.body,
-            message.notification.data
-          );
-        }
-      },
-      (err) => {
-        console.error('Error receiving push messages:', err);
+    try {
+      const permStatus = await PushNotifications.requestPermissions();
+      if (permStatus.receive !== 'granted') {
+        console.log('🔔 Push notification permission denied');
+        return;
       }
-    );
 
-    // Handle notification clicks
-    this.swPush.notificationClicks.subscribe((click: any) => {
-      console.log('Notification clicked:', click);
+      await PushNotifications.register();
 
-      // Navigate based on notification data
-      if (click.notification && click.notification.data) {
-        const data = click.notification.data;
-        if (data.url) {
-          window.open(data.url, '_self');
+      // Remove all existing listeners before adding new ones
+      await PushNotifications.removeAllListeners();
+
+      PushNotifications.addListener('registration', async (token) => {
+        console.log('🔔 FCM token:', token.value);
+
+        // Check if user is logged in and sync token
+        if (this.authService.isLoggedIn()) {
+          await this.syncFcmToken(token.value);
         }
-      }
-    });
-  }
+      });
 
-  private showNotification(title: string, body: string, data?: any) {
-    const options: NotificationOptions = {
-      body,
-      icon: '/assets/logo.png',
-      badge: '/assets/logo.png',
-      // vibrate: [200, 100, 200],
-      data,
-      // actions: [
-      //   { action: 'view', title: 'Voir' },
-      //   { action: 'close', title: 'Fermer' }
-      // ]
-    };
+      PushNotifications.addListener('pushNotificationReceived', (n) => {
+        // Show custom foreground notification
+        this.foregroundNotificationService.show({
+          title: n.title || 'New Notification',
+          body: n.body || '',
+          data: n.data,
+          image: n.data?.image,
+        });
+      });
 
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, options);
+      PushNotifications.addListener(
+        'pushNotificationActionPerformed',
+        (action) => {
+          console.log('🔔 Notification tapped:', action);
+        }
+      );
+
+      // Mark as initialized
+      this.isInitialized = true;
+      console.log('🔔 Push notifications initialized successfully');
+    } catch (error) {
+      console.error('🔔 Error initializing push notifications:', error);
     }
   }
 
-  // Send test notification
-  sendTestNotification() {
-    this.showNotification(
-      'Nouvelle réservation',
-      "Une nouvelle réservation vient d'être créée",
-      { url: '/dashboard' }
-    );
+  /**
+   * Syncs the FCM token with the backend
+   * Checks if the token exists in user's fcmTokens array, adds it if not present
+   */
+  private async syncFcmToken(fcmToken: string): Promise<void> {
+    try {
+      const user = this.authService.getCurrentUser();
+      if (!user) {
+        console.log('🔔 No user found, skipping FCM token sync');
+        return;
+      }
+
+      // Check if the token already exists in user's fcmTokens
+      const existingTokens = user.fcmTokens || [];
+      if (existingTokens.includes(fcmToken)) {
+        console.log('🔔 FCM token already registered for this user');
+        return;
+      }
+
+      // Add the token to the user's fcmTokens array
+      await firstValueFrom(
+        this.http.patch(`${this.apiUrl}/personals/${user._id}/fcm-token`, {
+          fcmToken,
+        })
+      );
+
+      console.log('🔔 FCM token successfully synced with backend');
+
+      // Refresh user data to update local cache
+      await firstValueFrom(this.authService.forceRefreshUserData());
+    } catch (error) {
+      console.error('🔔 Error syncing FCM token:', error);
+    }
+  }
+
+  /**
+   * Call this method when user logs in to sync the current FCM token
+   */
+  async syncTokenOnLogin(): Promise<void> {
+    if (Capacitor.getPlatform() === 'web') {
+      return;
+    }
+
+    try {
+      // The token will be synced via the 'registration' listener
+      // So we just ensure registration is active
+      await PushNotifications.register();
+    } catch (error) {
+      console.error('🔔 Error syncing token on login:', error);
+    }
+  }
+
+  /**
+   * Remove FCM token from user's account (e.g., on logout)
+   */
+  async removeFcmToken(fcmToken: string): Promise<void> {
+    if (Capacitor.getPlatform() === 'web') {
+      return;
+    }
+
+    try {
+      const user = this.authService.getCurrentUser();
+      if (!user) {
+        console.log('🔔 No user found, skipping FCM token removal');
+        return;
+      }
+
+      await firstValueFrom(
+        this.http.delete(`${this.apiUrl}/personals/${user._id}/fcm-token`, {
+          body: { fcmToken },
+        })
+      );
+      console.log('🔔 FCM token removed from backend');
+    } catch (error) {
+      console.error('🔔 Error removing FCM token:', error);
+    }
   }
 }

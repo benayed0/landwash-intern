@@ -74,7 +74,9 @@ export class DashboardComponent implements OnInit {
         const urlParts = currentUrl.split('/dashboard/')[1];
         // Extract just the first segment (e.g., "orders" from "orders/123abc")
         // Remove query params and hash fragments
-        const view = urlParts ? urlParts.split('/')[0].split('?')[0].split('#')[0] : '';
+        const view = urlParts
+          ? urlParts.split('/')[0].split('?')[0].split('#')[0]
+          : '';
         console.log(view);
 
         if (view && this.isValidViewType(view)) {
@@ -88,7 +90,9 @@ export class DashboardComponent implements OnInit {
     const urlParts = currentUrl.split('/dashboard/')[1];
     // Extract just the first segment (e.g., "orders" from "orders/123abc")
     // Remove query params and hash fragments
-    const view = urlParts ? urlParts.split('/')[0].split('?')[0].split('#')[0] : '';
+    const view = urlParts
+      ? urlParts.split('/')[0].split('?')[0].split('#')[0]
+      : '';
     console.log(view);
 
     if (view && this.isValidViewType(view)) {
@@ -258,7 +262,7 @@ export class DashboardComponent implements OnInit {
 
   private async requestNotificationPermission() {
     try {
-      await this.pushNotificationService.requestPermission();
+      await this.pushNotificationService.init();
     } catch (error) {
       console.error('Failed to request notification permission:', error);
     }

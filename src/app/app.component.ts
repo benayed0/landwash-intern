@@ -1,54 +1,22 @@
-import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PullToRefreshService } from './services/pull-to-refresh.service';
 import { PwaUpdateService } from './services/pwa-update.service';
-import { Subscription } from 'rxjs';
+import { ForegroundNotificationComponent } from './components/foreground-notification/foreground-notification.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ForegroundNotificationComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   title = 'landwash-intern';
-  private refreshSubscription?: Subscription;
 
-  constructor(
-    private pullToRefreshService: PullToRefreshService,
-    private pwaUpdateService: PwaUpdateService,
-    private router: Router,
-    private elementRef: ElementRef
-  ) {}
+  constructor(private pwaUpdateService: PwaUpdateService) {}
 
   ngOnInit() {
     // Initialize PWA update service for automatic cache reload on new deployments
     this.pwaUpdateService.initialize();
-
-    // Initialize pull-to-refresh
-    this.pullToRefreshService.initialize(this.elementRef.nativeElement);
-
-    // Subscribe to refresh events
-    this.refreshSubscription = this.pullToRefreshService.refresh$.subscribe(
-      () => {
-        this.onRefresh();
-      }
-    );
-  }
-
-  ngOnDestroy() {
-    this.refreshSubscription?.unsubscribe();
-    this.pullToRefreshService.destroy();
-  }
-
-  private onRefresh() {
-    // Reload the current route
-    const currentUrl = this.router.url;
-    window.location.reload();
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate([currentUrl]);
-    });
-  }
+  } //
 }

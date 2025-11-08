@@ -73,20 +73,21 @@
     <!-- Color Tone (for paint correction, body correction, ceramic coating) -->
     <div
       class="form-section"
-      *ngIf="bookingForm.get('type')?.value === 'paint_correction' ||
-             bookingForm.get('type')?.value === 'body_correction' ||
-             bookingForm.get('type')?.value === 'ceramic_coating'"
+      *ngIf="
+        bookingForm.get('type')?.value === 'paint_correction' ||
+        bookingForm.get('type')?.value === 'body_correction' ||
+        bookingForm.get('type')?.value === 'ceramic_coating'
+      "
     >
       <h2>Teinte de couleur</h2>
       <div class="form-group">
         <label for="colorTone">Teinte de couleur du véhicule</label>
-        <select
-          id="colorTone"
-          formControlName="colorTone"
-          class="form-input"
-        >
+        <select id="colorTone" formControlName="colorTone" class="form-input">
           <option value="">Aucune (non spécifié)</option>
-          <option *ngFor="let colorTone of colorTones" [value]="colorTone.value">
+          <option
+            *ngFor="let colorTone of colorTones"
+            [value]="colorTone.value"
+          >
             {{ colorTone.icon }} {{ colorTone.label }}
           </option>
         </select>
@@ -176,15 +177,19 @@
         </select>
       </div>
     </div>
-    }
-
+    } //
     <!-- Step 5: Location -->
     <div class="form-section">
       <h2><span class="step-number">5</span> Localisation</h2>
       <div class="form-group">
         <!-- Service Location Dropdown (shown when service has locations) -->
-        <div *ngIf="availableServiceLocations().length > 0" class="service-location-selector">
-          <label for="serviceLocation">Sélectionner une localisation de service *</label>
+        <div
+          *ngIf="availableServiceLocations().length > 0"
+          class="service-location-selector"
+        >
+          <label for="serviceLocation"
+            >Sélectionner une localisation de service *</label
+          >
           <select
             id="serviceLocation"
             class="form-input"
@@ -192,14 +197,20 @@
             [class.invalid]="isFieldInvalid('address')"
           >
             <option value="">Choisir une localisation...</option>
-            <option *ngFor="let location of availableServiceLocations()" [value]="location._id">
+            <option
+              *ngFor="let location of availableServiceLocations()"
+              [value]="location._id"
+            >
               {{ location.address }}
             </option>
           </select>
         </div>
 
         <!-- Manual Location Picker (shown when no service locations available) -->
-        <div *ngIf="availableServiceLocations().length === 0" class="manual-location-picker">
+        <div
+          *ngIf="availableServiceLocations().length === 0"
+          class="manual-location-picker"
+        >
           <app-location-picker
             [initialLocation]="selectedLocation()"
             placeholder="Rechercher une adresse en Tunisie..."

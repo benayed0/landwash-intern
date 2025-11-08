@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "97664407023",
+    "project_id": "landwash-intern",
+    "storage_bucket": "landwash-intern.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97664407023:android:d416b74e2fd7e3b326121a",
+        "android_client_info": {
+          "package_name": "com.landwash.intern"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWaFxUkLvo40xZo-APJ8wYzMetarDY-XY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

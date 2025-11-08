@@ -10,6 +10,7 @@ export interface Personal {
   createdAt: Date;
   status: string;
   services?: string[];
+  fcmTokens?: string[];
 }
 export interface CreatePersonalDto {
   email: string;
