@@ -15,12 +15,14 @@ export class ServiceService {
 
   // Get all services
   getAllServices(type?: string): Observable<Service[]> {
+    const params: any = {};
     if (type) {
-      return this.http.get<Service[]>(`${this.apiUrl}/services`, {
-        params: { type },
-      });
+      params.type = type;
     }
-    return this.http.get<Service[]>(`${this.apiUrl}/services`);
+    // Request populated locations
+    params.populate = 'availableLocations';
+
+    return this.http.get<Service[]>(`${this.apiUrl}/services`, { params });
   }
 
   // Get services by type

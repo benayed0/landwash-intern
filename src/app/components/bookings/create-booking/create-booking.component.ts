@@ -23,6 +23,7 @@ import { TeamService } from '../../../services/team.service';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
 import { BookingLabelService } from '../../../services/booking-label.service';
+import { ServiceService } from '../../../services/service.service';
 import {
   Booking,
   BookingType,
@@ -34,7 +35,12 @@ import { LocationPickerComponent } from '../../location-picker/location-picker.c
 import { SelectedLocation } from '../../../services/location.service';
 import { User } from '../../users/users.component';
 import { MatDialogRef } from '@angular/material/dialog';
-import { UserFilterSelectComponent, UserFilterOption } from '../../shared/user-filter-select/user-filter-select.component';
+import {
+  UserFilterSelectComponent,
+  UserFilterOption,
+} from '../../shared/user-filter-select/user-filter-select.component';
+import { Service } from '../../../models/service.model';
+import { ServiceLocation } from '../../../models/service-location.model';
 
 @Component({
   selector: 'app-create-booking',
@@ -59,6 +65,7 @@ export class CreateBookingComponent implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private bookingLabelService = inject(BookingLabelService);
+  private serviceService = inject(ServiceService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -67,6 +74,8 @@ export class CreateBookingComponent implements OnInit {
   teams = signal<Team[]>([]);
   personnel = signal<Personal[]>([]);
   users = signal<User[]>([]);
+  services = signal<Service[]>([]);
+  selectedBookingType = signal<BookingType>('detailing'); // Track selected booking type as a signal
   loading = signal<boolean>(false);
   submitted = false;
   isAdmin = signal<boolean>(false);
@@ -93,20 +102,37 @@ export class CreateBookingComponent implements OnInit {
 
   // Bulk weekly booking
   bulkBookingInProgress = signal<boolean>(false);
-  bulkBookingWeeks = signal<{
-    date: Date;
-    dateString: string;
-    timeSlot: string;
-    available: boolean;
-    confirmed: boolean;
-    created: boolean;
-    alternativeSlots: string[];
-    selectedAlternative: string | null;
-  }[]>([]);
+  bulkBookingWeeks = signal<
+    {
+      date: Date;
+      dateString: string;
+      timeSlot: string;
+      available: boolean;
+      confirmed: boolean;
+      created: boolean;
+      alternativeSlots: string[];
+      selectedAlternative: string | null;
+    }[]
+  >([]);
 
   // Form options - loaded from shared service
   bookingTypes = this.bookingLabelService.getAllBookingTypes();
   carTypes = this.bookingLabelService.getAllCarTypes();
+
+  // Computed signal to get available locations for the selected service type
+  availableServiceLocations = computed<ServiceLocation[]>(() => {
+    const selectedType = this.selectedBookingType(); // Use signal instead of form value
+    const service = this.services().find((s) => s.type === selectedType);
+
+    if (service && service.availableLocations && service.availableLocations.length > 0) {
+      // Filter out locations that are just IDs (strings) and keep only populated ServiceLocation objects
+      return service.availableLocations.filter(
+        (loc): loc is ServiceLocation => typeof loc !== 'string'
+      );
+    }
+
+    return [];
+  });
   ngAfterViewInit() {
     setTimeout(() => {
       const element = document.getElementsByClassName('header')[0];
@@ -120,6 +146,7 @@ export class CreateBookingComponent implements OnInit {
     this.loadTeams();
     this.loadPersonnel();
     this.loadUsers();
+    this.loadServices();
     this.setMinDate();
     this.checkAdminRole();
   }
@@ -170,6 +197,9 @@ export class CreateBookingComponent implements OnInit {
 
     // Watch for type changes to show/hide salon seats and refresh time slots
     this.bookingForm.get('type')?.valueChanges.subscribe((type) => {
+      // Update the signal to trigger computed signal updates
+      this.selectedBookingType.set(type);
+
       const salonsSeatsControl = this.bookingForm.get('salonsSeats');
       if (type === 'salon') {
         salonsSeatsControl?.setValidators([
@@ -182,13 +212,32 @@ export class CreateBookingComponent implements OnInit {
       }
       salonsSeatsControl?.updateValueAndValidity();
 
+      // Update price when type changes
+      const newPrice = this.getPriceForService(type);
+      this.bookingForm.patchValue({ price: newPrice }, { emitEvent: false });
+
+      // Reset selected location when service type changes
+      // (different services may have different available locations)
+      this.selectedLocation.set(null);
+      this.bookingForm.patchValue({ address: '' });
+      this.selectedDateString = '';
+      this.selectedTimeSlot = '';
+      this.bookedSlots.set(null);
+      this.availableTimeSlots.set([]);
+
       // Refresh available time slots when service type changes
       if (this.selectedDateString && this.bookedSlots()) {
         this.onDateInputChange({ target: { value: this.selectedDateString } });
       }
+    });
 
-      // Clear selected time slot when changing service type
-      this.selectedTimeSlot = '';
+    // Watch for car type changes to update price
+    this.bookingForm.get('carType')?.valueChanges.subscribe((carType) => {
+      const type = this.bookingForm.get('type')?.value;
+      if (type && type !== 'salon') {
+        const newPrice = this.getPriceForService(type, carType);
+        this.bookingForm.patchValue({ price: newPrice }, { emitEvent: false });
+      }
     });
   }
 
@@ -482,20 +531,28 @@ export class CreateBookingComponent implements OnInit {
     });
   }
 
+  loadServices() {
+    this.serviceService.getAllServices().subscribe({
+      next: (services) => {
+        this.services.set(services);
+      },
+      error: (err) => {
+        console.error('Error loading services:', err);
+      },
+    });
+  }
+
   onTypeChange(type: BookingType) {
     this.bookingForm.patchValue({ type });
 
-    // Set default prices based on type
-    const defaultPrices: Record<BookingType, number> = {
-      detailing: 160,
-      salon: 18,
-      paint_correction: 350,
-      body_correction: 400,
-      ceramic_coating: 500,
-    };
+    // Get price from service or use fallback
+    const price = this.getPriceForService(type);
 
-    if (this.bookingForm.get('price')?.value === 0) {
-      this.bookingForm.patchValue({ price: defaultPrices[type] });
+    if (
+      this.bookingForm.get('price')?.value === 0 ||
+      !this.bookingForm.get('price')?.value
+    ) {
+      this.bookingForm.patchValue({ price });
     }
   }
 
@@ -506,6 +563,35 @@ export class CreateBookingComponent implements OnInit {
     // Automatically fetch available slots for the selected location
     // The nearest available date will be selected in the getSlots callback
     this.getSlots();
+  }
+
+  onServiceLocationChange(event: any) {
+    const locationId = event.target.value;
+
+    if (!locationId) {
+      this.selectedLocation.set(null);
+      this.bookingForm.patchValue({ address: '' });
+      return;
+    }
+
+    const serviceLocation = this.availableServiceLocations().find(
+      (loc) => loc._id === locationId
+    );
+
+    if (serviceLocation) {
+      // Convert ServiceLocation to SelectedLocation format
+      const selectedLoc: SelectedLocation = {
+        address: serviceLocation.address,
+        lat: serviceLocation.coordinates[1],
+        lng: serviceLocation.coordinates[0],
+      };
+
+      this.selectedLocation.set(selectedLoc);
+      this.bookingForm.patchValue({ address: serviceLocation.address });
+
+      // Automatically fetch available slots for the selected location
+      this.getSlots();
+    }
   }
   onUserChange(e: any) {
     const selectedUserId = e.target ? e.target.value : e;
@@ -519,11 +605,11 @@ export class CreateBookingComponent implements OnInit {
   }
 
   userFilterOptions = computed<UserFilterOption[]>(() =>
-    this.users().map(user => ({
+    this.users().map((user) => ({
       _id: user._id,
       name: user.name,
       email: user.email,
-      phoneNumber: user.phoneNumber
+      phoneNumber: user.phoneNumber,
     }))
   );
   onSubmit() {
@@ -624,12 +710,30 @@ export class CreateBookingComponent implements OnInit {
     return '';
   }
 
-  // Calculate estimated price based on type and salon seats
-  calculateEstimatedPrice(): number {
-    const type = this.bookingForm.get('type')?.value as BookingType;
-    const salonsSeats = this.bookingForm.get('salonsSeats')?.value || 1;
+  // Helper method to get price for a service type
+  getPriceForService(type: BookingType, carTypeParam?: string): number {
+    const service = this.services().find((s) => s.type === type);
 
-    const basePrices: Record<BookingType, number> = {
+    if (service) {
+      // Get the car type or default to 'small'
+      const selectedCarType: string =
+        carTypeParam || this.bookingForm.get('carType')?.value || 'small';
+
+      // Try to get price from variants (type assertion since we're checking dynamically)
+      const variant =
+        service.variants[selectedCarType as keyof typeof service.variants];
+      if (variant) {
+        return variant.price;
+      }
+
+      // Fallback to 'all' variant if available
+      if (service.variants['all']) {
+        return service.variants['all'].price;
+      }
+    }
+
+    // Fallback prices if service not found
+    const fallbackPrices: Record<BookingType, number> = {
       detailing: 160,
       salon: 18,
       paint_correction: 350,
@@ -637,11 +741,21 @@ export class CreateBookingComponent implements OnInit {
       ceramic_coating: 500,
     };
 
+    return fallbackPrices[type] || 0;
+  }
+
+  // Calculate estimated price based on type and salon seats
+  calculateEstimatedPrice(): number {
+    const type = this.bookingForm.get('type')?.value as BookingType;
+    const salonsSeats = this.bookingForm.get('salonsSeats')?.value || 1;
+
+    const basePrice = this.getPriceForService(type);
+
     if (type === 'salon') {
-      return basePrices.salon * salonsSeats;
+      return basePrice * salonsSeats;
     }
 
-    return basePrices[type] || 0;
+    return basePrice;
   }
 
   // Bulk Weekly Booking Feature
@@ -654,7 +768,7 @@ export class CreateBookingComponent implements OnInit {
     const weeks = [];
     for (let i = 1; i <= 4; i++) {
       const weekDate = new Date(this.selectedDate);
-      weekDate.setDate(weekDate.getDate() + (i * 7));
+      weekDate.setDate(weekDate.getDate() + i * 7);
 
       const dateString = this.formatDateToLocalString(weekDate);
 
@@ -683,9 +797,9 @@ export class CreateBookingComponent implements OnInit {
 
     if (!bookedSlots) return;
 
-    const updatedWeeks = weeks.map(week => {
+    const updatedWeeks = weeks.map((week) => {
       const daySlot = bookedSlots.daySlots.find(
-        slot => slot.date === week.dateString
+        (slot) => slot.date === week.dateString
       );
 
       // Generate all possible time slots
@@ -713,7 +827,8 @@ export class CreateBookingComponent implements OnInit {
         ...week,
         available: isAvailable,
         alternativeSlots: availableAlternatives,
-        selectedAlternative: availableAlternatives.length > 0 ? availableAlternatives[0] : null
+        selectedAlternative:
+          availableAlternatives.length > 0 ? availableAlternatives[0] : null,
       };
     });
 
@@ -725,7 +840,8 @@ export class CreateBookingComponent implements OnInit {
     const week = weeks[index];
 
     // Can confirm if: original slot is available OR has alternative slots
-    const canConfirm = (week.available || week.alternativeSlots.length > 0) && !week.created;
+    const canConfirm =
+      (week.available || week.alternativeSlots.length > 0) && !week.created;
 
     if (canConfirm) {
       weeks[index].confirmed = !weeks[index].confirmed;
@@ -740,9 +856,13 @@ export class CreateBookingComponent implements OnInit {
   }
 
   async createBulkBookings() {
-    const weeks = this.bulkBookingWeeks().filter(w => {
+    const weeks = this.bulkBookingWeeks().filter((w) => {
       // Include if confirmed AND (available OR has alternatives)
-      return w.confirmed && (w.available || w.alternativeSlots.length > 0) && !w.created;
+      return (
+        w.confirmed &&
+        (w.available || w.alternativeSlots.length > 0) &&
+        !w.created
+      );
     });
 
     if (weeks.length === 0) {
@@ -770,7 +890,9 @@ export class CreateBookingComponent implements OnInit {
       const week = weeks[i];
 
       // Use the selected alternative if original slot is not available
-      const timeSlotToUse = week.available ? week.timeSlot : week.selectedAlternative;
+      const timeSlotToUse = week.available
+        ? week.timeSlot
+        : week.selectedAlternative;
 
       if (!timeSlotToUse) {
         failCount++;
@@ -812,7 +934,9 @@ export class CreateBookingComponent implements OnInit {
 
                 // Mark this week as created
                 const allWeeks = this.bulkBookingWeeks();
-                const weekIndex = allWeeks.findIndex(w => w.dateString === week.dateString);
+                const weekIndex = allWeeks.findIndex(
+                  (w) => w.dateString === week.dateString
+                );
                 if (weekIndex !== -1) {
                   allWeeks[weekIndex].created = true;
                   this.bulkBookingWeeks.set([...allWeeks]);
@@ -821,7 +945,10 @@ export class CreateBookingComponent implements OnInit {
                 resolve();
               },
               error: (err) => {
-                console.error(`Error creating booking for ${week.dateString}:`, err);
+                console.error(
+                  `Error creating booking for ${week.dateString}:`,
+                  err
+                );
                 failCount++;
                 reject(err);
               },
@@ -852,7 +979,9 @@ export class CreateBookingComponent implements OnInit {
   }
 
   getConfirmedCount(): number {
-    return this.bulkBookingWeeks().filter(w => w.confirmed && (w.available || w.alternativeSlots.length > 0)).length;
+    return this.bulkBookingWeeks().filter(
+      (w) => w.confirmed && (w.available || w.alternativeSlots.length > 0)
+    ).length;
   }
 
   handleCreateBooking() {
