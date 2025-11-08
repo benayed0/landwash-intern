@@ -1,12 +1,17 @@
 <app-foreground-notification></app-foreground-notification>
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)" *ngIf="isMobile">
+  <ion-refresher
+    slot="fixed"
+    (ionRefresh)="handleRefresh($event)"
+    *ngIf="isMobile"
+  >
     <ion-refresher-content
       pullingIcon="chevron-down-circle-outline"
-      refreshingSpinner="crescent">
+      refreshingSpinner="crescent"
+    >
     </ion-refresher-content>
   </ion-refresher>
-  <div class="router-content">
+  <div>
     <router-outlet></router-outlet>
   </div>
 </ion-content>

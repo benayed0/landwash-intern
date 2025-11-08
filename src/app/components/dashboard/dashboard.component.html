@@ -1,4 +1,4 @@
-<div class="app-container" [class.webview-mode]="authService.isWebView()">
+<div class="app-container" [class.platform-ios]="isIOS">
   <!-- Mobile Navbar - Visible for all browser users on mobile -->
   @if(!authService.isWebView()) {
   <div class="mobile-navbar">
@@ -20,7 +20,7 @@
 
   <!-- Sidebar Navigation -->
   <div class="sidebar" [class.open]="!sidebarCollapsed()">
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" [class.platform-ios]="isIOS">
       <button
         class="nav-item"
         [class.active]="viewType() === 'bookings'"
@@ -144,11 +144,7 @@
   }
 
   <!-- Content Area -->
-  <div
-    class="content-container"
-    [class.webview-mode]="authService.isWebView()"
-    [class.with-navbar]="!authService.isWebView()"
-  >
+  <div class="content-container" [class.platform-ios]="isIOS">
     <!-- Bookings View -->
     <div class="view-container" [class.active]="viewType() === 'bookings'">
       <app-booking-list *ngIf="viewType() === 'bookings'"></app-booking-list>

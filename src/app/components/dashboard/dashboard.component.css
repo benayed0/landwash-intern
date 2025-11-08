@@ -259,9 +259,6 @@
 .content-container {
   flex: 1;
   position: relative;
-}
-
-.content-container.with-navbar {
   margin-top: 60px;
   padding: 0;
   height: auto;
@@ -441,4 +438,27 @@
 /* Smooth fade animations for global styles */
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS-specific horizontal margins - only for navbar */
+.app-container.platform-ios .mobile-navbar {
+  left: 16px;
+  right: 16px;
+  width: calc(100% - 32px);
+  top: env(safe-area-inset-top, 0);
+  padding-top: 10px;
+}
+
+.app-container.platform-ios .mobile-navbar .navbar-logo {
+  padding-left: 0;
+}
+
+.app-container.platform-ios .mobile-navbar .menu-toggle {
+  margin-right: 0;
+}
+
+/* Adjust content area to account for navbar position on iOS */
+.content-container.platform-ios {
+  margin-top: calc(60px + env(safe-area-inset-top, 0) + 10px);
+  background-color: red !important; /* Test to see if this CSS is applying */
 }

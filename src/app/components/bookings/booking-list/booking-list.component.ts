@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { BookingService } from '../../../services/booking.service';
 import { TeamService } from '../../../services/team.service';
 import { AuthService } from '../../../services/auth.service';
@@ -67,6 +68,9 @@ export class BookingListComponent implements OnInit {
   currentUser: Personal | null = null;
   userRole: Role | null = null;
   bookingTypeFilter = signal<'all' | 'detailing' | 'renov' | 'salon'>('all');
+
+  // iOS platform detection
+  isIOS = Capacitor.getPlatform() === 'ios';
 
   // Date filtering properties
   selectedPreset = signal<'all' | 'today' | '7days' | '30days' | 'custom'>(

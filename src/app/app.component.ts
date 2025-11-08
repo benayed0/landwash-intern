@@ -1,7 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonRefresher, IonRefresherContent } from '@ionic/angular/standalone';
+import {
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+} from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 import { ForegroundNotificationComponent } from './components/foreground-notification/foreground-notification.component';
 import { AuthService } from './services/auth.service';
@@ -31,7 +35,7 @@ export class AppComponent {
 
     try {
       // Add minimum delay to show spinner animation
-      const minDelay = new Promise(resolve => setTimeout(resolve, 800));
+      const minDelay = new Promise((resolve) => setTimeout(resolve, 800));
 
       // Refresh user data
       const refreshPromise = this.authService.isLoggedIn()

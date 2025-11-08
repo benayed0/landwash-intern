@@ -7,6 +7,7 @@ import {
   NavigationEnd,
 } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { Capacitor } from '@capacitor/core';
 import { AuthService } from '../../services/auth.service';
 import { PushNotificationService } from '../../services/push-notification.service';
 import { BookingListComponent } from '../bookings/booking-list/booking-list.component';
@@ -61,6 +62,9 @@ export class DashboardComponent implements OnInit {
 
   // Sidebar toggle state
   sidebarCollapsed = signal(true);
+
+  // iOS platform detection
+  isIOS = Capacitor.getPlatform() === 'ios';
 
   constructor() {}
 

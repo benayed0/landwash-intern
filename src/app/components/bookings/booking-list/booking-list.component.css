@@ -47,6 +47,22 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
+/* iOS-specific: override negative margins */
+.booking-list-container.platform-ios .filter-section {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.booking-list-container.platform-ios .page-header {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.booking-list-container.platform-ios .content {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .filter-accordion-toggle {
   width: 100%;
   background: transparent;
