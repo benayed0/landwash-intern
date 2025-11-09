@@ -7,7 +7,9 @@ import {
   IonRefresherContent,
 } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { ForegroundNotificationComponent } from './components/foreground-notification/foreground-notification.component';
+import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 import { AuthService } from './services/auth.service';
 import { Keyboard } from '@capacitor/keyboard';
 
@@ -18,6 +20,7 @@ import { Keyboard } from '@capacitor/keyboard';
     RouterOutlet,
     CommonModule,
     ForegroundNotificationComponent,
+    SplashScreenComponent,
     IonContent,
     IonRefresher,
     IonRefresherContent,
@@ -30,10 +33,22 @@ export class AppComponent {
 
   title = 'landwash-intern';
   isMobile = Capacitor.getPlatform() !== 'web';
+  showSplash = true;
+
   constructor() {
     if (Capacitor.getPlatform() === 'ios') {
       Keyboard.setAccessoryBarVisible({ isVisible: false });
     }
+
+    // Hide the native splash screen immediately
+    // Our custom splash screen will handle the display
+    if (Capacitor.isNativePlatform()) {
+      SplashScreen.hide();
+    }
+  }
+
+  onSplashComplete() {
+    this.showSplash = false;
   }
   async handleRefresh(event: any) {
     console.log('🔄 Pull to refresh triggered');

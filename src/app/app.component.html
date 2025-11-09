@@ -1,3 +1,8 @@
+<app-splash-screen
+  *ngIf="showSplash"
+  (animationComplete)="onSplashComplete()"
+></app-splash-screen>
+
 <app-foreground-notification></app-foreground-notification>
 <ion-content>
   <ion-refresher
