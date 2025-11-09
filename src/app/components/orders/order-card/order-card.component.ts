@@ -1,10 +1,19 @@
-import { Component, Input, Output, EventEmitter, inject, computed, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  inject,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Order } from '../../../models/order.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { DeliveryDateDialogComponent } from '../delivery-date-dialog/delivery-date-dialog.component';
+import { LabelService } from '../../../services/label.service';
 
 @Component({
   selector: 'app-order-card',
@@ -15,6 +24,7 @@ import { DeliveryDateDialogComponent } from '../delivery-date-dialog/delivery-da
 })
 export class OrderCardComponent {
   private dialog = inject(MatDialog);
+  labelService = inject(LabelService);
 
   private _order = signal<Order | undefined>(undefined);
 

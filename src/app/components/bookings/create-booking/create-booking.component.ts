@@ -22,7 +22,7 @@ import { BookingService } from '../../../services/booking.service';
 import { TeamService } from '../../../services/team.service';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import { ServiceService } from '../../../services/service.service';
 import {
   Booking,
@@ -64,7 +64,7 @@ export class CreateBookingComponent implements OnInit {
   private teamService = inject(TeamService);
   private userService = inject(UserService);
   private authService = inject(AuthService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
   private serviceService = inject(ServiceService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -124,7 +124,11 @@ export class CreateBookingComponent implements OnInit {
     const selectedType = this.selectedBookingType(); // Use signal instead of form value
     const service = this.services().find((s) => s.type === selectedType);
 
-    if (service && service.availableLocations && service.availableLocations.length > 0) {
+    if (
+      service &&
+      service.availableLocations &&
+      service.availableLocations.length > 0
+    ) {
       // Filter out locations that are just IDs (strings) and keep only populated ServiceLocation objects
       return service.availableLocations.filter(
         (loc): loc is ServiceLocation => typeof loc !== 'string'

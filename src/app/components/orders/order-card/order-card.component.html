@@ -13,7 +13,7 @@
         {{ order.totalPrice | currency : "TND" : "symbol" : "1.0-0" }}
       </div>
       <div class="status-badge" [ngClass]="getStatusClass(order.status)">
-        {{ order.status }}
+        {{ labelService.getOrderStatusLabel(order.status) }}
       </div>
     </div>
   </div>

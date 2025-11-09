@@ -22,7 +22,7 @@ import {
 } from '../../../models/booking.model';
 import { DelayModalComponent } from '../delay-modal/delay-modal.component';
 import { BookingService } from '../../../services/booking.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
 import { Role } from '../../../models/personal.model';
 import { ServiceService } from '../../../services/service.service';
@@ -103,7 +103,11 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
     const selectedType = this.selectedEditBookingType();
     const service = this.services().find((s) => s.type === selectedType);
 
-    if (service && service.availableLocations && service.availableLocations.length > 0) {
+    if (
+      service &&
+      service.availableLocations &&
+      service.availableLocations.length > 0
+    ) {
       return service.availableLocations.filter(
         (loc): loc is ServiceLocation => typeof loc !== 'string'
       );
@@ -116,30 +120,33 @@ export class BookingCardComponent implements OnInit, OnDestroy, OnChanges {
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private bookingService = inject(BookingService);
-  private bookingLabelService = inject(BookingLabelService);
+  private labelService = inject(LabelService);
   private serviceService = inject(ServiceService);
 
   // Color tones for dropdown
-  colorTones = this.bookingLabelService.getAllColorTones();
+  colorTones = this.labelService.getAllColorTones();
 
   getVehicleTypeLabel(type: string): string {
-    return this.bookingLabelService.getBookingTypeLabel(type);
+    return this.labelService.getBookingTypeLabel(type);
   }
 
   getCarTypeLabel(carType?: string): string {
-    return carType ? this.bookingLabelService.getCarTypeLabel(carType) : '';
+    return carType ? this.labelService.getCarTypeLabel(carType) : '';
   }
 
   getVehicleIcon(type: string): string {
-    return this.bookingLabelService.getBookingTypeIcon(type);
+    return this.labelService.getBookingTypeIcon(type);
   }
 
   getColorToneLabel(colorTone: string): string {
-    return this.bookingLabelService.getColorToneLabel(colorTone);
+    return this.labelService.getColorToneLabel(colorTone);
   }
 
   getColorToneIcon(colorTone: string): string {
-    return this.bookingLabelService.getColorToneIcon(colorTone);
+    return this.labelService.getColorToneIcon(colorTone);
+  }
+  getStatusLabel(status: BookingStatus): string {
+    return this.labelService.getBookingStatusLabel(status);
   }
 
   // Check if booking is for a service with a predefined location

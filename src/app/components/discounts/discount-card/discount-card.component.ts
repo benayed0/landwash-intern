@@ -33,7 +33,7 @@ import {
   ServiceType,
 } from '../../../models/discount.model';
 import { ProductService } from '../../../services/product.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import { Product } from '../../../models/product.model';
 import { HotToastService } from '@ngneat/hot-toast';
 
@@ -67,7 +67,7 @@ export class DiscountCardComponent implements OnChanges {
   @Output() delete = new EventEmitter<string>();
 
   private productService = inject(ProductService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
   private toast = inject(HotToastService);
   private dialog = inject(MatDialog);
 
@@ -83,10 +83,12 @@ export class DiscountCardComponent implements OnChanges {
   ];
 
   // Service type options - using shared BookingLabelService
-  serviceTypeOptions = this.bookingLabelService.getAllBookingTypes().map(type => ({
-    label: type.label,
-    value: type.value
-  }));
+  serviceTypeOptions = this.bookingLabelService
+    .getAllBookingTypes()
+    .map((type) => ({
+      label: type.label,
+      value: type.value,
+    }));
 
   // Computed properties
   isExpired = computed(() => {

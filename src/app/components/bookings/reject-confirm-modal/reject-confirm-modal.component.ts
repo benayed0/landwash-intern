@@ -2,7 +2,7 @@ import { Component, Output, EventEmitter, Inject, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking } from '../../../models/booking.model';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 
 @Component({
   selector: 'app-reject-confirm-modal',
@@ -16,7 +16,7 @@ export class RejectConfirmModalComponent {
 
   booking: Booking;
 
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
 
   constructor(
     public dialogRef: MatDialogRef<RejectConfirmModalComponent>,

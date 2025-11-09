@@ -9,7 +9,7 @@ import {
 import { ServiceLocationService } from '../../../services/service-location.service';
 import { TeamService } from '../../../services/team.service';
 import { ServiceService } from '../../../services/service.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import { ServiceLocation } from '../../../models/service-location.model';
 import { Team } from '../../../models/team.model';
 import { Service } from '../../../models/service.model';
@@ -23,7 +23,12 @@ export interface LocationModalData {
 @Component({
   selector: 'app-location-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule, LocationPickerComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    LocationPickerComponent,
+  ],
   templateUrl: './location-modal.component.html',
   styleUrl: './location-modal.component.css',
 })
@@ -31,7 +36,7 @@ export class LocationModalComponent implements OnInit {
   private serviceLocationService = inject(ServiceLocationService);
   private teamService = inject(TeamService);
   private serviceService = inject(ServiceService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
 
   formData: {
     coordinates: [number, number];
@@ -66,9 +71,10 @@ export class LocationModalComponent implements OnInit {
 
     if (this.data && this.data.location) {
       // Extract team IDs from populated teams or use as-is if already IDs
-      const teamIds = this.data.location.teams?.map(team =>
-        typeof team === 'string' ? team : team._id!
-      ) || [];
+      const teamIds =
+        this.data.location.teams?.map((team) =>
+          typeof team === 'string' ? team : team._id!
+        ) || [];
 
       this.formData = {
         coordinates: [...this.data.location.coordinates] as [number, number],
@@ -109,9 +115,11 @@ export class LocationModalComponent implements OnInit {
       return false;
     }
 
-    return this.allServices.some(service =>
-      service.availableLocations.some(loc =>
-        typeof loc === 'string' ? loc === this.data!.location!._id : loc._id === this.data!.location!._id
+    return this.allServices.some((service) =>
+      service.availableLocations.some((loc) =>
+        typeof loc === 'string'
+          ? loc === this.data!.location!._id
+          : loc._id === this.data!.location!._id
       )
     );
   }
@@ -121,9 +129,11 @@ export class LocationModalComponent implements OnInit {
       return [];
     }
 
-    return this.allServices.filter(service =>
-      service.availableLocations.some(loc =>
-        typeof loc === 'string' ? loc === this.data!.location!._id : loc._id === this.data!.location!._id
+    return this.allServices.filter((service) =>
+      service.availableLocations.some((loc) =>
+        typeof loc === 'string'
+          ? loc === this.data!.location!._id
+          : loc._id === this.data!.location!._id
       )
     );
   }
@@ -148,12 +158,18 @@ export class LocationModalComponent implements OnInit {
     }
 
     // Check if trying to remove all teams from a location that's being used by services
-    if (this.isEditing && this.formData.teams.length === 0 && this.isLocationUsedByServices()) {
+    if (
+      this.isEditing &&
+      this.formData.teams.length === 0 &&
+      this.isLocationUsedByServices()
+    ) {
       const servicesUsing = this.getServicesUsingLocation();
       const serviceLabels = servicesUsing
-        .map(s => this.bookingLabelService.getBookingTypeLabel(s.type))
+        .map((s) => this.bookingLabelService.getBookingTypeLabel(s.type))
         .join(', ');
-      this.errors['teams'] = `Cette localisation est utilisée par des services (${serviceLabels}). Vous devez d'abord la retirer de ces services ou assigner au moins une équipe.`;
+      this.errors[
+        'teams'
+      ] = `Cette localisation est utilisée par des services (${serviceLabels}). Vous devez d'abord la retirer de ces services ou assigner au moins une équipe.`;
       isValid = false;
     }
 
@@ -174,12 +190,13 @@ export class LocationModalComponent implements OnInit {
       teams: this.formData.teams,
     };
 
-    const request = this.isEditing && this.data && this.data.location?._id
-      ? this.serviceLocationService.updateLocation(
-          this.data.location._id,
-          locationData
-        )
-      : this.serviceLocationService.createLocation(locationData);
+    const request =
+      this.isEditing && this.data && this.data.location?._id
+        ? this.serviceLocationService.updateLocation(
+            this.data.location._id,
+            locationData
+          )
+        : this.serviceLocationService.createLocation(locationData);
 
     request.subscribe({
       next: (location) => {
@@ -212,10 +229,7 @@ export class LocationModalComponent implements OnInit {
   }
 
   getInitialLocation(): SelectedLocation | null {
-    if (
-      this.formData.coordinates &&
-      this.formData.coordinates.length === 2
-    ) {
+    if (this.formData.coordinates && this.formData.coordinates.length === 2) {
       return {
         lat: this.formData.coordinates[1],
         lng: this.formData.coordinates[0],

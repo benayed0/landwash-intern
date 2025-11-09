@@ -13,13 +13,14 @@ import { Chart, registerables } from 'chart.js';
 import { BookingService } from '../../services/booking.service';
 import { OrderService } from '../../services/order.service';
 import { SubscriptionService } from '../../services/subscription.service';
-import { Booking } from '../../models/booking.model';
-import { Order } from '../../models/order.model';
+import { Booking, BookingStatus } from '../../models/booking.model';
+import { Order, OrderStatus } from '../../models/order.model';
 import { SubscriptionTransaction } from '../../models/subscription.model';
 import { User } from '../users/users.component';
 import { Personal } from '../../models/personal.model';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { LabelService } from '../../services/label.service';
 
 Chart.register(...registerables);
 
@@ -219,7 +220,8 @@ export class AnalyticsComponent implements OnInit {
     private bookingService: BookingService,
     private orderService: OrderService,
     private subscriptionService: SubscriptionService,
-    private authService: AuthService
+    private authService: AuthService,
+    private labelService: LabelService
   ) {
     // Update charts when view changes OR when filtered data changes
     effect(() => {
@@ -412,7 +414,9 @@ export class AnalyticsComponent implements OnInit {
         {
           type: 'bar',
           data: {
-            labels: statusStats.labels,
+            labels: statusStats.labels.map((status) =>
+              this.labelService.getBookingStatusLabel(status as BookingStatus)
+            ),
             datasets: [
               {
                 label: 'Nombre de réservations',
@@ -463,7 +467,9 @@ export class AnalyticsComponent implements OnInit {
         {
           type: 'bar',
           data: {
-            labels: statusStats.labels,
+            labels: statusStats.labels.map((status) =>
+              this.labelService.getOrderStatusLabel(status as OrderStatus)
+            ),
             datasets: [
               {
                 label: 'Nombre de commandes',
@@ -791,7 +797,9 @@ export class AnalyticsComponent implements OnInit {
     }, {} as Record<string, number>);
 
     return {
-      labels: Object.keys(types),
+      labels: Object.keys(types).map((type) =>
+        this.labelService.getBookingTypeLabel(type)
+      ),
       data: Object.values(types),
     };
   }

@@ -9,13 +9,16 @@
           getVehicleTypeLabel(booking.type)
         }}</span>
         @if (booking.type !== 'salon' && booking.carType) {
-        <span class="car-type-badge">{{ getCarTypeLabel(booking.carType) }}</span>
-        }
-        @if (booking.type === 'salon' && booking.salonsSeats) {
+        <span class="car-type-badge">{{
+          getCarTypeLabel(booking.carType)
+        }}</span>
+        } @if (booking.type === 'salon' && booking.salonsSeats) {
         <span class="salon-seats">{{ booking.salonsSeats }} sièges</span>
-        }
-        @if (booking.colorTone) {
-        <span class="color-tone-badge">{{ getColorToneIcon(booking.colorTone) }} {{ getColorToneLabel(booking.colorTone) }}</span>
+        } @if (booking.colorTone) {
+        <span class="color-tone-badge"
+          >{{ getColorToneIcon(booking.colorTone) }}
+          {{ getColorToneLabel(booking.colorTone) }}</span
+        >
         }
         <span class="booking-date-compact">{{ formatDate(booking.date) }}</span>
       </div>
@@ -32,24 +35,14 @@
       </div>
       <div class="status-actions">
         <span class="status-badge" [ngClass]="'status-' + booking.status">
-          {{
-            booking.status === "pending"
-              ? "En attente"
-              : booking.status === "confirmed"
-              ? "Confirmé"
-              : booking.status === "in-progress"
-              ? "En cours"
-              : booking.status === "completed"
-              ? "Terminé"
-              : booking.status === "rejected"
-              ? "Rejeté"
-              : booking.status === "canceled"
-              ? "Annulé"
-              : booking.status
-          }}
+          {{ getStatusLabel(booking.status) }}
         </span>
         @if (canEdit()) {
-        <button class="edit-btn-header" (click)="startEdit(); $event.stopPropagation()" title="Modifier">
+        <button
+          class="edit-btn-header"
+          (click)="startEdit(); $event.stopPropagation()"
+          title="Modifier"
+        >
           ✏️
         </button>
         }
@@ -94,18 +87,13 @@
     @if (editForm.type !== 'salon') {
     <div class="form-group">
       <label>Type de véhicule</label>
-      <select
-        [(ngModel)]="editForm.carType"
-        class="form-input"
-      >
+      <select [(ngModel)]="editForm.carType" class="form-input">
         <option value="small">Citadines / Petites Voitures</option>
         <option value="big">SUV / Grandes Voitures</option>
         <option value="pickup">Pick-up</option>
       </select>
     </div>
-    }
-
-    @if (editForm.type === 'salon') {
+    } @if (editForm.type === 'salon') {
     <div class="form-group">
       <label>Nombre de sièges</label>
       <input
@@ -116,15 +104,11 @@
         class="form-input"
       />
     </div>
-    }
-
-    @if (editForm.type === 'paint_correction' || editForm.type === 'body_correction' || editForm.type === 'ceramic_coating') {
+    } @if (editForm.type === 'paint_correction' || editForm.type ===
+    'body_correction' || editForm.type === 'ceramic_coating') {
     <div class="form-group">
       <label>Teinte de couleur (optionnel)</label>
-      <select
-        [(ngModel)]="editForm.colorTone"
-        class="form-input"
-      >
+      <select [(ngModel)]="editForm.colorTone" class="form-input">
         <option [ngValue]="undefined">Aucune (non spécifié)</option>
         <option *ngFor="let colorTone of colorTones" [value]="colorTone.value">
           {{ colorTone.icon }} {{ colorTone.label }}
@@ -200,28 +184,25 @@
 
       <!-- Service Location Dropdown (shown when service has locations) -->
       @if (availableServiceLocationsEdit().length > 0) {
-        <select
-          class="form-input"
-          (change)="onServiceLocationChangeEdit($event)"
+      <select class="form-input" (change)="onServiceLocationChangeEdit($event)">
+        <option value="">Choisir une localisation...</option>
+        <option
+          *ngFor="let location of availableServiceLocationsEdit()"
+          [value]="location._id"
+          [selected]="location.address === editForm.address"
         >
-          <option value="">Choisir une localisation...</option>
-          <option
-            *ngFor="let location of availableServiceLocationsEdit()"
-            [value]="location._id"
-            [selected]="location.address === editForm.address"
-          >
-            {{ location.address }}
-          </option>
-        </select>
+          {{ location.address }}
+        </option>
+      </select>
       }
 
       <!-- Manual Address Textarea (shown when no service locations available) -->
       @if (availableServiceLocationsEdit().length === 0) {
-        <textarea
-          [(ngModel)]="editForm.address"
-          class="form-input textarea"
-          rows="2"
-        ></textarea>
+      <textarea
+        [(ngModel)]="editForm.address"
+        class="form-input textarea"
+        rows="2"
+      ></textarea>
       }
     </div>
 
@@ -253,11 +234,11 @@
   <!-- Compact Location -->
   <div class="booking-location" [class.service-location]="isServiceLocation()">
     @if (isServiceLocation()) {
-      <!-- Service Location Badge -->
-      <div class="service-location-badge">
-        <span class="badge-icon">🏢</span>
-        <span class="badge-text">Centre de service</span>
-      </div>
+    <!-- Service Location Badge -->
+    <div class="service-location-badge">
+      <span class="badge-icon">🏢</span>
+      <span class="badge-text">Centre de service</span>
+    </div>
     }
     <a
       href="https://www.google.com/maps/search/?api=1&query={{

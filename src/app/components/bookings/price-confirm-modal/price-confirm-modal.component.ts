@@ -1,9 +1,16 @@
-import { Component, Output, EventEmitter, Inject, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  Output,
+  EventEmitter,
+  Inject,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking } from '../../../models/booking.model';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 
 @Component({
   selector: 'app-price-confirm-modal',
@@ -21,7 +28,7 @@ export class PriceConfirmModalComponent implements OnInit {
   booking: Booking;
   finalPrice = 0;
 
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
 
   constructor(
     public dialogRef: MatDialogRef<PriceConfirmModalComponent>,

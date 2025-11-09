@@ -1,9 +1,4 @@
-import {
-  Component,
-  OnInit,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -24,7 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { DiscountService } from '../../../services/discount.service';
 import { ProductService } from '../../../services/product.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import {
   DiscountDto,
   DiscountType,
@@ -57,7 +52,7 @@ export class CreateDiscountComponent implements OnInit {
   minDate = new Date();
   private discountService = inject(DiscountService);
   private productService = inject(ProductService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
   private toast = inject(HotToastService);
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<CreateDiscountComponent>);
@@ -74,10 +69,12 @@ export class CreateDiscountComponent implements OnInit {
   ];
 
   // Service type options - using shared BookingLabelService
-  serviceTypeOptions = this.bookingLabelService.getAllBookingTypes().map(type => ({
-    label: type.label,
-    value: type.value
-  }));
+  serviceTypeOptions = this.bookingLabelService
+    .getAllBookingTypes()
+    .map((type) => ({
+      label: type.label,
+      value: type.value,
+    }));
 
   ngOnInit() {
     this.initializeForm();

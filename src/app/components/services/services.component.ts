@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ServiceService } from '../../services/service.service';
 import { ServiceLocationService } from '../../services/service-location.service';
-import { BookingLabelService } from '../../services/booking-label.service';
+import { LabelService } from '../../services/label.service';
 import { Service, BookingType, ServiceType } from '../../models/service.model';
 import { ServiceLocation } from '../../models/service-location.model';
 import { ServiceModalComponent } from './service-modal/service-modal.component';
@@ -26,7 +26,7 @@ import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinn
 export class ServicesComponent implements OnInit {
   private serviceService = inject(ServiceService);
   private serviceLocationService = inject(ServiceLocationService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
   private dialog = inject(MatDialog);
 
   services: Service[] = [];
@@ -91,9 +91,9 @@ export class ServicesComponent implements OnInit {
   // we just need to format them for display
   getGroupedServicesArray(): Array<{ type: BookingType; services: Service[] }> {
     // Each service represents a booking type, so wrap each in an array
-    return this.filteredServices.map(service => ({
+    return this.filteredServices.map((service) => ({
       type: service.type,
-      services: [service]
+      services: [service],
     }));
   }
 
@@ -206,7 +206,7 @@ export class ServicesComponent implements OnInit {
 
         if (isLocationUsed) {
           alert(
-            'Cette localisation active est utilisée par un ou plusieurs services. Veuillez d\'abord la désactiver ou retirer cette localisation des services concernés.'
+            "Cette localisation active est utilisée par un ou plusieurs services. Veuillez d'abord la désactiver ou retirer cette localisation des services concernés."
           );
           this.closeDeleteConfirm();
           return;
@@ -299,15 +299,21 @@ export class ServicesComponent implements OnInit {
   }
 
   // Get service variants as an array for display
-  getServiceVariants(service: Service): Array<{ type: ServiceType; price: number; duration: number }> {
-    const variants: Array<{ type: ServiceType; price: number; duration: number }> = [];
+  getServiceVariants(
+    service: Service
+  ): Array<{ type: ServiceType; price: number; duration: number }> {
+    const variants: Array<{
+      type: ServiceType;
+      price: number;
+      duration: number;
+    }> = [];
 
     if (service.variants) {
       Object.entries(service.variants).forEach(([type, data]) => {
         variants.push({
           type: type as ServiceType,
           price: data.price,
-          duration: data.duration
+          duration: data.duration,
         });
       });
     }
@@ -322,8 +328,11 @@ export class ServicesComponent implements OnInit {
     }
     // Return team names if populated, otherwise return empty array
     return location.teams
-      .filter((team): team is import('./../../models/team.model').Team => typeof team !== 'string')
-      .map(team => team.name);
+      .filter(
+        (team): team is import('./../../models/team.model').Team =>
+          typeof team !== 'string'
+      )
+      .map((team) => team.name);
   }
 
   // Get team count for a location

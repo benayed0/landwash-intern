@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
-import { BookingType, carType, colorTone } from '../models/booking.model';
+import {
+  BookingStatus,
+  BookingType,
+  carType,
+  colorTone,
+} from '../models/booking.model';
+import { OrderStatus } from '../models/order.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BookingLabelService {
+export class LabelService {
   /**
    * Get the French label for a booking type
    * @param type The booking type
@@ -57,11 +63,31 @@ export class BookingLabelService {
    */
   getAllBookingTypes(): { value: BookingType; label: string; icon: string }[] {
     return [
-      { value: 'detailing', label: this.getBookingTypeLabel('detailing'), icon: this.getBookingTypeIcon('detailing') },
-      { value: 'salon', label: this.getBookingTypeLabel('salon'), icon: this.getBookingTypeIcon('salon') },
-      { value: 'paint_correction', label: this.getBookingTypeLabel('paint_correction'), icon: this.getBookingTypeIcon('paint_correction') },
-      { value: 'body_correction', label: this.getBookingTypeLabel('body_correction'), icon: this.getBookingTypeIcon('body_correction') },
-      { value: 'ceramic_coating', label: this.getBookingTypeLabel('ceramic_coating'), icon: this.getBookingTypeIcon('ceramic_coating') },
+      {
+        value: 'detailing',
+        label: this.getBookingTypeLabel('detailing'),
+        icon: this.getBookingTypeIcon('detailing'),
+      },
+      {
+        value: 'salon',
+        label: this.getBookingTypeLabel('salon'),
+        icon: this.getBookingTypeIcon('salon'),
+      },
+      {
+        value: 'paint_correction',
+        label: this.getBookingTypeLabel('paint_correction'),
+        icon: this.getBookingTypeIcon('paint_correction'),
+      },
+      {
+        value: 'body_correction',
+        label: this.getBookingTypeLabel('body_correction'),
+        icon: this.getBookingTypeIcon('body_correction'),
+      },
+      {
+        value: 'ceramic_coating',
+        label: this.getBookingTypeLabel('ceramic_coating'),
+        icon: this.getBookingTypeIcon('ceramic_coating'),
+      },
     ];
   }
 
@@ -83,7 +109,9 @@ export class BookingLabelService {
    * @returns True if color tone is relevant for this booking type
    */
   requiresColorTone(type: BookingType | string): boolean {
-    return ['paint_correction', 'body_correction', 'ceramic_coating'].includes(type);
+    return ['paint_correction', 'body_correction', 'ceramic_coating'].includes(
+      type
+    );
   }
 
   /**
@@ -129,9 +157,45 @@ export class BookingLabelService {
    */
   getAllColorTones(): { value: colorTone; label: string; icon: string }[] {
     return [
-      { value: 'clear', label: this.getColorToneLabel('clear'), icon: this.getColorToneIcon('clear') },
-      { value: 'medium_clear', label: this.getColorToneLabel('medium_clear'), icon: this.getColorToneIcon('medium_clear') },
-      { value: 'dark', label: this.getColorToneLabel('dark'), icon: this.getColorToneIcon('dark') },
+      {
+        value: 'clear',
+        label: this.getColorToneLabel('clear'),
+        icon: this.getColorToneIcon('clear'),
+      },
+      {
+        value: 'medium_clear',
+        label: this.getColorToneLabel('medium_clear'),
+        icon: this.getColorToneIcon('medium_clear'),
+      },
+      {
+        value: 'dark',
+        label: this.getColorToneLabel('dark'),
+        icon: this.getColorToneIcon('dark'),
+      },
     ];
+  }
+
+  getBookingStatusLabel(status: BookingStatus) {
+    const labels: Record<string, string> = {
+      pending: 'En Attente',
+      confirmed: 'Confirmé',
+      'in-progress': 'En Cours',
+      completed: 'Terminé',
+      rejected: 'Refusé',
+      canceled: 'Annulé',
+    };
+    return labels[status] || status;
+  }
+  getOrderStatusLabel(status: OrderStatus): string {
+    const labels: Record<string, string> = {
+      pending: 'En Attente',
+      confirmed: 'Confirmé',
+      shipped: 'Expédié',
+      delivered: 'Livré',
+      paid: 'Payé',
+      cancelled: 'Annulé',
+      completed: 'Terminé',
+    };
+    return labels[status] || status;
   }
 }

@@ -12,7 +12,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking } from '../../../models/booking.model';
 import { Team } from '../../../models/team.model';
 import { TeamService } from '../../../services/team.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 
 @Component({
@@ -35,7 +35,7 @@ export class TeamAssignModalComponent implements OnInit {
   }>();
 
   private teamService = inject(TeamService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
 
   booking: Booking;
   isReassignment: boolean;

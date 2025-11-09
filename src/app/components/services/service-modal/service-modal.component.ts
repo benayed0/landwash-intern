@@ -7,7 +7,7 @@ import {
   MatDialogModule,
 } from '@angular/material/dialog';
 import { ServiceService } from '../../../services/service.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import {
   Service,
   BookingType,
@@ -31,7 +31,7 @@ export interface ServiceModalData {
 })
 export class ServiceModalComponent implements OnInit {
   private serviceService = inject(ServiceService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
 
   formData: {
     type: BookingType | '';
@@ -74,7 +74,9 @@ export class ServiceModalComponent implements OnInit {
         .filter((id) => id !== '');
 
       // Copy variants from service
-      const variants: { [key in ServiceType]?: { price: number; duration: number } } = {};
+      const variants: {
+        [key in ServiceType]?: { price: number; duration: number };
+      } = {};
       Object.entries(this.data.service.variants).forEach(([key, value]) => {
         variants[key as ServiceType] = { ...value };
       });
@@ -99,18 +101,26 @@ export class ServiceModalComponent implements OnInit {
     }
 
     // Validate that at least one variant exists
-    if (!this.formData.variants || Object.keys(this.formData.variants).length === 0) {
-      this.errors['variants'] = 'Au moins une variante de prix/durée est requise';
+    if (
+      !this.formData.variants ||
+      Object.keys(this.formData.variants).length === 0
+    ) {
+      this.errors['variants'] =
+        'Au moins une variante de prix/durée est requise';
       isValid = false;
     } else {
       // Validate each variant
       Object.entries(this.formData.variants).forEach(([key, variant]) => {
         if (variant.price <= 0) {
-          this.errors[`price_${key}`] = `Le prix pour ${key} doit être supérieur à 0`;
+          this.errors[
+            `price_${key}`
+          ] = `Le prix pour ${key} doit être supérieur à 0`;
           isValid = false;
         }
         if (variant.duration <= 0) {
-          this.errors[`duration_${key}`] = `La durée pour ${key} doit être supérieure à 0`;
+          this.errors[
+            `duration_${key}`
+          ] = `La durée pour ${key} doit être supérieure à 0`;
           isValid = false;
         }
       });
@@ -143,7 +153,8 @@ export class ServiceModalComponent implements OnInit {
     this.isSubmitting = true;
 
     // Build variants record from form data
-    const variants: Record<ServiceType, { price: number; duration: number }> = {} as Record<ServiceType, { price: number; duration: number }>;
+    const variants: Record<ServiceType, { price: number; duration: number }> =
+      {} as Record<ServiceType, { price: number; duration: number }>;
     Object.entries(this.formData.variants).forEach(([key, value]) => {
       if (value) {
         variants[key as ServiceType] = value;
@@ -222,7 +233,9 @@ export class ServiceModalComponent implements OnInit {
 
   // Helper methods for display-only fields
   getDisplayTypeLabel(): string {
-    return this.formData.type ? this.getTypeLabel(this.formData.type as BookingType) : '';
+    return this.formData.type
+      ? this.getTypeLabel(this.formData.type as BookingType)
+      : '';
   }
 
   // Get all available variant types for this service
@@ -233,12 +246,14 @@ export class ServiceModalComponent implements OnInit {
     }
 
     // Other service types can only have car-specific variants (not 'all')
-    const carTypeValues = this.carTypes.map(ct => ct.value as CarType);
+    const carTypeValues = this.carTypes.map((ct) => ct.value as CarType);
     return carTypeValues;
   }
 
   // Get variant data for a specific type
-  getVariantData(type: ServiceType): { price: number; duration: number } | undefined {
+  getVariantData(
+    type: ServiceType
+  ): { price: number; duration: number } | undefined {
     return this.formData.variants[type];
   }
 

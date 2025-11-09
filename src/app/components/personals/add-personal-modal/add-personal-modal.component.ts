@@ -12,7 +12,7 @@ import { PersonalService } from '../../../services/personal.service';
 import { Personal, Role } from '../../../models/personal.model';
 import { ServiceService } from '../../../services/service.service';
 import { Service } from '../../../models/service.model';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import { BookingType } from '../../../models/booking.model';
 
 interface NewPersonal {
@@ -45,7 +45,7 @@ export class AddPersonalModalComponent implements OnInit {
   toast = inject(HotToastService);
   dialogRef = inject(MatDialogRef<AddPersonalModalComponent>);
   serviceService = inject(ServiceService);
-  bookingLabelService = inject(BookingLabelService);
+  bookingLabelService = inject(LabelService);
   services: Service[] = [];
   @Output() confirmAdd = new EventEmitter<Personal>();
   //

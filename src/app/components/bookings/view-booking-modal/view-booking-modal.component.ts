@@ -6,7 +6,7 @@ import {
   MatDialog,
 } from '@angular/material/dialog';
 import { BookingService } from '../../../services/booking.service';
-import { BookingLabelService } from '../../../services/booking-label.service';
+import { LabelService } from '../../../services/label.service';
 import { Booking } from '../../../models/booking.model';
 import { TeamAssignModalComponent } from '../../personals/team-assign-modal/team-assign-modal.component';
 import { RatingDisplayComponent } from '../../shared/rating-display/rating-display.component';
@@ -28,7 +28,7 @@ export class ViewBookingModalComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<ViewBookingModalComponent>);
   private data = inject<ViewBookingDialogData>(MAT_DIALOG_DATA);
   private bookingService = inject(BookingService);
-  private bookingLabelService = inject(BookingLabelService);
+  private bookingLabelService = inject(LabelService);
   private dialog = inject(MatDialog);
   auth = inject(AuthService);
   booking = signal<Booking | null>(null);
@@ -79,7 +79,9 @@ export class ViewBookingModalComponent implements OnInit {
 
   serviceTypeLabel = computed(() => {
     const serviceType = this.booking()?.type;
-    return serviceType ? this.bookingLabelService.getBookingTypeLabel(serviceType) : '';
+    return serviceType
+      ? this.bookingLabelService.getBookingTypeLabel(serviceType)
+      : '';
   });
 
   carTypeLabel = computed(() => {
@@ -89,12 +91,16 @@ export class ViewBookingModalComponent implements OnInit {
 
   colorToneLabel = computed(() => {
     const colorTone = this.booking()?.colorTone;
-    return colorTone ? this.bookingLabelService.getColorToneLabel(colorTone) : '';
+    return colorTone
+      ? this.bookingLabelService.getColorToneLabel(colorTone)
+      : '';
   });
 
   colorToneIcon = computed(() => {
     const colorTone = this.booking()?.colorTone;
-    return colorTone ? this.bookingLabelService.getColorToneIcon(colorTone) : '';
+    return colorTone
+      ? this.bookingLabelService.getColorToneIcon(colorTone)
+      : '';
   });
 
   ngOnInit() {
