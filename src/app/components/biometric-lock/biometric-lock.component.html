@@ -1,0 +1,28 @@
+<div class="lock-screen">
+  <div class="lock-content">
+    <div class="icon-container">
+      <div class="biometric-icon">{{ getBiometryIcon() }}</div>
+    </div>
+
+    <h1 class="app-name">Landwash</h1>
+
+    <p class="lock-message">
+      {{ authError ? "Connexion échouée" : "App est verrouillée" }}
+    </p>
+
+    <button
+      class="unlock-button"
+      (click)="authenticate()"
+      [disabled]="isAuthenticating"
+    >
+      <span *ngIf="!isAuthenticating">
+        Déverrouiller avec {{ biometryName }}
+      </span>
+      <span *ngIf="isAuthenticating" class="authenticating">
+        Connexion...
+      </span>
+    </button>
+
+    <button class="logout-button" (click)="logout()">Déconnexion</button>
+  </div>
+</div>

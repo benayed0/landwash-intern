@@ -3,6 +3,8 @@
   (animationComplete)="onSplashComplete()"
 ></app-splash-screen>
 
+<app-biometric-lock *ngIf="isAppLocked$ | async"></app-biometric-lock>
+
 <app-foreground-notification></app-foreground-notification>
 <ion-content>
   <ion-refresher
