@@ -40,6 +40,7 @@ export interface Order {
     phoneNumber: string;
     name: string;
   };
+  phoneNumber: string;
   products: OrderProduct[];
   totalPrice: number;
   date: Date;
