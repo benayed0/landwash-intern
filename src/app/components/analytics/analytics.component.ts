@@ -37,6 +37,7 @@ export class AnalyticsComponent implements OnInit {
   @ViewChild('bookingTypeChart') bookingTypeChart!: ElementRef;
   @ViewChild('bookingStatusChart') bookingStatusChart!: ElementRef;
   @ViewChild('bookingMonthlyChart') bookingMonthlyChart!: ElementRef;
+  @ViewChild('bookingTeamChart') bookingTeamChart!: ElementRef;
   @ViewChild('orderStatusChart') orderStatusChart!: ElementRef;
   @ViewChild('orderMonthlyChart') orderMonthlyChart!: ElementRef;
   @ViewChild('topProductsChart') topProductsChart!: ElementRef;
@@ -53,14 +54,47 @@ export class AnalyticsComponent implements OnInit {
   );
 
   // Date filtering properties
-  selectedPreset = signal<'7days' | '30days' | '90days' | 'year' | 'custom'>(
-    '30days'
-  );
+  selectedPreset = signal<
+    '7days' | '30days' | '90days' | 'year' | 'custom' | 'all'
+  >('30days');
   startDate = signal<string>('');
   endDate = signal<string>('');
 
-  // Filtered data based on date range
-  filteredBookings = computed(() => this.filterDataByDate(this.bookings()));
+  // Team filtering
+  selectedTeamId = signal<string>('all');
+  availableTeams = computed(() => {
+    const teams = new Map<string, { _id: string; name: string }>();
+
+    this.bookings().forEach((booking) => {
+      if (booking.teamId && typeof booking.teamId === 'object') {
+        teams.set(booking.teamId._id, {
+          _id: booking.teamId._id,
+          name: booking.teamId.name,
+        });
+      }
+    });
+
+    return Array.from(teams.values()).sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+  });
+
+  // Filtered data based on date range and team
+  filteredBookings = computed(() => {
+    let bookings = this.filterDataByDate(this.bookings());
+
+    // Apply team filter
+    if (this.selectedTeamId() !== 'all') {
+      bookings = bookings.filter((booking) => {
+        if (booking.teamId && typeof booking.teamId === 'object') {
+          return booking.teamId._id === this.selectedTeamId();
+        }
+        return false;
+      });
+    }
+
+    return bookings;
+  });
   filteredOrders = computed(() => this.filterDataByDate(this.orders()));
   filteredSubscriptions = computed(() =>
     this.filterSubscriptionsByDate(this.subscriptions())
@@ -154,6 +188,35 @@ export class AnalyticsComponent implements OnInit {
       : 0;
   });
 
+  // Team performance metrics
+  topPerformingTeam = computed(() => {
+    const bookings = this.filteredBookings();
+    const teamStats = new Map<string, { name: string; count: number; revenue: number }>();
+
+    bookings.forEach((booking) => {
+      if (booking.teamId && typeof booking.teamId === 'object') {
+        const teamId = booking.teamId._id;
+        const teamName = booking.teamId.name;
+        const existing = teamStats.get(teamId) || { name: teamName, count: 0, revenue: 0 };
+        existing.count++;
+        existing.revenue += booking.price || 0;
+        teamStats.set(teamId, existing);
+      }
+    });
+
+    if (teamStats.size === 0) return null;
+
+    // Find team with highest revenue
+    let topTeam = { name: '', count: 0, revenue: 0 };
+    teamStats.forEach((stats) => {
+      if (stats.revenue > topTeam.revenue) {
+        topTeam = stats;
+      }
+    });
+
+    return topTeam;
+  });
+
   // Order Analytics (using filtered data)
   totalOrders = computed(() => this.filteredOrders().length);
   ordersRevenue = computed(() =>
@@ -225,13 +288,14 @@ export class AnalyticsComponent implements OnInit {
   ) {
     // Update charts when view changes OR when filtered data changes
     effect(() => {
-      // Watch for changes in view, filtered data, or date range
+      // Watch for changes in view, filtered data, date range, or team filter
       this.analyticsView();
       this.filteredBookings();
       this.filteredOrders();
       this.filteredSubscriptions();
       this.startDate();
       this.endDate();
+      this.selectedTeamId();
 
       // Only refresh if we have data and charts are initialized
       if (
@@ -454,6 +518,84 @@ export class AnalyticsComponent implements OnInit {
           options: this.getLineChartOptions(),
         }
       );
+    }
+
+    // Team Performance Chart
+    if (this.bookingTeamChart?.nativeElement) {
+      const teamStats = this.getTeamPerformanceStats();
+
+      if (teamStats.labels.length > 0) {
+        this.charts['bookingTeam'] = new Chart(
+          this.bookingTeamChart.nativeElement,
+          {
+            type: 'bar',
+            data: {
+              labels: teamStats.labels,
+              datasets: [
+                {
+                  label: 'Réservations',
+                  data: teamStats.bookingCounts,
+                  backgroundColor: '#c3ff00',
+                  borderWidth: 2,
+                  yAxisID: 'y',
+                },
+                {
+                  label: 'Revenus (TND)',
+                  data: teamStats.revenues,
+                  backgroundColor: '#36A2EB',
+                  borderWidth: 2,
+                  yAxisID: 'y1',
+                },
+              ],
+            },
+            options: {
+              ...this.getBarChartOptions(),
+              scales: {
+                y: {
+                  type: 'linear',
+                  display: true,
+                  position: 'left',
+                  ticks: {
+                    color: '#e5e5e5',
+                  },
+                  grid: {
+                    color: '#2a2a2a',
+                  },
+                  title: {
+                    display: true,
+                    text: 'Nombre de réservations',
+                    color: '#c3ff00',
+                  },
+                },
+                y1: {
+                  type: 'linear',
+                  display: true,
+                  position: 'right',
+                  ticks: {
+                    color: '#e5e5e5',
+                  },
+                  grid: {
+                    drawOnChartArea: false,
+                  },
+                  title: {
+                    display: true,
+                    text: 'Revenus (TND)',
+                    color: '#36A2EB',
+                  },
+                },
+                x: {
+                  ticks: {
+                    color: '#e5e5e5',
+                  },
+                  grid: {
+                    color: '#2a2a2a',
+                  },
+                },
+              },
+            },
+          }
+        );
+      }
     }
   }
 
@@ -744,7 +886,10 @@ export class AnalyticsComponent implements OnInit {
     const subscriptionsByTime = new Array(labels.length).fill(0);
 
     this.filteredBookings().forEach((booking) => {
-      const itemDate = new Date(booking.createdAt);
+      const bookingDate = booking.date || booking.createdAt;
+      if (!bookingDate) return;
+
+      const itemDate = new Date(bookingDate);
       const timeKey = this.getTimeKey(itemDate, timeUnit);
       const index = timeIndexes.indexOf(timeKey);
       if (index >= 0) {
@@ -821,7 +966,12 @@ export class AnalyticsComponent implements OnInit {
     const data = new Array(labels.length).fill(0);
 
     this.filteredBookings().forEach((booking) => {
-      const itemDate = new Date(booking.createdAt);
+      // Use date field (appointment date) for time-based analytics
+      // This shows when bookings are scheduled, not when they were created
+      const bookingDate = booking.date || booking.createdAt;
+      if (!bookingDate) return;
+
+      const itemDate = new Date(bookingDate);
       const timeKey = this.getTimeKey(itemDate, timeUnit);
       const index = timeIndexes.indexOf(timeKey);
       if (index >= 0) {
@@ -830,6 +980,39 @@ export class AnalyticsComponent implements OnInit {
     });
 
     return { labels, data };
+  }
+
+  private getTeamPerformanceStats() {
+    const teamStats = new Map<
+      string,
+      { name: string; bookingCount: number; revenue: number }
+    >();
+
+    this.filteredBookings().forEach((booking) => {
+      if (booking.teamId && typeof booking.teamId === 'object') {
+        const teamId = booking.teamId._id;
+        const teamName = booking.teamId.name;
+        const existing = teamStats.get(teamId) || {
+          name: teamName,
+          bookingCount: 0,
+          revenue: 0,
+        };
+        existing.bookingCount++;
+        existing.revenue += booking.price || 0;
+        teamStats.set(teamId, existing);
+      }
+    });
+
+    // Sort by revenue (descending) and take top 10 teams
+    const sortedTeams = Array.from(teamStats.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    return {
+      labels: sortedTeams.map((t) => t.name),
+      bookingCounts: sortedTeams.map((t) => t.bookingCount),
+      revenues: sortedTeams.map((t) => t.revenue),
+    };
   }
 
   private getOrderStatusStats() {
@@ -945,43 +1128,70 @@ export class AnalyticsComponent implements OnInit {
   }
 
   // Date filtering methods
-  setDatePreset(preset: '7days' | '30days' | '90days' | 'year' | 'custom') {
+  setDatePreset(
+    preset: '7days' | '30days' | '90days' | 'year' | 'custom' | 'all'
+  ) {
     this.selectedPreset.set(preset);
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     switch (preset) {
       case '7days':
+        // Show 3 days before and 4 days after today (total 7 days centered on today)
         this.startDate.set(
           this.formatDateForInput(
-            new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000)
+            new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000)
           )
         );
-        this.endDate.set(this.formatDateForInput(today));
+        this.endDate.set(
+          this.formatDateForInput(
+            new Date(today.getTime() + 4 * 24 * 60 * 60 * 1000)
+          )
+        );
         break;
       case '30days':
+        // Show 15 days before and 15 days after today (total 30 days centered on today)
         this.startDate.set(
           this.formatDateForInput(
-            new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000)
+            new Date(today.getTime() - 15 * 24 * 60 * 60 * 1000)
           )
         );
-        this.endDate.set(this.formatDateForInput(today));
+        this.endDate.set(
+          this.formatDateForInput(
+            new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000)
+          )
+        );
         break;
       case '90days':
+        // Show 45 days before and 45 days after today
         this.startDate.set(
           this.formatDateForInput(
-            new Date(today.getTime() - 89 * 24 * 60 * 60 * 1000)
+            new Date(today.getTime() - 45 * 24 * 60 * 60 * 1000)
           )
         );
-        this.endDate.set(this.formatDateForInput(today));
+        this.endDate.set(
+          this.formatDateForInput(
+            new Date(today.getTime() + 45 * 24 * 60 * 60 * 1000)
+          )
+        );
         break;
       case 'year':
+        // Show 6 months before and 6 months after today
         this.startDate.set(
           this.formatDateForInput(
-            new Date(today.getTime() - 364 * 24 * 60 * 60 * 1000)
+            new Date(today.getTime() - 182 * 24 * 60 * 60 * 1000)
           )
         );
-        this.endDate.set(this.formatDateForInput(today));
+        this.endDate.set(
+          this.formatDateForInput(
+            new Date(today.getTime() + 182 * 24 * 60 * 60 * 1000)
+          )
+        );
+        break;
+      case 'all':
+        // Clear date filters to show all bookings
+        this.startDate.set('');
+        this.endDate.set('');
         break;
       case 'custom':
         // Don't change dates for custom, let user set them
@@ -1007,6 +1217,11 @@ export class AnalyticsComponent implements OnInit {
   applyDateFilter() {
     // Force chart refresh by calling updateChartsForView
     setTimeout(() => this.updateChartsForView(), 100);
+  }
+
+  onTeamFilterChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.selectedTeamId.set(target.value);
   }
 
   isDateRangeValid(): boolean {
@@ -1042,7 +1257,9 @@ export class AnalyticsComponent implements OnInit {
     end.setHours(23, 59, 59, 999);
 
     return data.filter((item) => {
-      const itemDate = new Date(item.createdAt || item.date);
+      // For bookings, use appointment date (date field)
+      // For orders/other items, use createdAt
+      const itemDate = new Date(item.date || item.createdAt);
       return itemDate >= start && itemDate <= end;
     });
   }
