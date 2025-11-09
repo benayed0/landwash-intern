@@ -33,9 +33,16 @@ export class AppComponent {
 
   title = 'landwash-intern';
   isMobile = Capacitor.getPlatform() !== 'web';
-  showSplash = true;
+  showSplash = !sessionStorage.getItem('isRefreshing');
 
   constructor() {
+    // Clean up old splash flags from previous implementation
+    localStorage.removeItem('splashShown');
+    sessionStorage.removeItem('splashShown');
+
+    // Clear the refresh flag now that app has loaded
+    sessionStorage.removeItem('isRefreshing');
+
     if (Capacitor.getPlatform() === 'ios') {
       Keyboard.setAccessoryBarVisible({ isVisible: false });
     }
@@ -69,6 +76,9 @@ export class AppComponent {
 
       // Wait for both the refresh and minimum delay
       await Promise.all([refreshPromise, minDelay]);
+
+      // Set flag to skip splash screen on reload
+      sessionStorage.setItem('isRefreshing', 'true');
 
       // Reload the current route
       window.location.reload();
