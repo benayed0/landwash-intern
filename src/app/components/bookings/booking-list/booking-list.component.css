@@ -6,16 +6,6 @@
   overflow: hidden;
 }
 
-.page-header {
-  padding: 20px;
-  border-bottom: 1px solid rgba(195, 255, 0, 0.2);
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  background: #0a0a0a;
-  z-index: 100;
-}
-
 .add-user-btn {
   background: linear-gradient(135deg, #c3ff00, #a8d900);
   color: #000;
@@ -45,22 +35,6 @@
   padding: 12px 15px;
   margin: -20px -20px 20px -20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-/* iOS-specific: override negative margins */
-.booking-list-container.platform-ios .filter-section {
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.booking-list-container.platform-ios .page-header {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.booking-list-container.platform-ios .content {
-  padding-left: 0;
-  padding-right: 0;
 }
 
 .filter-accordion-toggle {
@@ -582,10 +556,10 @@
   width: 100% !important;
 }
 @media (max-width: 828px) {
-  .page-header {
+  /* .page-header {
     padding: 12px 15px;
     flex-wrap: wrap;
-  }
+  } */
 
   .page-header h1 {
     font-size: 20px;
@@ -649,8 +623,11 @@
 
   .content {
     padding: 12px;
+    padding-bottom: 50px;
   }
-
+  .content.platform-ios {
+    padding-bottom: 150px;
+  }
   .section-title {
     font-size: 18px;
     margin-bottom: 15px;
@@ -806,11 +783,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  flex-shrink: 0;
+  /* flex-shrink: 0;
   position: sticky;
-  top: 0;
+  top: 0; */
   background: #0a0a0a;
-  z-index: 100;
+  /* z-index: 100; */
 }
 
 .page-header h1 {

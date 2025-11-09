@@ -19,6 +19,7 @@ import {
   SortSelectComponent,
   SortOption,
 } from '../../shared/sort-select/sort-select.component';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-order-list',
@@ -42,7 +43,7 @@ export class OrderListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   dialog = inject(MatDialog);
-
+  isIOS = Capacitor.getPlatform() === 'ios';
   activeTab = 'pending';
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
@@ -129,10 +130,10 @@ export class OrderListComponent implements OnInit {
   ]);
 
   sortOptions: SortOption[] = [
-    { value: 'date-desc', label: 'Date (récent d\'abord)' },
-    { value: 'date-asc', label: 'Date (ancien d\'abord)' },
-    { value: 'total-desc', label: 'Montant (élevé d\'abord)' },
-    { value: 'total-asc', label: 'Montant (bas d\'abord)' },
+    { value: 'date-desc', label: "Date (récent d'abord)" },
+    { value: 'date-asc', label: "Date (ancien d'abord)" },
+    { value: 'total-desc', label: "Montant (élevé d'abord)" },
+    { value: 'total-asc', label: "Montant (bas d'abord)" },
     { value: 'client-name', label: 'Client (A-Z)' },
     { value: 'status', label: 'Statut' },
   ];

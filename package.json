@@ -31,6 +31,7 @@
     "@capacitor/angular": "^2.0.3",
     "@capacitor/core": "latest",
     "@capacitor/ios": "^7.4.4",
+    "@capacitor/keyboard": "^7.0.3",
     "@capacitor/push-notifications": "^7.0.3",
     "@ionic/angular": "^8.7.9",
     "@ngneat/hot-toast": "^7.0.0",

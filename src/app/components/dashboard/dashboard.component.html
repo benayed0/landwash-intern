@@ -1,6 +1,5 @@
 <div class="app-container" [class.platform-ios]="isIOS">
   <!-- Mobile Navbar - Visible for all browser users on mobile -->
-  @if(!authService.isWebView()) {
   <div class="mobile-navbar">
     <div class="navbar-logo">
       <img src="assets/logo.png" class="logo-img" alt="Landwash Logo" />
@@ -141,7 +140,6 @@
       </button> -->
     </div>
   </div>
-  }
 
   <!-- Content Area -->
   <div class="content-container" [class.platform-ios]="isIOS">

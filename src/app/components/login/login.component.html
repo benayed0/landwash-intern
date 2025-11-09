@@ -1,4 +1,4 @@
-<div class="login-container">
+<div class="login-container" [class.platform-ios]="isIOS">
   <div class="login-card">
     <div class="logo-container">
       <img
@@ -89,10 +89,12 @@
             class="password-toggle"
             (click)="togglePasswordVisibility()"
             [attr.aria-label]="
-              showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
+              showPassword
+                ? 'Masquer le mot de passe'
+                : 'Afficher le mot de passe'
             "
           >
-            <span class="eye-icon">{{ showPassword ? '🙈' : '👁️' }}</span>
+            <span class="eye-icon">{{ showPassword ? "🙈" : "👁️" }}</span>
           </button>
         </div>
         <div class="error-message" *ngIf="passwordError">
@@ -103,7 +105,16 @@
       <button type="submit" [disabled]="loading" class="submit-btn">
         <span *ngIf="!loading">Se connecter</span>
         <span *ngIf="loading" class="loading-content">
-          <div style="width: 16px; height: 16px; border: 2px solid #0a0a0a; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <div
+            style="
+              width: 16px;
+              height: 16px;
+              border: 2px solid #0a0a0a;
+              border-top: 2px solid transparent;
+              border-radius: 50%;
+              animation: spin 0.8s linear infinite;
+            "
+          ></div>
           Connexion...
         </span>
       </button>

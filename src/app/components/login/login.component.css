@@ -6,6 +6,9 @@
   padding: 20px;
 }
 
+.login-container.platform-ios {
+  padding-top: 200px;
+}
 .login-card {
   background: #1a1a1a;
   border-radius: 20px;

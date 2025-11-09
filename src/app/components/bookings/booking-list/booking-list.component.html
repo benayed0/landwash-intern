@@ -8,7 +8,7 @@
     </button>
   </div>
 
-  <div class="content">
+  <div class="content" [class.platform-ios]="isIOS">
     <!-- Filter and Sort Controls -->
     <div class="filter-section">
       @if(userRole!=='partner'){

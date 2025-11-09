@@ -34,6 +34,7 @@ import {
   SortSelectComponent,
   SortOption,
 } from '../../shared/sort-select/sort-select.component';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-booking-list',
@@ -47,6 +48,7 @@ import {
     UserFilterSelectComponent,
     FilterSelectComponent,
     SortSelectComponent,
+    A11yModule,
   ],
   templateUrl: './booking-list.component.html',
   styleUrl: './booking-list.component.css',

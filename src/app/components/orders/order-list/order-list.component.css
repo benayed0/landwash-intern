@@ -225,3 +225,7 @@
     margin-bottom: 15px;
   }
 }
+
+.content.platform-ios {
+  padding-bottom: 150px;
+}

@@ -1175,6 +1175,11 @@
   resolved "https://registry.npmjs.org/@capacitor/ios/-/ios-7.4.4.tgz"
   integrity sha512-Xp3bGWlSQAwsZGngRMWTdoD2agdMV12Whnm+/xsYPxfQSj+Tksbr7r/8Mso7VWkpnTKO4iMlx762g3PjW+wi4w==
 
+"@capacitor/keyboard@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.npmjs.org/@capacitor/keyboard/-/keyboard-7.0.3.tgz"
+  integrity sha512-BIBKjmky5rOYNhvYhNeDi0MMvjwYZ6YF9JoCYcGKvKY+XLJKtezsEL78XfOlgWZBkbfR8uq3tzktY6PqgoYLKA==
+
 "@capacitor/push-notifications@^7.0.3":
   version "7.0.3"
   resolved "https://registry.npmjs.org/@capacitor/push-notifications/-/push-notifications-7.0.3.tgz"

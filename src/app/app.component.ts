@@ -9,6 +9,7 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { ForegroundNotificationComponent } from './components/foreground-notification/foreground-notification.component';
 import { AuthService } from './services/auth.service';
+import { Keyboard } from '@capacitor/keyboard';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,11 @@ export class AppComponent {
 
   title = 'landwash-intern';
   isMobile = Capacitor.getPlatform() !== 'web';
-
+  constructor() {
+    if (Capacitor.getPlatform() === 'ios') {
+      Keyboard.setAccessoryBarVisible({ isVisible: false });
+    }
+  }
   async handleRefresh(event: any) {
     console.log('🔄 Pull to refresh triggered');
 
