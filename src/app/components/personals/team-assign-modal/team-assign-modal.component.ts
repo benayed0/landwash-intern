@@ -63,6 +63,32 @@ export class TeamAssignModalComponent implements OnInit {
 
   loadTeams() {
     this.loadingTeams = true;
+
+    const coords = this.booking?.coordinates;
+    const date = this.booking?.date;
+
+    // If booking has location and date, fetch only available teams
+    if (coords && coords.length === 2 && date) {
+      const [lng, lat] = coords;
+      this.teamService
+        .getAvailableTeams(lat, lng, new Date(date).toISOString())
+        .subscribe({
+          next: (result) => {
+            this.teams = result.teams;
+            this.loadingTeams = false;
+          },
+          error: (err) => {
+            console.error('Error loading available teams, falling back to all:', err);
+            this.loadAllTeams();
+          },
+        });
+    } else {
+      this.loadAllTeams();
+    }
+  }
+
+  private loadAllTeams() {
+    this.loadingTeams = true;
     this.teamService.getAllTeams().subscribe({
       next: (teams) => {
         this.teams = teams;

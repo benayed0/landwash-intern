@@ -16,6 +16,21 @@ export class TeamService {
     return this.http.get<Team[]>(`${this.apiUrl}/teams`);
   }
 
+  getAvailableTeams(
+    lat: number,
+    lng: number,
+    date: string,
+  ): Observable<{ teams: Team[]; total: number }> {
+    const params = new HttpParams()
+      .set('lat', lat.toString())
+      .set('lng', lng.toString())
+      .set('date', date);
+    return this.http.get<{ teams: Team[]; total: number }>(
+      `${this.apiUrl}/teams/available`,
+      { params },
+    );
+  }
+
   getTeamById(id: string): Observable<Team> {
     return this.http.get<Team>(`${this.apiUrl}/teams/${id}`);
   }
