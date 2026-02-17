@@ -1,0 +1,62 @@
+<div class="blocked-date-list-container">
+  <!-- Header with Add Button -->
+  <div class="page-header">
+    <h1>Gestion des Dates Bloquees</h1>
+    <button class="add-blocked-date-btn" (click)="showCreateBlockedDateModal()">
+      + Creer une Date Bloquee
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'upcoming'"
+      (click)="setActiveTab('upcoming')"
+    >
+      A venir ({{ upcomingBlockedDates().length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'past'"
+      (click)="setActiveTab('past')"
+    >
+      Passees ({{ pastBlockedDates().length }})
+    </button>
+  </div>
+
+  <!-- Content Section -->
+  <div class="content">
+    <h2 class="section-title">{{ sectionTitle() }}</h2>
+
+    <!-- Loading Spinner -->
+    <app-loading-spinner
+      *ngIf="loading()"
+      [size]="'medium'"
+      [message]="'Chargement des dates bloquees...'"
+      [color]="'primary'"
+    ></app-loading-spinner>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="!loading() && currentBlockedDates().length === 0"
+      class="empty-state"
+    >
+      <div class="empty-icon">📅</div>
+      <p>Aucune date bloquee dans cette categorie</p>
+    </div>
+
+    <!-- Blocked Date Cards Grid -->
+    <div
+      *ngIf="!loading() && currentBlockedDates().length > 0"
+      class="blocked-dates-grid"
+    >
+      <app-blocked-date-card
+        *ngFor="let blockedDate of currentBlockedDates()"
+        [blockedDate]="blockedDate"
+        (update)="onBlockedDateUpdate($event)"
+        (delete)="onBlockedDateDelete($event)"
+      ></app-blocked-date-card>
+    </div>
+  </div>
+</div>

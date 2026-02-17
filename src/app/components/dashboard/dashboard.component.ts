@@ -20,6 +20,7 @@ import { UsersComponent } from '../users/users.component';
 import { ProfileComponent } from '../profile/profile.component';
 import { DiscountListComponent } from '../discounts/discount-list/discount-list.component';
 import { ServicesComponent } from '../services/services.component';
+import { BlockedDateListComponent } from '../blocked-dates/blocked-date-list/blocked-date-list.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,6 +38,7 @@ import { ServicesComponent } from '../services/services.component';
     ProfileComponent,
     DiscountListComponent,
     ServicesComponent,
+    BlockedDateListComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -57,6 +59,7 @@ export class DashboardComponent implements OnInit {
     | 'users'
     | 'discounts'
     | 'services'
+    | 'blocked-dates'
     | 'profile'
   >('bookings');
 
@@ -116,6 +119,7 @@ export class DashboardComponent implements OnInit {
     | 'users'
     | 'discounts'
     | 'services'
+    | 'blocked-dates'
     | 'profile' {
     return [
       'bookings',
@@ -127,6 +131,7 @@ export class DashboardComponent implements OnInit {
       'users',
       'discounts',
       'services',
+      'blocked-dates',
       'profile',
     ].includes(view);
   }
@@ -150,6 +155,8 @@ export class DashboardComponent implements OnInit {
         return 'Réductions';
       case 'services':
         return 'Services';
+      case 'blocked-dates':
+        return 'Dates Bloquees';
       case 'profile':
         return 'Profil';
       default:
@@ -237,6 +244,14 @@ export class DashboardComponent implements OnInit {
       this.viewType.set('services');
     } else {
       this.router.navigate(['/dashboard/services']);
+    }
+  }
+  switchToBlockedDates() {
+    this.hapticFeedback();
+    if (this.authService.isWebView()) {
+      this.viewType.set('blocked-dates');
+    } else {
+      this.router.navigate(['/dashboard/blocked-dates']);
     }
   }
   switchToProfile() {

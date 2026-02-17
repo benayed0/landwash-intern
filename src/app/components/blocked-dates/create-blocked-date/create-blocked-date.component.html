@@ -1,0 +1,79 @@
+<div class="modal-content create-blocked-date-modal">
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2 mat-dialog-title>Creer une Date Bloquee</h2>
+    <button mat-icon-button class="close-btn" (click)="onCancel()" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Modal Body -->
+  <div mat-dialog-content class="modal-body">
+    <form [formGroup]="blockedDateForm" (ngSubmit)="onSubmit()">
+      <!-- Date Range Section -->
+      <div class="form-section">
+        <h3>Periode Bloquee</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Periode</mat-label>
+            <mat-date-range-input [rangePicker]="rangePicker">
+              <input matStartDate formControlName="startDate" placeholder="Date de debut" />
+              <input matEndDate formControlName="endDate" placeholder="Date de fin" />
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+            <mat-date-range-picker #rangePicker></mat-date-range-picker>
+            <mat-error *ngIf="isFieldInvalid('startDate')">
+              La date de debut est requise
+            </mat-error>
+            <mat-error *ngIf="!isFieldInvalid('startDate') && isFieldInvalid('endDate')">
+              La date de fin est requise
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Reason Section -->
+      <div class="form-section">
+        <h3>Raison</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Raison (optionnel)</mat-label>
+            <input
+              matInput
+              formControlName="reason"
+              placeholder="Ex: Vacances, Maintenance..."
+            />
+            <mat-hint>Ajoutez une raison pour cette periode bloquee</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal Footer -->
+  <div mat-dialog-actions class="modal-footer">
+    <button
+      mat-stroked-button
+      type="button"
+      class="cancel-btn"
+      (click)="onCancel()"
+      [disabled]="isSubmitting()"
+    >
+      Annuler
+    </button>
+    <button
+      mat-raised-button
+      type="submit"
+      class="submit-btn"
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="isSubmitting() || blockedDateForm.invalid"
+    >
+      <mat-icon *ngIf="isSubmitting()">
+        <mat-spinner diameter="20"></mat-spinner>
+      </mat-icon>
+      <mat-icon *ngIf="!isSubmitting()">check</mat-icon>
+      {{ isSubmitting() ? "Creation..." : "Creer" }}
+    </button>
+  </div>
+</div>

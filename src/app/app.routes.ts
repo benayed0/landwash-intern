@@ -104,6 +104,11 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'dashboard/blocked-dates',
+    component: DashboardComponent,
+    canActivate: [adminGuard],
+  },
+  {
     path: 'dashboard/profile',
     component: DashboardComponent,
   },

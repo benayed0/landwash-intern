@@ -112,6 +112,16 @@
           >Services</span
         >
       </button>
+      <button
+        class="nav-item"
+        [class.active]="viewType() === 'blocked-dates'"
+        (click)="switchToBlockedDates()"
+      >
+        <span class="nav-icon">🚫</span>
+        <span class="nav-label" [class.hidden]="sidebarCollapsed()"
+          >Dates Bloquees</span
+        >
+      </button>
       }
       <button
         class="nav-item"
@@ -188,6 +198,10 @@
     <!-- Services View -->
     <div class="view-container" [class.active]="viewType() === 'services'">
       <app-services *ngIf="viewType() === 'services'"></app-services>
+    </div>
+    <!-- Blocked Dates View -->
+    <div class="view-container" [class.active]="viewType() === 'blocked-dates'">
+      <app-blocked-date-list *ngIf="viewType() === 'blocked-dates'"></app-blocked-date-list>
     </div>
   </div>
 </div>
