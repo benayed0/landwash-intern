@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://landwash-api.onrender.com',
+  apiUrl: 'https://api.landwash.tn',
   // Add other environment-specific variables here
 };
