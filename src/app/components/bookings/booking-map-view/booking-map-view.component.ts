@@ -62,20 +62,20 @@ export class BookingMapViewComponent implements AfterViewInit, OnDestroy, OnChan
 
   ngAfterViewInit() {
     this.initializeMap();
-    this.previousBookingIds = this.bookings.map((b) => b._id).sort();
+    this.previousBookingIds = this.bookings.map((b) => b._id ?? '').sort();
     this.renderMarkers();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['bookings'] && this.map) {
       const currentIds = this.bookings
-        .map((b) => b._id)
+        .map((b) => b._id ?? '')
         .sort()
         .join(',');
       const previousIds = this.previousBookingIds.join(',');
 
       if (currentIds !== previousIds) {
-        this.previousBookingIds = this.bookings.map((b) => b._id).sort();
+        this.previousBookingIds = this.bookings.map((b) => b._id ?? '').sort();
         this.renderMarkers();
       }
     }
