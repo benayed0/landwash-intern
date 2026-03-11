@@ -31,6 +31,8 @@ export class BookingMapViewComponent implements AfterViewInit, OnDestroy, OnChan
   private map!: L.Map;
   private markersLayer = L.layerGroup();
   private labelService = inject(LabelService);
+  private previousBookingIds: string[] = [];
+  private hasFittedBounds = false;
 
   private statusColors: Record<string, string> = {
     pending: '#f59e0b',
@@ -60,12 +62,22 @@ export class BookingMapViewComponent implements AfterViewInit, OnDestroy, OnChan
 
   ngAfterViewInit() {
     this.initializeMap();
+    this.previousBookingIds = this.bookings.map((b) => b._id).sort();
     this.renderMarkers();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['bookings'] && this.map) {
-      this.renderMarkers();
+      const currentIds = this.bookings
+        .map((b) => b._id)
+        .sort()
+        .join(',');
+      const previousIds = this.previousBookingIds.join(',');
+
+      if (currentIds !== previousIds) {
+        this.previousBookingIds = this.bookings.map((b) => b._id).sort();
+        this.renderMarkers();
+      }
     }
   }
 
@@ -161,7 +173,8 @@ export class BookingMapViewComponent implements AfterViewInit, OnDestroy, OnChan
       bounds.extend([lat, lng]);
     });
 
-    if (bounds.isValid()) {
+    if (bounds.isValid() && !this.hasFittedBounds) {
+      this.hasFittedBounds = true;
       this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
     }
   }
