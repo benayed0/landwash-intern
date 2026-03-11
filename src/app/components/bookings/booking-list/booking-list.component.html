@@ -3,9 +3,15 @@
     <div>
       <h1>Réservations</h1>
     </div>
-    <button class="add-order-btn" (click)="openAddBookingModal()">
-      <span class="btn-icon">+</span>
-    </button>
+    <div class="header-actions">
+      <button class="view-toggle-btn" (click)="toggleViewMode()">
+        <span class="toggle-icon">{{ viewMode === 'list' ? '🗺️' : '📋' }}</span>
+        <span class="toggle-text">{{ viewMode === 'list' ? 'Carte' : 'Liste' }}</span>
+      </button>
+      <button class="add-order-btn" (click)="openAddBookingModal()">
+        <span class="btn-icon">+</span>
+      </button>
+    </div>
   </div>
 
   <div class="content" [class.platform-ios]="isIOS">
@@ -109,28 +115,38 @@
     >
     </app-loading-spinner>
 
-    <div *ngIf="!loading && currentBookings.length === 0" class="empty-state">
-      <div class="empty-icon">📋</div>
-      <p>Aucune réservation dans cette catégorie</p>
+    <!-- Map View -->
+    <div *ngIf="!loading && viewMode === 'map'" class="map-view-wrapper">
+      <app-booking-map-view
+        [bookings]="currentBookings"
+        (bookingSelected)="onMapBookingSelected($event)"
+      ></app-booking-map-view>
     </div>
 
-    <div *ngIf="!loading && currentBookings.length > 0 && userRole">
-      <!-- Default View -->
-      <app-booking-card
-        *ngFor="let booking of currentBookings"
-        [booking]="booking"
-        [userRole]="userRole"
-        [showMapsButton]="false"
-        (statusChange)="onStatusChange($event)"
-        (requestComplete)="onRequestComplete($event)"
-        (requestConfirm)="onRequestConfirm($event)"
-        (requestReject)="onRequestReject($event)"
-        (requestReconfirm)="onRequestReconfirm($event)"
-        (requestReassignTeam)="onRequestReassignTeam($event)"
-        (requestStartProgress)="onRequestStartProgress($event)"
-        (bookingUpdate)="onBookingUpdate($event)"
-      >
-      </app-booking-card>
-    </div>
+    <!-- List View -->
+    <ng-container *ngIf="viewMode === 'list'">
+      <div *ngIf="!loading && currentBookings.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>Aucune réservation dans cette catégorie</p>
+      </div>
+
+      <div *ngIf="!loading && currentBookings.length > 0 && userRole">
+        <app-booking-card
+          *ngFor="let booking of currentBookings"
+          [booking]="booking"
+          [userRole]="userRole"
+          [showMapsButton]="false"
+          (statusChange)="onStatusChange($event)"
+          (requestComplete)="onRequestComplete($event)"
+          (requestConfirm)="onRequestConfirm($event)"
+          (requestReject)="onRequestReject($event)"
+          (requestReconfirm)="onRequestReconfirm($event)"
+          (requestReassignTeam)="onRequestReassignTeam($event)"
+          (requestStartProgress)="onRequestStartProgress($event)"
+          (bookingUpdate)="onBookingUpdate($event)"
+        >
+        </app-booking-card>
+      </div>
+    </ng-container>
   </div>
 </div>

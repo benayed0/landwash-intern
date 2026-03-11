@@ -17,6 +17,7 @@ import { Booking, BookingStatus } from '../../../models/booking.model';
 import { Team } from '../../../models/team.model';
 import { Personal, Role } from '../../../models/personal.model';
 import { BookingCardComponent } from '../booking-card/booking-card.component';
+import { BookingMapViewComponent } from '../booking-map-view/booking-map-view.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { RejectConfirmModalComponent } from '../reject-confirm-modal/reject-confirm-modal.component';
 import { CreateBookingComponent } from '../create-booking/create-booking.component';
@@ -44,6 +45,7 @@ import { A11yModule } from '@angular/cdk/a11y';
     FormsModule,
     ReactiveFormsModule,
     BookingCardComponent,
+    BookingMapViewComponent,
     LoadingSpinnerComponent,
     UserFilterSelectComponent,
     FilterSelectComponent,
@@ -62,6 +64,7 @@ export class BookingListComponent implements OnInit {
   dialog = inject(MatDialog);
 
   activeTab = 'pending';
+  viewMode: 'list' | 'map' = 'list';
   loading = false;
   operationLoading: { [key: string]: boolean } = {};
   filtersExpanded = false;
@@ -368,6 +371,14 @@ export class BookingListComponent implements OnInit {
         return '';
     }
   }
+  toggleViewMode() {
+    this.viewMode = this.viewMode === 'list' ? 'map' : 'list';
+  }
+
+  onMapBookingSelected(bookingId: string) {
+    this.openViewBookingModal(bookingId);
+  }
+
   openAddBookingModal() {
     const dialogRef = this.dialog.open(CreateBookingComponent, {
       width: '800px',

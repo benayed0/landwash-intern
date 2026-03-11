@@ -862,6 +862,19 @@
   transform: scale(0.95);
 }
 
+/* Map View Wrapper */
+.map-view-wrapper {
+  height: calc(100vh - 220px);
+  min-height: 400px;
+}
+
+@media (max-width: 828px) {
+  .map-view-wrapper {
+    height: calc(100vh - 200px);
+    min-height: 350px;
+  }
+}
+
 @media (max-width: 480px) {
   .searchable-select {
     margin-bottom: 10px;
