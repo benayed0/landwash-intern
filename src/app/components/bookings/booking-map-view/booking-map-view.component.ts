@@ -82,6 +82,11 @@ export class BookingMapViewComponent implements AfterViewInit, OnDestroy, OnChan
 
     this.map = L.map(this.mapContainer.nativeElement, {
       zoomControl: false,
+      dragging: true,
+      touchZoom: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      boxZoom: true,
     }).setView([defaultLat, defaultLng], 10);
 
     // Add zoom control to bottom-right
