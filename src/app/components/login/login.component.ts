@@ -7,8 +7,10 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { Capacitor } from '@capacitor/core';
+import { HotToastService } from '@ngneat/hot-toast';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +23,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toast = inject(HotToastService);
   isIOS = Capacitor.getPlatform() === 'ios';
 
   loginForm: FormGroup;
@@ -110,9 +113,85 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.error = err.error?.message || 'Email ou mot de passe incorrect';
+        console.error('🔑 Login error:', err);
+        const { inline, toast } = this.buildLoginErrorMessage(err);
+        this.error = inline;
+        this.toast.error(toast, { duration: 6000 });
       },
     });
+  }
+
+  private buildLoginErrorMessage(err: unknown): {
+    inline: string;
+    toast: string;
+  } {
+    const httpErr = err as HttpErrorResponse | undefined;
+    const status = httpErr?.status;
+    const backendMessage = this.extractBackendMessage(httpErr);
+
+    if (status === 0) {
+      return {
+        inline: 'Impossible de joindre le serveur',
+        toast:
+          "Impossible de joindre le serveur. Vérifiez votre connexion Internet ou réessayez plus tard.",
+      };
+    }
+    if (status === 400) {
+      const msg = backendMessage || 'Requête invalide';
+      return {
+        inline: msg,
+        toast: `Données invalides : ${msg}`,
+      };
+    }
+    if (status === 401) {
+      return {
+        inline: backendMessage || 'Email ou mot de passe incorrect',
+        toast: backendMessage || 'Email ou mot de passe incorrect',
+      };
+    }
+    if (status === 403) {
+      return {
+        inline: backendMessage || 'Accès refusé',
+        toast:
+          backendMessage ||
+          'Accès refusé. Votre compte est peut-être désactivé.',
+      };
+    }
+    if (status === 404) {
+      return {
+        inline: 'Compte introuvable',
+        toast: backendMessage || 'Aucun compte trouvé avec ces identifiants',
+      };
+    }
+    if (status === 429) {
+      return {
+        inline: 'Trop de tentatives',
+        toast:
+          'Trop de tentatives de connexion. Veuillez réessayer dans quelques minutes.',
+      };
+    }
+    if (typeof status === 'number' && status >= 500) {
+      return {
+        inline: 'Erreur du serveur',
+        toast: `Erreur serveur (${status}). ${
+          backendMessage || 'Réessayez plus tard.'
+        }`,
+      };
+    }
+    return {
+      inline: backendMessage || 'Une erreur est survenue',
+      toast:
+        backendMessage ||
+        `Erreur lors de la connexion (code ${status ?? 'inconnu'})`,
+    };
+  }
+
+  private extractBackendMessage(err: HttpErrorResponse | undefined): string {
+    const message = err?.error?.message;
+    if (Array.isArray(message)) return message.join(', ');
+    if (typeof message === 'string') return message;
+    if (typeof err?.error === 'string') return err.error;
+    return '';
   }
 
   get emailError() {
